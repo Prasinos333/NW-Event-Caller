@@ -26,11 +26,14 @@ Alternatively, typing just `/` will bring up the command menu. From there you ca
 > [!WARNING]
 > *New World and/or host servers may have become desynchronized with real-time, therefore the bot could be slightly inaccurate at times.*
 
---------------
-### Dependencies 
+## Dependencies 
 
 [FFmpeg](https://ffmpeg.org/)
 
 [Node](https://nodejs.org/)
 
 [Yarn](https://yarnpkg.com/)
+
+## License
+
+This is completely free and released under the [MIT License](/LICENSE).
