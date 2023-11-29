@@ -1,25 +1,33 @@
-import TimerBot from "./TimerBot.js";
-import MasterBot from "./MasterBot.js";
 import dotenv from "dotenv"
 import path from "path";
+import Bot from "./bots/Bot.js";
+import MasterBot from "./bots/MasterBot.js";
 
 dotenv.config({ path: path.resolve('.env'), override: true });
 
-const env = process.argv[2];
-if (env) {
-    dotenv.config({path: path.resolve(`.env.${ env }`), override: true});
-}
-
 const duration = 1000;
-const bots = JSON.parse(process.env.BOTS);
-const masterBot = JSON.parse(process.env.MASTER_BOT);
+const botsConfig = JSON.parse(process.env.BOTS);
+const masterBotConfig = JSON.parse(process.env.MASTER_BOT);
+const createdBots = [];
 
-const timerBots = [];
-bots.map((props, index) => {
-    setTimeout(() => timerBots.push(new TimerBot(props)), index * duration);
+// Create an array of promises for each Bot creation
+const botPromises = botsConfig.map((props, index) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const newBot = new Bot(props);
+            createdBots.push(newBot);
+            resolve();
+        }, index * duration);
+    });
 });
 
-setTimeout(() => new MasterBot({
-    ...masterBot,
-    bots: timerBots
-}), (bots.length + 1) * duration)
+// Wait for all promises to resolve before creating MasterBot
+Promise.all(botPromises).then(() => {
+    const { name, token } = masterBotConfig;
+    
+    new MasterBot({
+        name: name,
+        token: token,
+        createdBots: createdBots,
+    });
+});

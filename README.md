@@ -1,96 +1,30 @@
-NW_Timerbot
+NW-Event-Caller
 --------------
 
-A free discord bot to call the respawn time of wars in the NEW WORLD game.
-
-![](/demo.gif "Demo")
-
-Installation
---------------
-
-[Install FFmpeg](https://ffmpeg.org/)
-
-[Install Python](https://www.python.org/)
-
-[Install NodeJs](https://nodejs.org/)
-
-[Install Yarn](https://yarnpkg.com/)
-
-Download/Clone this repository.
-
----
-
-[Step by step for Windows](/WINDOWS-STEP.md)
-
-Configuration
---------------
-In the `.env` update values with your data, like the example.
-
-Under **BOTS**, you will have to define:
-- **name**: The name of the bot, used to create an associated log file.
-- **lang**: Choose the bot voice language. (available fr|en)
-- **token**: The token to connect to your discord api bot. [Dev Portal](https://discord.com/developers)
-- **voiceChannelId**: The id of the channel where the bot connects.
-- **textChannelId**: The id of the channel where the control buttons will be sent.
-
-Under **MASTER_BOT**, you will have to define:
-- **token**: The token to connect to your discord api bot. [Dev Portal](https://discord.com/developers)
-- **textChannelId**: The id of the channel where the control buttons will be sent.
-
-Exemple:
-```dotenv
-BOTS: '[
-    {
-        "name":"MyFirstBot",
-        "lang": "en",
-        "token":"my_first_bot_key",
-        "voiceChannelId":"my_first_voice_channel_id",
-        "textChannelId":"my_text_channel_id"
-    },
-    {
-        "name":"MySecondBot",
-        "lang": "en",
-        "token":"my_second_bot_key",
-        "voiceChannelId":"my_second_voice_channel_id",
-        "textChannelId":"my_text_channel_id"
-    }
-]'
-MASTER_BOT: '{
-    "token":"my_master_bot_key",
-    "textChannelId": "my_text_channel_id"
-}'
-```
+A discord bot to call buy times and skulls in invasions and respawn times in wars for the game New World.
 
 USAGE
 ----------
 
-Under the root folder of this repository, launch the following commands:
-- `yarn install` : Install all necessary dependencies.
-- `yarn prod` : Turn on bots.
+Siege windows occur in a 30-minute time slot, such as 8:30-9:00 or 10:00-10:30.
+- Wars have a 15-minute setup and last up to 30 minutes.
+- Invasions have a 10-minute setup phase and last up to 25 minutes.
+From this information, the bot can determine the siege window from when it is launched automatically. To allow for prep time a bot can be started up to 10 minutes prior to the start of the siege window. However, the trade-off is that you cannot start a bot in the last 10 minutes of a war or 5 minutes of an invasion.
 
-Now the bots are ready to help you win your future wars. ⚔️
+To add an `Event Caller` bot use the slash command `/addcaller`, from there you will be prompted to choose the caller type. The two options for `type` are `Invasions` and `Respawns`.
 
-![](/screenshot.png "Screenshot")
+The other command the bot has is `/voiceraffle`. Which prompts the user for the number of users to randomly select from your current voice channel and returns the bulleted list of names in an embed.
 
-HOW IT'S WORK ?
-----------
+Currently, both commands require you to *use them in a text channel the bot has 'send messages' permissions and while you're in a voice channel it has access to*.
 
-The bot uses the clock of the system where it is hosted, so it will be necessary to check that the system is synchronized.
+Warning: New World servers may have become desynchronization with real-time, therefore the bot may be slightly inaccurate from time to time.
+All times are visible in the [config file](/src/config.js).
 
-A war are always in a 30 min slot, like 8:30-9:00 or 10:00-10:30. From this information the bot will be able to automatically determine the time slot when it is launched (example if you launch it at 9:42, the slot will be 9:30-10:00).
+Dependencies 
+--------------
 
-Then it will automatically adjust the respawn time according to the progress of the war.
+[FFmpeg](https://ffmpeg.org/)
 
-You can therefore launch it at any time:
-- Before the war
-- During the war
-- And even launch it again during the war
+[Node](https://nodejs.org/)
 
-Warning: It may happen that the New World servers have a desynchronization with real time, so there may be false respawns from time to time.
-
-All respawning times are visible from the [config file](/src/config.js).
-
-License
-----------
-
-This is completely free and released under the [MIT License](/LICENSE).
+[Yarn](https://yarnpkg.com/)

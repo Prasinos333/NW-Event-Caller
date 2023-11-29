@@ -1,20 +1,27 @@
 {
-  "name": "nw_timerbot",
+  "name": "nw_event_caller",
   "version": "1.0.0",
   "description": "A free discord bot to call the respawn time of wars in the NEW WORLD game.",
-  "type": "module",
   "main": "src/index.js",
-  "author": "BigChicChicken",
+  "type": "module",
+  "author": "Prasinos333",
   "license": "MIT",
   "scripts": {
     "prod": "node src/index.js"
   },
   "dependencies": {
-    "@discordjs/opus": "0.9.*",
+    "@discordjs/opus": "^0.9.0",
+    "@discordjs/rest": "^2.0.0",
     "@discordjs/voice": "0.15.*",
+    "@mapbox/node-pre-gyp": "^1.0.11",
     "discord.js": "13.6.*",
     "dotenv": "16.0.*",
+    "glob": "^10.3.10",
     "libsodium-wrappers": "0.7.*",
+    "node-gyp": "^10.0.1",
+    "node-pre-gyp": "^0.17.0",
+    "opusscript": "^0.0.8",
     "uuid": "9.0.*"
-  }
+  },
+  "keywords": []
 }

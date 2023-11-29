@@ -1,5 +1,5 @@
 /.idea/
 /node_modules/
 /logs/*.log
-/.env.*
 /yarn-error.log
+.env
