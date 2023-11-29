@@ -3,7 +3,7 @@ NW-Event-Caller
 
 A discord bot to call buy times and skulls in invasions and respawn times in wars for the game New World.
 
-USAGE
+Usage
 ----------
 
 Siege windows occur in a 30-minute time slot, such as 8:30-9:00 or 10:00-10:30.
