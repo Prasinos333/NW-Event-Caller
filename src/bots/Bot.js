@@ -111,7 +111,6 @@ class Bot
         const guild = await this.client.guilds.fetch(guild_id);
 
         this.createButtons(textChannelId);
-        this.logger.log(`Start command with type '${ type }' launched in guild: "${ guild_name }"`);
 
         if (guild) {
             this.logger.info(`Attempting to join voice channel "${ voiceChannelName }" in guild: "${ guild_name }"`);
@@ -125,7 +124,6 @@ class Bot
 
             const timer = new Timer(this.name, guild_id, connection, this, type);
             this.timers.push({ guildId: guild_id, timer: timer});
-            this.logger.log(`Calling '${ type }' in voice channel: "${ voiceChannelName }"`);
         }
     }
 

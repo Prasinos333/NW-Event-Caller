@@ -38,6 +38,7 @@ class MasterBot extends Bot {
             if (commandName === 'addcaller') { 
                 const voiceChannel = interaction.member?.voice?.channel;
                 const textChannel = interaction.channel;
+                const guild_name = interaction.member.guild.name;
 
                 if(textChannel instanceof VoiceChannel) {
                     return interaction.reply({ content: 'Error: Cannot start in voice channel chat.', ephemeral: true });
@@ -79,7 +80,7 @@ class MasterBot extends Bot {
 
                 if (hasPerms) {
                     availableBot.eventCall(callerType, interaction);
-                    this.logger.log(`"${ availableBot.name }" calling '${ callerType }' in voice channel: "${ voiceChannel.name }"`);
+                    this.logger.log(`"${ availableBot.name }" calling '${ callerType }' in voice channel "${ voiceChannel.name }" for guild "${ guild_name }"`);
                     return interaction.reply({content: `Adding \`${ availableBot.client.user.username }\` to \`${ voiceChannel.name }\``, ephemeral: true});  
                 } else {
                     return interaction.reply({ content: `Error: ${ availableBot.name } can't send messages to this channel.`, ephemeral: true });
@@ -96,13 +97,11 @@ class MasterBot extends Bot {
 
     getAvailableBot = (currentGuildId) => {
         if (this.isAvailable(currentGuildId)) {
-            this.logger.info(`${this.name} is available!`);
             return this;
         }
 
         for (const bot of this.createdBots) {
             if(bot.isAvailable(currentGuildId)) {
-                this.logger.info(`${ bot.name } is available!`);
                 return bot;
             } 
         }

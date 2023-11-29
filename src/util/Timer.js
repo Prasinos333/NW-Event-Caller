@@ -103,6 +103,7 @@ class Timer
                 if(chrono === 1501) {
                     this.playAudio(this.audio["Invasion_start"]);
                 } else if (chrono <= 0) {
+                    this.logger.info(`Stopping timer (chrono: ${ chrono })`);
                     this.stopTimer();
                     return;
                 } 
@@ -165,7 +166,7 @@ class Timer
         if(this.interval !== null) { // TODO - Bandaid - Function is being called while interval is running. 
             return;
         }
-        
+
         const startTime = this.getStartTime();
         this.logger.info(`Start time: ${ startTime }`);
 
@@ -178,6 +179,7 @@ class Timer
                 if(chrono === 1801) {
                     this.playAudio(this.audio["War_start"]);
                 } else if (chrono <= 0) {
+                    this.logger.info(`Stopping timer (chrono: ${ chrono })`);
                     this.stopTimer();
                     return;
                 }
