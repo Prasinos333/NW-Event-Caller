@@ -14,7 +14,7 @@ const {
 
 class Timer
 {
-    constructor(name, guildID, connection, bot) {
+    constructor(name, guildID, connection, bot, type) {
         this.logger = logger(`${ path.resolve('logs') }/${ name }.log`);
         this.guildID = guildID;
         this.bot = bot;
