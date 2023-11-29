@@ -162,6 +162,10 @@ class Timer
     }
 
     callRespawns = () => {
+        if(this.interval !== null) { // TODO - Bandaid - Function is being called while interval is running. 
+            return;
+        }
+        
         const startTime = this.getStartTime();
         this.logger.info(`Start time: ${ startTime }`);
 
