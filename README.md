@@ -17,7 +17,7 @@ The other command the bot has is `/voiceraffle`. Which prompts the user for the 
 
 Currently, both commands require you to *use them in a text channel the bot has 'send messages' permissions and while you're in a voice channel it has access to*.
 
-Warning: New World servers may have become desynchronization with real-time, therefore the bot may be slightly inaccurate from time to time.
+Warning: New World servers may have become desynchronization with real-time, therefore the bot could be slightly inaccurate at times.
 All times are visible in the [config file](/src/config.js).
 
 Dependencies 
