@@ -16,7 +16,7 @@ All timings are visible in the [config file](/src/config.js).
 
 - `/addcaller <type>`
   - The two options for `type` are `Invasions` and `Respawns`. This will add the next available bot if any, to your current voice channel. 
-- `/voiceraffle <number>`.
+- `/voiceraffle <number>`
   - Randomly selects `number` of users from your current voice channel. Replies with a bulleted list of randomly selected user(s) in an embed.
 
 --------------
