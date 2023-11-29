@@ -71,6 +71,7 @@ class MasterBot extends Bot {
                 
                 const availableBot = this.getAvailableBot(interaction.guildId);
                 if (!availableBot) {
+                    this.logger.warn(`Not enough bots! Bot request in "${ voiceChannel.name }"`);
                     return interaction.reply('Error: No available bots.');
                 }
 

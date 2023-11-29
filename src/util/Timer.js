@@ -86,6 +86,10 @@ class Timer
     }
 
     callInvasion = () => { 
+        if(this.interval !== null) { // TODO - Bandaid - Function is being called while interval is running. 
+            return;
+        }
+
         const startTime = this.getStartTime();
         this.logger.info(`Start time: ${ startTime }`);
 
@@ -169,7 +173,7 @@ class Timer
 
                 if(chrono === 1801) {
                     this.playAudio(this.audio["War_start"]);
-                } else if (chrono === 0) {
+                } else if (chrono <= 0) {
                     this.stopTimer();
                     return;
                 }
