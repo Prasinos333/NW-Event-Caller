@@ -14,12 +14,13 @@ const {
 
 class Timer
 {
-    constructor(name, guildID, connection, bot, type) {
+    constructor(name, guildID, connection, bot, type, buttonData) {
         this.logger = logger(`${ path.resolve('logs') }/${ name }.log`);
         this.guildID = guildID;
         this.bot = bot;
         this.audio = AUDIO(Default_Lang);
         this.interval = null;
+        this.buttonData = buttonData;
         
         this.player = createAudioPlayer({
             behaviors: {
@@ -40,8 +41,12 @@ class Timer
         });
     }
 
-    stopTimer = () => {
+    clearTimerInterval = () => {
         clearInterval(this.interval);
+    }
+
+    stopTimer = () => {
+        this.clearTimerInterval();
         this.bot.stopCommand(this.guildID);
     }
 
@@ -103,8 +108,9 @@ class Timer
                 if(chrono === 1501) {
                     this.playAudio(this.audio["Invasion_start"]);
                 } else if (chrono <= 0) {
-                    this.logger.info(`Stopping timer (chrono: ${ chrono })`);
+                    this.logger.log(`Stopping timer (chrono: ${ chrono })`);
                     this.stopTimer();
+                    this.bot.deleteButton(this.buttonData);
                     return;
                 } 
 
@@ -179,8 +185,9 @@ class Timer
                 if(chrono === 1801) {
                     this.playAudio(this.audio["War_start"]);
                 } else if (chrono <= 0) {
-                    this.logger.info(`Stopping timer (chrono: ${ chrono })`);
+                    this.logger.log(`Stopping timer (chrono: ${ chrono })`);
                     this.stopTimer();
+                    this.bot.deleteButton(this.buttonData);
                     return;
                 }
 

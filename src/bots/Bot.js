@@ -75,7 +75,7 @@ class Bot
                 connection.state.status !== VoiceConnectionStatus.Disconnected) &&
             connection.joinConfig.guildId === guildId
         ) {
-            this.logger.warn(`Voice connection is not destroyed or disconnected for guild id: ${guildId}`);
+            // this.logger.info(`Voice connection is not destroyed or disconnected in guild id: ${guildId}`);
             return false;
         }
 
@@ -110,7 +110,7 @@ class Bot
         const guild_name = interaction.member.guild.name;
         const guild = await this.client.guilds.fetch(guild_id);
 
-        this.createButtons(textChannelId);
+        const buttonData = await this.createButtons(textChannelId);
 
         if (guild) {
             this.logger.info(`Attempting to join voice channel "${ voiceChannelName }" in guild: "${ guild_name }"`);
@@ -122,7 +122,7 @@ class Bot
                 group: this.ID
             });
 
-            const timer = new Timer(this.name, guild_id, connection, this, type);
+            const timer = new Timer(this.name, guild_id, connection, this, type, buttonData);
             this.timers.push({ guildId: guild_id, timer: timer});
         }
     }
@@ -134,7 +134,7 @@ class Bot
 
     removeTimer = (guild_id) => {
         const current = this.timers.find((timer) => timer.guildId === guild_id);
-        current.timer.stopTimer();
+        current.timer.clearTimerInterval();
         this.timers = this.timers.filter((timer) => timer.guildId !== guild_id);
     }
 
@@ -146,6 +146,27 @@ class Bot
             connection?.destroy();
             this.removeTimer(guildId);
         }
+    }
+
+    deleteButton = async (buttonData) => {
+        if(buttonData) {
+            const { textChannelId, messageId } = buttonData;
+
+            if (textChannelId && messageId) {
+                try {
+                    const channel = await this.client.channels.fetch(textChannelId);
+    
+                    if (channel instanceof TextChannel) {
+                        const message = await channel.messages.fetch(messageId);
+                        if (message) {
+                            await message.delete();
+                        }
+                    }
+                } catch (error) {
+                    this.logger.error(`Error deleting button in text channel: ${ textChannelId } - ${ error.message }`);
+                }
+            }
+        }  
     }
 
     deleteButtons = async (textChannelId) => {
@@ -170,42 +191,56 @@ class Bot
     }
 
     createButtons = async (textChannelId) => {  
-        await this.deleteButtons(textChannelId);
-
-        this.client.guilds.cache.forEach(async (guild) => {
-                const channel = guild.channels.cache.get(textChannelId);
-                if (channel instanceof TextChannel) {
-                    this.logger.log(`Creating buttons in: "${ channel.name }" for "${ guild.name }"`)
-                    const stopButton = new MessageButton({
-                        customId: uuidv4(),
-                        label: 'Stop',
-                        style: 'DANGER',
-                        emoji: '✋'
-                    });
-
-                    await channel.send({
-                        components: [
-                            new MessageActionRow().addComponents([
-                                stopButton
-                            ])
-                        ]
-                    });
-
-                    const collector = channel.createMessageComponentCollector();
-                    collector.on('collect', (interaction) => {
-                        const { componentType, customId } = interaction;
-
-                        if (componentType === 'BUTTON') {
-                            switch (customId) {
-                                case stopButton.customId:
-                                    this.stopCommand(interaction.guildId);
-                                    interaction.message.delete();
-                                    break;
+        return new Promise(async (resolve, reject) => {
+            let messageId;
+    
+            try {
+                this.client.guilds.cache.forEach(async (guild) => {
+                    const channel = guild.channels.cache.get(textChannelId);
+                    if (channel instanceof TextChannel) {
+                        this.logger.log(`Creating buttons in: "${channel.name}" for "${guild.name}"`)
+                        const stopButton = new MessageButton({
+                            customId: uuidv4(),
+                            label: 'Stop',
+                            style: 'DANGER',
+                            emoji: '✋'
+                        });
+    
+                        const message = await channel.send({
+                            components: [
+                                new MessageActionRow().addComponents([
+                                    stopButton
+                                ])
+                            ]
+                        });
+    
+                        messageId = message.id;
+    
+                        const collector = channel.createMessageComponentCollector();
+                        collector.on('collect', (interaction) => {
+                            const { componentType, customId } = interaction;
+    
+                            if (componentType === 'BUTTON') {
+                                switch (customId) {
+                                    case stopButton.customId:
+                                        this.stopCommand(interaction.guildId);
+                                        interaction.message.delete();
+                                        break;
+                                }
                             }
+                        })
+    
+                        if (messageId) {
+                            resolve({ textChannelId, messageId });
+                        } else {
+                            resolve(null);
                         }
-                    })
-                }
-            })
+                    }
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
 }
 
