@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import logger from "../util/Logger.js";
 import Timer from "../util/Timer.js";
 import { Default_Lang, AUDIO } from "../config.js";
-import Discord, { Intents, MessageActionRow, MessageButton, MessageSelectMenu, TextChannel } from "discord.js";
+import Discord, { GatewayIntentBits, ActionRowBuilder, ButtonBuilder, StringSelectMenuBuilder, TextChannel, ButtonStyle, PermissionsBitField, ComponentType } from "discord.js";
 
 const {
     joinVoiceChannel,
@@ -19,10 +19,10 @@ class Bot
         
         this.client = new Discord.Client({
             intents: [
-                Intents.FLAGS.GUILDS,
-                Intents.FLAGS.GUILD_MEMBERS,
-                Intents.FLAGS.GUILD_MESSAGES,
-                Intents.FLAGS.GUILD_VOICE_STATES
+                GatewayIntentBits.Guilds,
+                GatewayIntentBits.GuildMembers,
+                GatewayIntentBits.GuildMessages,
+                GatewayIntentBits.GuildVoiceStates
             ]
         });
     
@@ -30,7 +30,6 @@ class Bot
         this.token = token;
         this.lang = Default_Lang;
         this.timers = [];
-        this.audio = AUDIO(this.lang); 
         this.logger = logger(`${ path.resolve('logs') }/${ name }.log`);
 
         this.initialise();
@@ -90,7 +89,7 @@ class Bot
             const botPermissions = botMember.permissionsIn(textChannel);
     
             if (botPermissions) {
-                const hasViewAndSendPermissions = botPermissions.has(['VIEW_CHANNEL', 'SEND_MESSAGES']);
+                const hasViewAndSendPermissions = botPermissions.has([PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages]);
                 return hasViewAndSendPermissions;
             } else {
                 this.logger.error(`Unable to retrieve permissions in channel: ${textChannel.id}`);
@@ -203,54 +202,48 @@ class Bot
                     const channel = guild.channels.cache.get(textChannelId);
                     if (channel instanceof TextChannel) {
                         this.logger.log(`Creating buttons in: "${channel.name}" for "${guild.name}"`)
-                        const stopButton = new MessageButton({
-                            customId: uuidv4(),
-                            label: 'Stop',
-                            style: 'DANGER',
-                            emoji: '✋'
-                        });
+                        const stopButton = new ButtonBuilder()
+                            .setCustomId('stop')
+                            .setLabel('Stop')
+                            .setStyle(ButtonStyle.Danger)
+                            .setEmoji('✋');
 
-                        const configSelect = new MessageSelectMenu() // TODO - Create select with 'en_1' and 'en_2' as values.
+                        const configSelect = new StringSelectMenuBuilder() 
                             .setCustomId('select')
-                            .setPlaceholder('Nothing selected')
+                            .setPlaceholder('Change Voice')
                             .addOptions([
                                 {
-                                    label: 'Original EN',
+                                    label: 'Kimberly (EN)',
                                     description: 'The first voice of the bot',
                                     value: `en_1`,
                                 },
                                 {
-                                    label: 'EN 2',
+                                    label: 'Rachel (EN)',
                                     description: 'Provided by JakeL',
                                     value: `en_2`,
                                 }
-                            ])
+                            ]);
     
                         const message = await channel.send({
                             components: [
-                                new MessageActionRow().addComponents(
-                                    stopButton,
-                                    configSelect
-                                )
+                                new ActionRowBuilder().addComponents(configSelect),
+                                new ActionRowBuilder().addComponents(stopButton)
                             ]
                         });
     
                         messageId = message.id;
-    
                         const collector = channel.createMessageComponentCollector();
+
                         collector.on('collect', (interaction) => {
-                            const { componentType, customId } = interaction;
+                            const { componentType } = interaction;
     
-                            if (componentType === 'BUTTON') { 
-                                switch (customId) {
-                                    case stopButton.customId:
-                                        this.stopCommand(interaction.guildId, interaction.user.id);
-                                        interaction.message.delete();
-                                        break;
-                                }
-                            } else if (componentType === "SELECT_MENU") {
-                                this.changeLang(interaction.value);
-                                interaction.reply({content: `Changing \`${ channel.name }\` to \`${ interaction.label }\``, ephemeral: true});
+                            if (componentType === ComponentType.Button) { 
+                                this.stopCommand(interaction.guildId, interaction.user.id);
+                                interaction.message.delete();
+                            } else if (componentType === ComponentType.StringSelect) {
+                                this.changeLang(interaction.values[0], interaction.guildId);
+                                interaction.reply({content: `Changing \`${ channel.name }\` voice to \`${ interaction.values[0] }\``, ephemeral: true});
+                                console.log(interaction);
                             }
                         })
     

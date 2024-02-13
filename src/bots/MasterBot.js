@@ -1,7 +1,7 @@
 import Bot from "./Bot.js";
 import { createRequire } from "module";
-import Discord, { Intents, VoiceChannel } from "discord.js";
 import { execute as voiceraffleExecute } from "../commands/voiceraffle.js"
+import Discord, { GatewayIntentBits, VoiceChannel } from "discord.js"
 
 const {
     getVoiceConnection
@@ -15,10 +15,10 @@ class MasterBot extends Bot {
 
         this.client = new Discord.Client({
             intents: [
-                Intents.FLAGS.GUILDS,
-                Intents.FLAGS.GUILD_MEMBERS,
-                Intents.FLAGS.GUILD_MESSAGES,
-                Intents.FLAGS.GUILD_VOICE_STATES
+                GatewayIntentBits.Guilds,
+                GatewayIntentBits.GuildMembers,
+                GatewayIntentBits.GuildMessages,
+                GatewayIntentBits.GuildVoiceStates
             ]
         });
 
