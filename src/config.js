@@ -1,8 +1,8 @@
 import path from "path";
 
-export const Default_Lang = "en";
+export const Default_Lang = "en_1";
 
-export const AUDIO = (lang = 'en') => ({
+export const AUDIO = (lang = 'en_1') => ({
     '10_second_countdown': path.resolve('src', 'resources', lang, '10_second_countdown.mp3'), // 10.916s
     '15_seconds': path.resolve('src', 'resources', lang, '15_seconds.mp3'), // .957s
     '20_seconds': path.resolve('src', 'resources', lang, '20_seconds.mp3'), // .761s
