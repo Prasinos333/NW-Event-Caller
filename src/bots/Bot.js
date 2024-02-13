@@ -214,7 +214,7 @@ class Bot
                             .addOptions([
                                 {
                                     label: 'Kimberly (EN)',
-                                    description: 'The first voice of the bot',
+                                    description: 'The first and default voice of the bot',
                                     value: `en_1`,
                                 },
                                 {
@@ -241,9 +241,11 @@ class Bot
                                 this.stopCommand(interaction.guildId, interaction.user.id);
                                 interaction.message.delete();
                             } else if (componentType === ComponentType.StringSelect) {
-                                this.changeLang(interaction.values[0], interaction.guildId);
-                                interaction.reply({content: `Changing \`${ channel.name }\` voice to \`${ interaction.values[0] }\``, ephemeral: true});
-                                console.log(interaction);
+                                const newLang = interaction.values[0];
+                                const channelName =channel.name;
+                                this.changeLang(newLang, interaction.guildId);
+                                interaction.reply({content: `Changing \`${ channelName }\` voice to \`${ newLang }\``, ephemeral: true});
+                                this.logger.info(`Changed voice audio in channel: ${ channelName } to `);
                             }
                         })
     
