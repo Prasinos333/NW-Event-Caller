@@ -211,7 +211,7 @@ class Bot
                         });
 
                         const configSelect = new MessageSelectMenu() // TODO - Create select with 'en_1' and 'en_2' as values.
-                            .setCustomId(uuidv4)
+                            .setCustomId('select')
                             .setPlaceholder('Nothing selected')
                             .addOptions([
                                 {
@@ -249,12 +249,8 @@ class Bot
                                         break;
                                 }
                             } else if (componentType === "SELECT_MENU") {
-                                switch (customId) {
-                                    case configSelect.customId:
-                                        this.changeLang(interaction.value);
-                                        interaction.reply({content: `Changing \`${ channel.name }\` to \`${ interaction.label }\``, ephemeral: true});
-                                        break;
-                                }
+                                this.changeLang(interaction.value);
+                                interaction.reply({content: `Changing \`${ channel.name }\` to \`${ interaction.label }\``, ephemeral: true});
                             }
                         })
     
