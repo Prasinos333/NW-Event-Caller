@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import logger from "../util/Logger.js";
 import Timer from "../util/Timer.js";
 import { Default_Lang, AUDIO } from "../config.js";
-import Discord, { Intents, MessageActionRow, MessageButton, MessageSelectMenu, TextChannel } from "discord.js";
+import Discord, { Intents, ActionRowBuilder, MessageButton, MessageSelectMenu, TextChannel } from "discord.js";
 
 const {
     joinVoiceChannel,
@@ -228,7 +228,7 @@ class Bot
     
                         const message = await channel.send({
                             components: [
-                                new MessageActionRow().addComponents([
+                                new ActionRowBuilder().addComponents([
                                     stopButton,
                                     configSelect
                                 ])
