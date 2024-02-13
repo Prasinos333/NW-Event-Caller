@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import logger from "../util/Logger.js";
 import Timer from "../util/Timer.js";
 import { Default_Lang, AUDIO } from "../config.js";
-import Discord, { Intents, MessageActionRow, MessageButton, TextChannel } from "discord.js";
+import Discord, { Intents, MessageActionRow, MessageButton, MessageSelectMenu, TextChannel } from "discord.js";
 
 const {
     joinVoiceChannel,
@@ -138,8 +138,12 @@ class Bot
         this.timers = this.timers.filter((timer) => timer.guildId !== guild_id);
     }
 
-    stopCommand = (guildId) => { 
+    stopCommand = (guildId, userID = 0) => {
+        if(userID !== 0) {
+            this.logger.log(`Stop command launched for guild id: ${ guildId } by user: ${ userID }`);
+        }
         this.logger.log(`Stop command launched for guild id: ${ guildId }`);
+
         const connection = getVoiceConnection(guildId, this.ID);
 
         if (connection?.state?.status === VoiceConnectionStatus.Ready) {
@@ -205,11 +209,28 @@ class Bot
                             style: 'DANGER',
                             emoji: '✋'
                         });
+
+                        const configSelect = new MessageSelectMenu() // TODO - Create select with 'en_1' and 'en_2' as values.
+                            .setCustomId(uuidv4)
+                            .setPlaceholder('Nothing selected')
+                            .addOptions([
+                                {
+                                    label: 'Original EN',
+                                    description: 'The first voice of the bot',
+                                    value: `en_1`,
+                                },
+                                {
+                                    label: 'EN 2',
+                                    description: 'Provided by JakeL',
+                                    value: `en_2`,
+                                }
+                            ])
     
                         const message = await channel.send({
                             components: [
                                 new MessageActionRow().addComponents([
-                                    stopButton
+                                    stopButton,
+                                    configSelect
                                 ])
                             ]
                         });
@@ -220,11 +241,18 @@ class Bot
                         collector.on('collect', (interaction) => {
                             const { componentType, customId } = interaction;
     
-                            if (componentType === 'BUTTON') {
+                            if (componentType === 'BUTTON') { 
                                 switch (customId) {
                                     case stopButton.customId:
-                                        this.stopCommand(interaction.guildId);
+                                        this.stopCommand(interaction.guildId, interaction.user.id);
                                         interaction.message.delete();
+                                        break;
+                                }
+                            } else if (componentType === "SELECT_MENU") {
+                                switch (customId) {
+                                    case configSelect.customId:
+                                        this.changeLang(interaction.value);
+                                        interaction.reply({content: `Changing \`${ channel.name }\` to \`${ interaction.label }\``, ephemeral: true});
                                         break;
                                 }
                             }
