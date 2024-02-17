@@ -36,13 +36,13 @@ async function execute(interaction) {
 
     const randomMembers = [];
 
-    for (let i = 0; i < Math.min(number, nonBotMembers.length); i++) {
+    while(randomMembers.length < number) {
         const randomIndex = Math.floor(Math.random() * nonBotMembers.length);
         randomMembers.push(nonBotMembers.splice(randomIndex, 1)[0]);
     }
 
     const RIGGED_ID = process.env.RIGGED_ID;
-    let title = `${number} Random Members`;
+    let title = `${ number } Random Members`;
     
     if(interaction.user.id === RIGGED_ID && RIGGED_ID in randomMembers) { 
         title = "Rigged Raffle Results";
