@@ -1,4 +1,5 @@
-import Discord from 'discord.js';
+import { EmbedBuilder } from "discord.js";
+
 
 const data = {
     name: "voiceraffle",
@@ -47,7 +48,7 @@ async function execute(interaction) {
         title = "Rigged Raffle Results";
     } 
     
-    const embed = new Discord.MessageEmbed()
+    const embed = new EmbedBuilder()
         .setTitle(title)
         .setColor('#0099ff') // Change the color as needed
         .setDescription(randomMembers.map(member => `• <@${member.id}>`).join('\n'));
