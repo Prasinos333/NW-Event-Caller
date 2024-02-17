@@ -61,7 +61,7 @@ class Bot
         const guild = this.client.guilds.cache.get(guildId);
 
         if (!guild) {
-            this.logger.warn(`Not in server for guild id: ${guildId}`);
+            this.logger.warn(`Not in server for guild id: ${ guildId }`);
             return false;
         }
 
@@ -138,11 +138,16 @@ class Bot
     }
 
     stopCommand = (guildId, userID = 0) => {
-        if(userID !== 0) {
-            this.logger.log(`Stop command launched for guild id: ${ guildId } by user: ${ userID }`);
+        const guild = this.client.guilds.cache.get(guildId);
+        switch(userID) {
+            case 0:
+                this.logger.log(`Stop command launched for guild: "${ guild.name }"`);
+                break;
+            default:
+                this.logger.log(`Stop command launched for guild: "${ guild.name }" by user: ${ userID }`);
+                break;
         }
-        this.logger.log(`Stop command launched for guild id: ${ guildId }`);
-
+        
         const connection = getVoiceConnection(guildId, this.ID);
 
         if (connection?.state?.status === VoiceConnectionStatus.Ready) {
@@ -201,7 +206,7 @@ class Bot
                 this.client.guilds.cache.forEach(async (guild) => {
                     const channel = guild.channels.cache.get(textChannelId);
                     if (channel instanceof TextChannel) {
-                        this.logger.log(`Creating buttons in: "${channel.name}" for "${guild.name}"`)
+                        this.logger.log(`Creating buttons in: "${ channel.name }" for "${ guild.name }"`)
                         const stopButton = new ButtonBuilder()
                             .setCustomId('stop')
                             .setLabel('Stop')
@@ -242,10 +247,11 @@ class Bot
                                 interaction.message.delete();
                             } else if (componentType === ComponentType.StringSelect) {
                                 const newLang = interaction.values[0];
-                                const channelName =channel.name;
+
                                 this.changeLang(newLang, interaction.guildId);
-                                interaction.reply({content: `Changing \`${ channelName }\` voice to \`${ newLang }\``, ephemeral: true});
-                                this.logger.info(`Changed voice audio in channel: ${ channelName } to `);
+                                
+                                interaction.reply({content: `Changed voice to \`${ newLang }\``, ephemeral: true});
+                                this.logger.info(`Changed voice audio in guild: "${ guild.name }" to: \`${ newLang }\` `);
                             }
                         })
     
