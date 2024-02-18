@@ -239,7 +239,7 @@ class Bot
                         messageId = message.id;
                         const collector = channel.createMessageComponentCollector();
 
-                        collector.on('collect', (interaction) => {
+                        collector.on('collect', async (interaction) => {
                             const { componentType } = interaction;
     
                             if (componentType === ComponentType.Button) { 
@@ -250,7 +250,7 @@ class Bot
 
                                 this.changeLang(newLang, interaction.guildId);
                                 
-                                interaction.reply({content: `Changed voice to \`${ newLang }\``, ephemeral: true});
+                                await interaction.reply({content: `Changed voice to \`${ newLang }\``, ephemeral: true});
                                 this.logger.info(`Changed voice audio in guild: "${ guild.name }" to: \`${ newLang }\` `);
                             }
                         })
