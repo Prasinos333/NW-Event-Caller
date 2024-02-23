@@ -161,41 +161,26 @@ class Bot
             const { textChannelId, messageId } = buttonData;
 
             if (textChannelId && messageId) {
-                try {
-                    const channel = await this.client.channels.fetch(textChannelId);
+                const channel = await this.client.channels.fetch(textChannelId);
     
-                    if (channel instanceof TextChannel) {
-                        const message = await channel.messages.fetch(messageId);
-                        if (message) {
-                            await message.delete();
+                if (channel instanceof TextChannel) {
+                    const message = await channel.messages.fetch(messageId)
+                        .catch((err) => {
+                        if (err.httpStatus === 404) {
+                            this.logger.error('Message already deleted');
+                        } else {
+                            this.logger.error(`Error fetching message ${ messageId }`);
+                        }
+                    });
+
+                    if (message) {
+                        await message.delete()
+                            .then(() => this.logger.info('Message deleted successfully'))
+                            .catch((err) => this.logger.error(`Error deleting message ${ messageId }`, err));;
                         }
                     }
-                } catch (error) {
-                    this.logger.error(`Error deleting button in text channel: ${ textChannelId } - ${ error.message }`);
-                }
             }
         }  
-    }
-
-    deleteButtons = async (textChannelId) => {
-        try {
-            const channel = await this.client.channels.fetch(textChannelId);
-    
-            if (channel instanceof TextChannel) {
-                const messages = await channel.messages.fetch({ limit: 50 });
-                const botCompMessages = messages.filter(message =>
-                    message.author.id === this.client.user.id &&
-                    message.components &&
-                    message.components.length > 0
-                );
-    
-                botCompMessages.forEach(async message => {
-                    await message.delete();
-                });
-            }
-        } catch (error) {
-            this.logger.error(`Error deleting buttons in text channel: ${ textChannelId } - ${ error.message }`);
-        } 
     }
 
     createButtons = async (textChannelId) => {  
