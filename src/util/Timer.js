@@ -98,7 +98,7 @@ class Timer
         const startTime = this.getStartTime();
         this.logger.info(`Start time: ${ startTime }`);
 
-        this.playAudio(this.audio["Invasion_notice"]);
+        this.playAudio(this.audio["Invasion Notice"]);
 
         this.interval = setInterval(() => {
             try {
@@ -106,57 +106,17 @@ class Timer
                 const nextTiming = this.getNextTiming(chrono);
 
                 if(chrono === 1501) {
-                    this.playAudio(this.audio["Invasion_start"]);
+                    this.playAudio(this.audio["Invasion Start"]);
                 } else if (chrono <= 0) {
-                    this.logger.log(`Stopping timer (chrono: ${ chrono })`);
+                    this.logger.log('Stopping timer (chrono: %s).', chrono);
                     this.stopTimer();
                     this.bot.deleteButton(this.buttonData);
                     return;
                 } 
 
                 if((chrono - nextTiming?.value) === 1) {
-                    switch(nextTiming.name) {
-                        case "Buy Start":
-                            this.logger.log(`Buy phase starting (chrono: ${ chrono })`);
-                            this.playAudio(this.audio["Buy_phase_start"]);
-                            break;
-                        case "Buy Warn":
-                            this.logger.log(`Buy phase warning (chrono: ${ chrono })`);
-                            this.playAudio(this.audio["Buy_phase_warn_10"]);
-                            break;
-                        case "Buy End":
-                            this.logger.log(`Buy phase ending (chrono: ${ chrono })`);
-                            this.playAudio(this.audio["Buy_phase_end"]);
-                            break;
-                        case "M_Skull Warn":
-                            this.logger.log(`Skull mid warning (chrono: ${ chrono })`);
-                            this.playAudio(this.audio["Skull_warn_mid"]);
-                            break;
-                        case "M_Skull":
-                            this.logger.log(`Skull mid spawning (chrono: ${ chrono })`);
-                            this.playAudio(this.audio["Skull_mid"]);
-                            break;
-                        case "L_Skull Warn":
-                            this.logger.log(`Skull left warning (chrono: ${ chrono })`);
-                            this.playAudio(this.audio["Skull_warn_left"]);
-                            break;
-                        case "L_Skull":
-                            this.logger.log(`Skull left spawning (chrono: ${ chrono })`);
-                            this.playAudio(this.audio["Skull_left"]);
-                            break;
-                        case "R_Skull Warn":
-                            this.logger.log(`Skull right warning (chrono: ${ chrono })`);
-                            this.playAudio(this.audio["Skull_warn_right"]);
-                            break;
-                        case "R_Skull":
-                            this.logger.log(`Skull right spawning (chrono: ${ chrono })`);
-                            this.playAudio(this.audio["Skull_right"]);
-                            break;
-                        case "Last Wave":
-                            this.logger.log(`Final wave spawning (chrono: ${ chrono })`);
-                            this.playAudio(this.audio["Last_Wave"]);
-                            break;
-                    }
+                    this.logger.log(`Playing "${ nextTiming.name }" (chrono: ${ chrono })`);
+                    this.playAudio(this.audio[nextTiming.name]);
                 } 
             } catch (e) {
                 console.error(e);
@@ -176,16 +136,16 @@ class Timer
         const startTime = this.getStartTime();
         this.logger.info(`Start time: ${ startTime }`);
 
-        this.playAudio(this.audio["War_notice"]);
+        this.playAudio(this.audio["War Notice"]);
 
         this.interval = setInterval(() => {
             try {
                 const chrono = 1800 - (this.getCurrentTime() - startTime) / 1000; 
 
                 if(chrono === 1801) {
-                    this.playAudio(this.audio["War_start"]);
+                    this.playAudio(this.audio["War Start"]);
                 } else if (chrono <= 0) {
-                    this.logger.log(`Stopping timer (chrono: ${ chrono })`);
+                    this.logger.log('Stopping timer (chrono: %s).', chrono);
                     this.stopTimer();
                     this.bot.deleteButton(this.buttonData);
                     return;

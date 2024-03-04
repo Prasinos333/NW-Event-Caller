@@ -9,49 +9,49 @@ export const AUDIO = (lang = 'en_1') => ({
     '30_seconds': path.resolve('src', 'resources', lang, '30_seconds.mp3'), // .745s
     '40_seconds': path.resolve('src', 'resources', lang, '40_seconds.mp3'), // .743s
     '50_seconds': path.resolve('src', 'resources', lang, '50_seconds.mp3'), // .745s
-    'Buy_phase_start': path.resolve('src', 'resources', lang, 'Buy_phase_start.mp3'), // 2.853s
-    'Buy_phase_warn_15': path.resolve('src', 'resources', lang, 'Buy_phase_warn_15.mp3'), // 2.443s
-    'Buy_phase_warn_10': path.resolve('src', 'resources', lang, 'Buy_phase_warn_10.mp3'), // 1.991s
+    'Buy Start': path.resolve('src', 'resources', lang, 'Buy_phase_start.mp3'), // 2.853s
+    'Buy War_15': path.resolve('src', 'resources', lang, 'Buy_phase_warn_15.mp3'), // 2.443s
+    'Buy Warn_10': path.resolve('src', 'resources', lang, 'Buy_phase_warn_10.mp3'), // 1.991s
     'Buy_phase_end': path.resolve('src', 'resources', lang, 'Buy_phase_end.mp3'), // 1.092s
-    'Skull_warn_right': path.resolve('src', 'resources', lang, 'Skull_warn_right.mp3'), // 2.406
-    'Skull_warn_mid': path.resolve('src', 'resources', lang, 'Skull_warn_mid.mp3'), // 2.288s
-    'Skull_warn_left': path.resolve('src', 'resources', lang, 'Skull_warn_left.mp3'), // 2.376s
-    'Skull_right': path.resolve('src', 'resources', lang, 'Skull_right.mp3'), // 1.197s
-    'Skull_mid' : path.resolve('src', 'resources', lang, 'Skull_mid.mp3'), // .971s
-    'Skull_left' : path.resolve('src', 'resources', lang, 'Skull_left.mp3'), // 1.128s
+    'R_Skull Warn': path.resolve('src', 'resources', lang, 'Skull_warn_right.mp3'), // 2.406
+    'M_Skull Warn': path.resolve('src', 'resources', lang, 'Skull_warn_mid.mp3'), // 2.288s
+    'L_Skull Warn': path.resolve('src', 'resources', lang, 'Skull_warn_left.mp3'), // 2.376s
+    'R_Skull': path.resolve('src', 'resources', lang, 'Skull_right.mp3'), // 1.197s
+    'M_Skull' : path.resolve('src', 'resources', lang, 'Skull_mid.mp3'), // .971s
+    'L_Skull' : path.resolve('src', 'resources', lang, 'Skull_left.mp3'), // 1.128s
     'Last_Wave' : path.resolve('src', 'resources', lang, 'Last_wave.mp3'), // 1.269s
-    'Invasion_notice' : path.resolve('src', 'resources', lang, 'Invasion_notice.mp3'), // 2.563s
-    'Invasion_start' : path.resolve('src', 'resources', lang, 'Invasion_start.mp3'), // 1.071s
-    'War_notice' : path.resolve('src', 'resources', lang, 'War_notice.mp3'), // 1.64s
-    'War_start' : path.resolve('src', 'resources', lang, 'War_notice.mp3') // .818s
-});
+    'Invasion Notice' : path.resolve('src', 'resources', lang, 'Invasion_notice.mp3'), // 2.563s
+    'Invasion Start' : path.resolve('src', 'resources', lang, 'Invasion_start.mp3'), // 1.071s
+    'War Notice' : path.resolve('src', 'resources', lang, 'War_notice.mp3'), // 1.64s
+    'War Start' : path.resolve('src', 'resources', lang, 'War_notice.mp3') // .818s
+}); // TODO - change names to same as timings.
 
 export const InvasionTimings = [ 
     { name: "Buy Start" , value: 1375 },    // 22:55 Buy Phase 1 Start 
     // { name: "Buy Warn" , value: 1346 },     // 22:26 Buy Phase 1 15 Seconds Warn
-    { name: "Buy Warn" , value: 1341 },     // 22:21 Buy Phase 1 10 Seconds Warn
+    { name: "Buy Warn_10" , value: 1341 },     // 22:21 Buy Phase 1 10 Seconds Warn
     // { name: "Buy End" , value: 1335 },      // 22:15 Buy Phase 1 End
     { name: "Buy Start" , value: 1205 },    // 20:05 Buy Phase 2 Start
     // { name: "Buy Warn" , value: 1176 },     // 19:36 Buy Phase 2 15 Seconds Warn
-    { name: "Buy Warn" , value: 1171 },     // 19:31 Buy Phase 2 10 Seconds Warn
+    { name: "Buy Warn_10" , value: 1171 },     // 19:31 Buy Phase 2 10 Seconds Warn
     // { name: "Buy End" , value: 1165 },      // 19:25 Buy Phase 2 End
     { name: "Buy Start" , value: 1035 },    // 17:15 Buy Phase 3 Start
     // { name: "Buy Warn" , value: 1006 },     // 16:46 Buy Phase 3 15 Seconds Warn
-    { name: "Buy Warn" , value: 1001 },     // 16:41 Buy Phase 3 10 Seconds Warn      
+    { name: "Buy Warn_10" , value: 1001 },     // 16:41 Buy Phase 3 10 Seconds Warn      
     // { name: "Buy End" , value: 995 },       // 16:30 Buy Phase 3 End
     { name: "Buy Start" , value: 845 },     // 14:05 Buy Phase 4 Start
     // { name: "Buy Warn" , value: 816 },      // 13:36 Buy Phase 4 15 Seconds Warn
-    { name: "Buy Warn" , value: 811 },      // 13:31 Buy Phase 4 10 Seconds Warn
+    { name: "Buy Warn_10" , value: 811 },      // 13:31 Buy Phase 4 10 Seconds Warn
     // { name: "Buy End" , value: 805 },       // 13:25 Buy Phase 4 End
     { name: "Buy Start" , value: 655 },     // 10:55 Buy Phase 5 Start
     // { name: "Buy Warn" , value: 626 },      // 10:26 Buy Phase 5 15 Seconds Warn
-    { name: "Buy Warn" , value: 621 },      // 10:21 Buy Phase 5 10 Seconds Warn
+    { name: "Buy Warn_10" , value: 621 },      // 10:21 Buy Phase 5 10 Seconds Warn
     // { name: "Buy End" , value: 615 },       // 10:15 Buy Phase 5 End 
     { name: "M_Skull Warn" , value: 497 },  // 08:17 Skull Mid 15 Seconds Warn
     { name: "M_Skull" , value: 482 },       // 08:02 Skull Mid
     { name: "Buy Start" , value: 465 },     // 07:45 Buy Phase 6 Start
     // { name: "Buy Warn" , value: 436 },      // 07:16 Buy Phase 5 15 Seconds Warn
-    { name: "Buy Warn" , value: 431 },      // 07:11 Buy Phase 5 10 Seconds Warn
+    { name: "Buy Warn_10" , value: 431 },      // 07:11 Buy Phase 5 10 Seconds Warn
     // { name: "Buy End" , value: 425 },       // 07:05 Buy Phase 6 End
     { name: "M_Skull Warn" , value: 407 },  // 06:47 Skull Mid 15 Second Warn
     { name: "M_Skull" , value: 392 },       // 06:32 Skull Mid
@@ -59,7 +59,7 @@ export const InvasionTimings = [
     { name: "L_Skull" , value: 322 },       // 05:22 Skull Left
     { name: "Buy Start" , value: 255 },     // 04:15 Buy Phase 7 Start
     // { name: "Buy Warn" , value: 226 },      // 03:46 Buy Phase 7 15 Seconds Warn
-    { name: "Buy Warn" , value: 221 },      // 03:41 Buy Phase 7 10 Seconds Warn
+    { name: "Buy Warn_10" , value: 221 },      // 03:41 Buy Phase 7 10 Seconds Warn
     // { name: "Buy End" , value: 215 },       // 03:35 Buy Phase 7 End
     { name: "R_Skull Warn" , value: 207 },  // 03:27 Skull Right 15 Seconds Warn
     { name: "R_Skull" , value: 192 },       // 03:12 Skull Right

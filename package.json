@@ -7,7 +7,9 @@
   "author": "Prasinos333",
   "license": "MIT",
   "scripts": {
-    "prod": "node src/index.js"
+    "start": "node ./src/index.js",
+    "prod": "node ./src/index.js",
+    "dev": "nodemon ./src/index.js"
   },
   "dependencies": {
     "@discordjs/voice": "^0.16.1",
