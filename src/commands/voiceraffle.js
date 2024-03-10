@@ -1,37 +1,35 @@
-import { EmbedBuilder } from "discord.js";
+import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
 
 
-const data = {
-    name: "voiceraffle",
-    description: "Chooses random users from your current voice channel.",
-    options: [
-        {
-            name: "number",
-            description: "Number of users to return",
-            type: 4,
-            required: true
-        }
-    ]
-}  
+const data = new SlashCommandBuilder()
+    .setName('voiceraffle')
+    .setDescription(`Chooses random users from your current voice channnel`)
+    .addIntegerOption(option =>
+        option.setName('Integer')
+            .setDescription('Number of users to return')
+            .setRequired(true)
+        ); 
     
-async function execute(interaction) { 
+async function execute(interaction) {
+    await interaction.deferReply({ ephemeral: true }); 
+
     const voiceChannel = interaction.member?.voice?.channel;
 
     if(!voiceChannel) {
-        return interaction.reply({ content: 'Error: You are not currently in a voice channel.', ephemeral: true });
+        return interaction.editReply({ content: 'Error: You are not currently in a voice channel.', ephemeral: true });
     }
 
     const number = interaction.options.getInteger('number');
 
     if(number <= 0) {
-        return interaction.reply({ content: 'Error: Number must be positive', ephemeral: true });
+        return interaction.editReply({ content: 'Error: Number must be positive', ephemeral: true });
     }
 
     const membersArray = Array.from(voiceChannel.members.values());
     const nonBotMembers = membersArray.filter(member => !member.user.bot);
 
     if(number >= nonBotMembers.length) {
-        return interaction.reply({ content: 'Error: Cannot be equal to or greater than amount in channel excluding bots.', ephemeral: true });
+        return interaction.editReply({ content: 'Error: Cannot be equal to or greater than amount in channel excluding bots.', ephemeral: true });
     }
 
     const randomMembers = [];
@@ -52,8 +50,9 @@ async function execute(interaction) {
         .setTitle(title)
         .setColor('#0099ff') // Change the color as needed
         .setDescription(randomMembers.map(member => `• <@${member.id}>`).join('\n'));
-
-    interaction.reply({ embeds: [embed] });
+    
+    interaction.editReply({ content: `Raffle Completed`});
+    interaction.followUp({ embeds: [embed] });
 }
 
 export {
