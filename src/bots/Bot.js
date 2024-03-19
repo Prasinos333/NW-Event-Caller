@@ -176,6 +176,18 @@ class Bot
         }
     }
 
+    handleErrors = (error) => {
+        switch(error) {
+            case 10062:
+                this.logger.error(`Interaction reply error: 'Unknown interaction'`);
+                break;
+            case 10008:
+                this.logger.error(`Message deletion error: 'Unknown message'`);
+            default:
+                this.logger.error('New Error:', error.message);
+        }
+    }
+
     deleteButton = async (buttonData) => {
         if(buttonData) {
             const { textChannelId, messageId } = buttonData;
@@ -196,7 +208,7 @@ class Bot
                     if (message) {
                         await message.delete()
                             .then(() => this.logger.info('Message deleted successfully'))
-                            .catch((err) => this.logger.error(`Error deleting message: \'${ messageId }\'`, err));
+                            .catch((error) => this.handleErrors(error));
                         }
                     }
             }
@@ -266,7 +278,7 @@ class Bot
                                             try {
                                                 await interaction.reply({content: `Changed setting to \`${ state }\``, ephemeral: true});
                                             } catch (error) {
-                                                this.logger.error('Error replying to interaction:', error);
+                                                this.handleErrors(error);
                                             }
                                         };
                                         break;
@@ -276,7 +288,7 @@ class Bot
                                             try {
                                                 await interaction.reply({content: `Changed to wave \`${ wave }\``, ephemeral: true});
                                             } catch (error) {
-                                                this.logger.error('Error replying to interaction:', error);
+                                                this.handleErrors(error);
                                             }
                                         };
                                         break;
@@ -288,13 +300,17 @@ class Bot
                                         break;
                                 }
                             } else if (componentType === ComponentType.StringSelect) {
-                                await interaction.deferReply({ ephemeral: true });
-                                 
-                                const newLang = interaction.values[0];
-                                current.timer.changeLang(newLang);
+                                try {
+                                    await interaction.deferReply({ ephemeral: true });
 
-                                await interaction.editReply({content: `Changed voice to \`${ newLang }\``, ephemeral: true});
-                                this.logger.info(`Changed voice audio in guild: "${ guild.name }" to: \`${ newLang }\` `);
+                                    const newLang = interaction.values[0];
+                                    current.timer.changeLang(newLang);
+
+                                    await interaction.editReply({content: `Changed voice to \`${ newLang }\``, ephemeral: true});
+                                    this.logger.info(`Changed voice audio in guild: "${ guild.name }" to: \`${ newLang }\``);
+                                } catch (error) {
+                                    this.handleErrors(error);
+                                }
                             }
                         })
     
