@@ -1,8 +1,8 @@
 import path from "path";
 
-export const Default_Lang = "en_1";
+export const Default_Lang = "en_2";
 
-export const AUDIO = (lang = 'en_1') => ({
+export const AUDIO = (lang = 'en_2') => ({
     '10_second_countdown': path.resolve('src', 'resources', lang, `war`, '10_second_countdown.mp3'), // 10.916s
     '15_seconds': path.resolve('src', 'resources', lang, `war`, '15_seconds.mp3'), // .957s
     '20_seconds': path.resolve('src', 'resources', lang, `war`, '20_seconds.mp3'), // .761s
@@ -68,6 +68,32 @@ export const InvasionTimings = [
     { name: "M_Skull Warn" , value: 87 },   // 01:27 Skull Mid 15 Seconds Warn
     { name: "M_Skull" , value: 72 },        // 01:12 Skull Mid
     { name: "Last Wave" , value: 50}        // 00:50 Last Spawn Wave
+];
+
+export const invasionOptions = [
+    {
+        label: 'Kimberly (EN)',
+        description: 'The first and default voice of the bot',
+        value: `en_1`,
+    },
+    {
+        label: 'Rachel (EN)',
+        description: 'Provided by JakeL',
+        value: `en_2`,
+    }
+];
+
+export const warOptions = [
+    {
+        label: 'Kimberly (EN)',
+        description: 'The first and default voice of the bot',
+        value: `en_1`,
+    },
+    {
+        label: 'Rachel (EN)',
+        description: 'Provided by JakeL',
+        value: `en_2`,
+    }
 ];
 
 export const Respawns = [
