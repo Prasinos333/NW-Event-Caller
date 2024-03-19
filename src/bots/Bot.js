@@ -2,7 +2,7 @@ import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import logger from "../util/Logger.js";
 import Timer from "../util/Timer.js";
-import db from "../index.js";
+import { db } from "../index.js";
 import { invasionOptions, warOptions } from "../config.js";
 import Discord, { GatewayIntentBits, ActionRowBuilder, ButtonBuilder, StringSelectMenuBuilder, TextChannel, ButtonStyle, PermissionsBitField, ComponentType } from "discord.js";
 import { joinVoiceChannel, VoiceConnectionStatus, getVoiceConnection } from "@discordjs/voice";
@@ -25,7 +25,7 @@ class Bot
         this.token = token;
         this.timers = [];
         this.logger = logger(`${ path.resolve('logs') }/${ name }.log`);
-        this.eventLog = logger(`${ path.resolve('logs') }/${ EventLog }.log`);
+        this.eventLog = logger(`${ path.resolve('logs') }/Events.log`);
 
         this.initialise();
     }
@@ -46,6 +46,10 @@ class Bot
 
                 if (oldId && newId && oldId !== newId) {
                     this.logger.warn('Bot moved voice channels. Stopping...');
+                    const current = this.timers.find((timer) => timer.guildId === oldState.guild.id);
+                    if(current) {
+                        this.deleteButton(current.timer.buttonData);
+                    }
                     this.stopCommand(newState.guild.id);
                 }
             }
@@ -56,7 +60,7 @@ class Bot
         const guild = this.client.guilds.cache.get(guildId);
 
         if (!guild) {
-            this.eventLog.warn(`\'${ name }\' not in server for guild id: \'${ guildId }\'`);
+            this.eventLog.warn(`\'${ this.name }\' not in server for guild id: \'${ guildId }\'`);
             return false;
         }
 
@@ -110,8 +114,7 @@ class Bot
         if (!guild) {
             this.eventLog.error(`Failed to fetch guild`);
             return;
-        }
-        
+        } 
         const timer = new Timer(this.name, guildId, userId, this, options); 
         this.timers.push({ guildId: guildId, timer: timer});
         this.logger.info(`Attempting to join voice channel "${ voiceChannelName }" in guild: "${ guildName }"`);
@@ -125,6 +128,7 @@ class Bot
 
         connection.on(VoiceConnectionStatus.Ready, async () => {
             timer.subscribeTimer(connection);
+            let buttonData;
 
             switch (type) {
                 case 'war':
@@ -141,14 +145,15 @@ class Bot
         });
     }
 
-    removeTimer = (guildId) => {
+    removeTimer = async (guildId) => {
         const current = this.timers.find((timer) => timer.guildId === guildId);
-        current.timer.clearTimerInterval();
-        if(current.timer.configChange) {
-            const options = current.timer.getConfig;
-            const userId = current.timer.getUserId;
-            db.addConfig(userId, options[0], options[1]);
+        if(current.timer.modifiedConfig) {
+            const lang = current.timer.lang;
+            const settings = current.timer.setting;
+            const userId = current.timer.userId;
+            db.addConfig(userId, lang, settings);
         }
+        current.timer.clearTimerInterval();
         this.timers = this.timers.filter((timer) => timer.guildId !== guildId);
     }
 
@@ -220,13 +225,15 @@ class Bot
                             case "war":
                                 additionalButton = new ButtonBuilder()
                                     .setCustomId('waveSwitch')
-                                    .setLabel('Switch Wave');
+                                    .setLabel('Switch Wave')
+                                    .setStyle(ButtonStyle.Secondary);
                                 selectOptions = warOptions;
                                 break;
                             case "invasion":
                                 additionalButton = new ButtonBuilder()
                                     .setCustomId(`invasionLoop`)
-                                    .setLabel(`Change Setting`);
+                                    .setLabel(`Change Setting`)
+                                    .setStyle(ButtonStyle.Secondary);
                                 selectOptions = invasionOptions;
                                 break;
                         }
@@ -255,14 +262,29 @@ class Bot
                                 switch (interaction.customId) {
                                     case "invasionLoop":
                                         const state = current.timer.changeSetting();
-                                        await interaction.Reply({content: `Changed setting to \`${ state }\``, ephemeral: true});
+                                        if (!interaction.replied) {
+                                            try {
+                                                await interaction.reply({content: `Changed setting to \`${ state }\``, ephemeral: true});
+                                            } catch (error) {
+                                                this.logger.error('Error replying to interaction:', error);
+                                            }
+                                        };
                                         break;
                                     case "waveSwitch":
                                         const wave = current.timer.changeWave();
-                                        await interaction.Reply({content: `Changed to wave \`${ wave }\``, ephemeral: true});
+                                        if (!interaction.replied) {
+                                            try {
+                                                await interaction.reply({content: `Changed to wave \`${ wave }\``, ephemeral: true});
+                                            } catch (error) {
+                                                this.logger.error('Error replying to interaction:', error);
+                                            }
+                                        };
                                         break;
                                     case "stop":
                                         this.stopCommand(guildId, interaction.user.id);
+                                        await message.delete() // TODO - Being called twice.
+                                                .then(() => this.logger.info('Message deleted successfully'))
+                                                .catch((err) => this.logger.error(`Error deleting message: \'${ messageId }\'`, err));
                                         break;
                                 }
                             } else if (componentType === ComponentType.StringSelect) {

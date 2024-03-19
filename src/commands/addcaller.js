@@ -83,7 +83,7 @@ async function execute(interaction) {
 
     if (hasPerms) {
         availableBot.eventCall(callerType, interaction);
-        EventLog.log(`"${ availableBot.name }" calling '${ callerType }' in voice channel "${ voiceChannel.name }" for guild "${ guild_name }"`);
+        EventLog.log(`"${ availableBot.name }" calling '${ callerType }' in voice channel "${ voiceChannel.name }" for guild: "${ guild_name }"`);
         return interaction.editReply({content: `Adding \`${ availableBot.client.user.username }\` to \`${ voiceChannel.name }\``, ephemeral: true});  
     } else {
         return interaction.editReply({ content: `Error: \'${ availableBot.client.user.username }\' can't send messages to this channel.`, ephemeral: true });

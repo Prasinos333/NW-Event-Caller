@@ -5,7 +5,7 @@ import { Default_Lang } from "../config.js";
 import { AUDIO, Respawns, InvasionTimings } from "../config.js";
 import { createAudioPlayer, NoSubscriberBehavior, AudioPlayerStatus, createAudioResource } from "@discordjs/voice";
 
-const settings = ["Buy&Skulls", "Buy", "Skulls"];
+const settings = ["Buy&Skulls", "Buy", "Skull"];
 
 class Timer {
     constructor(name, guildID, userId, bot, options) {
@@ -13,8 +13,8 @@ class Timer {
         this.guildID = guildID;
         this.userId = userId;
         this.bot = bot;
-        this.lang = options[0] || Default_Lang;
-        this.setting = options[1] !== null ? options[1] : 0;
+        this.lang = options.Lang || Default_Lang;
+        this.setting = options.Setting !== null ? options.Setting : 0;
         this.audio = AUDIO(this.lang);
         this.interval = null;
         this.buttonData = null;
@@ -34,9 +34,6 @@ class Timer {
 
     subscribeTimer = (connection) => {
         connection.subscribe(this.player);
-
-        const startTime = this.getStartTime();
-        this.logger.info(`Start time: ${ startTime }`);
     }
 
     clearTimerInterval = () => {
@@ -45,6 +42,7 @@ class Timer {
 
     stopTimer = () => {
         this.clearTimerInterval();
+        this.bot.deleteButton(this.buttonData);
         this.bot.stopCommand(this.guildID);
     }
 
@@ -56,19 +54,6 @@ class Timer {
     changeOptions = (setting) => {
         this.setting = setting;
         this.modifiedConfig = true;
-    }
-
-    getUserId = () => {
-        return this.userId;
-    }
-
-    getConfig = () => {
-        const options = [ this.lang, this.setting ];
-        return options;
-    }
-
-    configChange = () => {
-        return this.modifiedConfig;
     }
 
     changeWave = () => {
@@ -132,6 +117,8 @@ class Timer {
             return;
         }
 
+        const startTime = this.getStartTime();
+        this.logger.info(`Start time: ${ startTime }`);
         this.playAudio(this.audio["Invasion Notice"]);
 
         this.interval = setInterval(() => {
@@ -169,11 +156,14 @@ class Timer {
             return;
         }
 
+        const startTime = this.getStartTime();
+        this.logger.info(`Start time: ${ startTime }`);
         this.playAudio(this.audio["War Notice"]);
 
         this.interval = setInterval(() => {
             try {
                 const chrono = 1800 - (this.getCurrentTime() - startTime) / 1000; 
+                const nextRespawn = this.getNextTiming(chrono);
 
                 if(chrono === 1801) {
                     this.playAudio(this.audio["War Start"]);
@@ -183,8 +173,8 @@ class Timer {
                     this.bot.deleteButton(this.buttonData);
                     return;
                 }
-
-                switch (chrono - this.getNextRespawn(chrono)) {
+                
+                switch (chrono - nextRespawn?.value) {
                     case 11:
                         this.logger.log('10 seconds remaining (chrono: %s).', chrono);
                         this.playAudio(this.audio["10_second_countdown"]);
