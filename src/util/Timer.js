@@ -48,11 +48,7 @@ class Timer {
 
     changeLang = (lang) => {
         this.audio = AUDIO(lang);
-        this.modifiedConfig = true;
-    }
-
-    changeOptions = (setting) => {
-        this.setting = setting;
+        this.lang = lang;
         this.modifiedConfig = true;
     }
 
@@ -73,6 +69,7 @@ class Timer {
         if(this.setting >= 3) {
             this.setting = 0;
         }
+        this.modifiedConfig = true;
         return settings[this.setting];
     }
 
