@@ -10,7 +10,7 @@ export const AUDIO = (lang = 'en_2') => ({
     '40_seconds': path.resolve('src', 'resources', lang, `war`, '40_seconds.mp3'), // .743s
     '50_seconds': path.resolve('src', 'resources', lang, `war`, '50_seconds.mp3'), // .745s
     'War Notice' : path.resolve('src', 'resources', lang, `war`, 'War_notice.mp3'), // 1.64s
-    'War Start' : path.resolve('src', 'resources', lang, `war`, 'War_notice.mp3'), // .818s
+    'War Start' : path.resolve('src', 'resources', lang, `war`, 'War_start.mp3'), // .818s
     'Buy Start': path.resolve('src', 'resources', lang, `invasion`, 'Buy_phase_start.mp3'), // 2.853s
     'Buy War_15': path.resolve('src', 'resources', lang, `invasion`, 'Buy_phase_warn_15.mp3'), // 2.443s
     'Buy Warn_10': path.resolve('src', 'resources', lang, `invasion`, 'Buy_phase_warn_10.mp3'), // 1.991s
