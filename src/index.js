@@ -10,6 +10,7 @@ const duration = 1000;
 const botsConfig = JSON.parse(process.env.BOTS);
 const masterBotConfig = JSON.parse(process.env.MASTER_BOT);
 const mySqlUrl = process.env.SQL_URL;
+
 export const createdBots = [];
 export const db = new Database(mySqlUrl);
 
@@ -28,11 +29,11 @@ const botPromises = botsConfig.map((props, index) => {
 Promise.all(botPromises).then(() => {
     const { name, token } = masterBotConfig;
     
-    new MasterBot({
+    const masterBot = new MasterBot({
         name: name,
         token: token,
         createdBots: createdBots,
     });
 
-    createdBots.push(MasterBot);
+    createdBots.unshift(masterBot);
 });
