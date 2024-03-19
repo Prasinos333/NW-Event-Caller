@@ -21,7 +21,8 @@ const data = new SlashCommandBuilder()
 
 async function execute(interaction) {
     await interaction.deferReply({ ephemeral: true }); 
-
+    const EventLog = logger(`${ path.resolve('logs') }/Events.log`);
+ 
     const voiceChannel = interaction.member?.voice?.channel;
     const textChannel = interaction.channel;
     const guild_name = interaction.member.guild.name;
@@ -64,7 +65,7 @@ async function execute(interaction) {
         return interaction.editReply({ content: 'Error: Voice channel currently has active bot. Press stop to change type', ephemeral: true });
     }
     
-    const EventLog = logger(`${ path.resolve('logs') }/Events.log`);
+   
 
     let availableBot = null;
     for (const bot of createdBots) {
@@ -79,14 +80,15 @@ async function execute(interaction) {
         return interaction.editReply({ content: 'Error: No available bots.', ephemeral: true });
     }
 
-    const hasPerms = await availableBot.hasPerms(textChannel);
+    const hasTextPerms = await availableBot.hasPerms(textChannel);
+    const hasVoicePerms = await availableBot.hasPerms(voiceChannel);
 
-    if (hasPerms) {
+    if (hasTextPerms && hasVoicePerms) {
         availableBot.eventCall(callerType, interaction);
         EventLog.log(`"${ availableBot.name }" calling '${ callerType }' in voice channel "${ voiceChannel.name }" for guild: "${ guild_name }"`);
         return interaction.editReply({content: `Adding \`${ availableBot.client.user.username }\` to \`${ voiceChannel.name }\``, ephemeral: true});  
     } else {
-        return interaction.editReply({ content: `Error: \'${ availableBot.client.user.username }\' can't send messages to this channel.`, ephemeral: true });
+        return interaction.editReply({ content: `Error: \`${ availableBot.client.user.username }\` doesn't have permissions for the voice or text channel.`, ephemeral: true });
     }
 }
 

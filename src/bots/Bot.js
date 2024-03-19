@@ -6,6 +6,7 @@ import { db } from "../index.js";
 import { invasionOptions, warOptions } from "../config.js";
 import Discord, { GatewayIntentBits, ActionRowBuilder, ButtonBuilder, StringSelectMenuBuilder, TextChannel, ButtonStyle, PermissionsBitField, ComponentType } from "discord.js";
 import { joinVoiceChannel, VoiceConnectionStatus, getVoiceConnection } from "@discordjs/voice";
+import { channel } from "diagnostics_channel";
 
 class Bot
 {
@@ -80,15 +81,15 @@ class Bot
         return true;
     }
     
-    hasPerms = async (textChannel) => { 
+    hasPerms = async (Channel) => { 
         try {
-            const guild = textChannel.guild;
+            const guild = Channel.guild;
             await guild.members.fetch();
             const botMember = guild.members.cache.get(this.client.user.id);
-            const botPermissions = botMember.permissionsIn(textChannel);
+            const botPermissions = botMember.permissionsIn(Channel);
     
             if (botPermissions) {
-                const hasViewAndSendPermissions = botPermissions.has([PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages]);
+                const hasViewAndSendPermissions = botPermissions.has([PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.Connect]);
                 return hasViewAndSendPermissions;
             } else {
                 this.eventLog.error(`Unable to retrieve permissions in channel: \'${ textChannel.id }\' for "${ guild.name }"`);
@@ -266,53 +267,39 @@ class Bot
                         const collector = channel.createMessageComponentCollector();
 
                         collector.on('collect', async (interaction) => {
+                            await interaction.deferReply({ ephemeral: true });
                             const { componentType } = interaction;
                             const guildId = interaction.guildId;
                             const current = this.timers.find((timer) => timer.guildId === guildId);
-    
-                            if (componentType === ComponentType.Button) {
-                                switch (interaction.customId) {
-                                    case "invasionLoop":
-                                        const state = current.timer.changeSetting();
-                                        if (!interaction.replied) {
-                                            try {
-                                                await interaction.reply({content: `Changed setting to \`${ state }\``, ephemeral: true});
-                                            } catch (error) {
-                                                this.handleErrors(error);
-                                            }
-                                        };
-                                        break;
-                                    case "waveSwitch":
-                                        const wave = current.timer.changeWave();
-                                        if (!interaction.replied) {
-                                            try {
-                                                await interaction.reply({content: `Changed to wave \`${ wave }\``, ephemeral: true});
-                                            } catch (error) {
-                                                this.handleErrors(error);
-                                            }
-                                        };
-                                        break;
-                                    case "stop":
-                                        this.stopCommand(guildId, interaction.user.id);
-                                        await message.delete() // TODO - Being called twice.
-                                                .then(() => this.logger.info('Message deleted successfully'))
-                                                .catch((err) => this.logger.error(`Error deleting message: \'${ messageId }\'`, err));
-                                        break;
-                                }
-                            } else if (componentType === ComponentType.StringSelect) {
-                                try {
-                                    await interaction.deferReply({ ephemeral: true });
 
+                            switch(componentType) {
+                                case ComponentType.Button:
+                                    switch (interaction.customId) {
+                                        case "invasionLoop":
+                                            const state = current.timer.changeSetting();
+                                            await interaction.editReply({content: `Changed setting to \`${ state }\``, ephemeral: true});
+                                            break;
+                                        case "waveSwitch":
+                                            const wave = current.timer.changeWave();
+                                            await interaction.editReply({content: `Changed to wave \`${ wave }\``, ephemeral: true});
+                                            break;
+                                        case "stop":
+                                            this.stopCommand(guildId, interaction.user.id);
+                                            await message.delete() // TODO - Being called twice.
+                                                    .then(() => this.logger.info('Message deleted successfully'))
+                                                    .catch((err) => this.logger.error(`Error deleting message: \'${ messageId }\'`, err));
+                                            break;
+                                    }
+                                    break;
+                                case ComponentType.StringSelect:
                                     const newLang = interaction.values[0];
                                     current.timer.changeLang(newLang);
 
                                     await interaction.editReply({content: `Changed voice to \`${ newLang }\``, ephemeral: true});
                                     this.logger.info(`Changed voice audio in guild: "${ guild.name }" to: \`${ newLang }\``);
-                                } catch (error) {
-                                    this.handleErrors(error);
-                                }
+                                    break;
                             }
-                        })
+                        });
     
                         if (messageId) {
                             resolve({ textChannelId, messageId });
