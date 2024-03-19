@@ -1,11 +1,15 @@
+import path from "path";
+import Bot from "../bots/Bot.js";
 import { SlashCommandBuilder, VoiceChannel } from "discord.js";
 import logger from "../util/Logger.js";
-import { createdBots } from "..";
+import { createdBots } from "../index.js"
+import { getVoiceConnection } from "@discordjs/voice";
+
 
 const data = new SlashCommandBuilder()
     .setName('addcaller')
     .setDescription(`Adds a bot caller to your current voice channel`)
-    .setStringOptions(option =>
+    .addStringOption(option =>
         option.setName(`type`)
             .setDescription(`The type of caller bot to add`)
             .setRequired(true)
@@ -48,12 +52,27 @@ async function execute(interaction) {
         return interaction.editReply({ content: 'Error: Unable to retrieve bot caller type.', ephemeral: true }); 
     }
 
-    if(this.hasBot(voiceChannel)) {
+    let hasbot = false;
+    for (const bot of createdBots) {
+        const connection = getVoiceConnection(voiceChannel.guild.id, bot.ID);
+        if(connection?.joinConfig.channelId === voiceChannel.id) {
+            return true;
+        }
+    }
+
+    if(hasbot) {
         return interaction.editReply({ content: 'Error: Voice channel currently has active bot. Press stop to change type', ephemeral: true });
     }
     
-    const EventLog = logger(`${ path.resolve('logs') }/${ Events }.log`);
-    const availableBot = this.getAvailableBot(interaction.guildId);
+    const EventLog = logger(`${ path.resolve('logs') }/Events.log`);
+
+    let availableBot = null;
+    for (const bot of createdBots) {
+        if(bot instanceof Bot && bot.isAvailable(interaction.guildId)) {
+            availableBot = bot;
+            break;  
+        } 
+    }
     
     if (!availableBot) {
         EventLog.warn(`Not enough bots! Bot request in "${ voiceChannel.name }"`);
@@ -69,27 +88,6 @@ async function execute(interaction) {
     } else {
         return interaction.editReply({ content: `Error: \'${ availableBot.client.user.username }\' can't send messages to this channel.`, ephemeral: true });
     }
-}
-
-getAvailableBot = (currentGuildId) => {
-    for (const bot of createdBots) {
-        if(bot.isAvailable(currentGuildId)) {
-            return bot;
-        } 
-    }
-
-    return null;
-}
-
-hasBot = (voiceChannel) => { 
-    for (const bot of createdBots) {
-        const connection = getVoiceConnection(voiceChannel.guild.id, bot.ID);
-        if(connection?.joinConfig.channelId === voiceChannel.id) {
-            return true;
-        }
-    }
-
-    return false;
 }
 
 export {

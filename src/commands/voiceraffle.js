@@ -5,7 +5,7 @@ const data = new SlashCommandBuilder()
     .setName('voiceraffle')
     .setDescription(`Chooses random users from your current voice channnel`)
     .addIntegerOption(option =>
-        option.setName('Integer')
+        option.setName('integer')
             .setDescription('Number of users to return')
             .setRequired(true)
         ); 
