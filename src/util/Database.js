@@ -27,7 +27,7 @@ class Database {
     async addConfig(userID, lang, type) {
         return new Promise((resolve, reject) => {
             this.connection.query(
-                `INSERT INTO InvasionConfig (UserID, Lang, Setting) VALUES (${ userID }, ${ lang } , ${ type }) ON DUPLICATE KEY UPDATE Lang = VALUES(Lang), Type = VALUES(Type)`,
+                `INSERT INTO InvasionConfig (UserID, Lang, Setting) VALUES (${ userID }, ${ lang } , ${ type }) ON DUPLICATE KEY UPDATE Lang = VALUES(Setting), Type = VALUES(Setting)`,
                 (err, results) => {
                     if (err) reject(err);
                     else resolve(results);
