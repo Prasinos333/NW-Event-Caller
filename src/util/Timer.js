@@ -1,44 +1,42 @@
 import path from "path";
 import fs from "fs";
-import { createRequire } from "module";
 import logger from "../util/Logger.js";
-import { Default_Lang, AUDIO, Respawns, InvasionTimings } from "../config.js";
+import { Default_Lang } from "../config.js";
+import { AUDIO, Respawns, InvasionTimings } from "../config.js";
+import { createAudioPlayer, NoSubscriberBehavior, AudioPlayerStatus, createAudioResource } from "@discordjs/voice";
 
-const {
-    createAudioPlayer,
-    NoSubscriberBehavior,
-    AudioPlayerStatus,
-    createAudioResource,
-    VoiceConnectionStatus
-} = createRequire(import.meta.url)("@discordjs/voice");
+const settings = ["Buy&Skulls", "Buy", "Skulls"];
 
-class Timer
-{
-    constructor(name, guildID, connection, bot, type, buttonData) {
+class Timer {
+    constructor(name, guildID, userId, bot, options) {
         this.logger = logger(`${ path.resolve('logs') }/${ name }.log`);
         this.guildID = guildID;
+        this.userId = userId;
         this.bot = bot;
-        this.audio = AUDIO(Default_Lang);
+        this.lang = options[0] || Default_Lang;
+        this.setting = options[1] !== null ? options[1] : 0;
+        this.audio = AUDIO(this.lang);
         this.interval = null;
-        this.buttonData = buttonData;
+        this.buttonData = null;
+        this.modifiedConfig = false;
+        this.wave = 1;
         
         this.player = createAudioPlayer({
             behaviors: {
                 noSubscriber: NoSubscriberBehavior.Play
             }
         }); 
+    }
 
-        connection.on(VoiceConnectionStatus.Ready, () => {
-            connection.subscribe(this.player);
-            switch (type) {
-                case 'war':
-                    this.callRespawns();
-                    break;
-                case 'invasion':
-                    this.callInvasion();
-                    break;
-            }
-        });
+    changeButtonData = (buttonData) => {
+        this.buttonData = buttonData;
+    }
+
+    subscribeTimer = (connection) => {
+        connection.subscribe(this.player);
+
+        const startTime = this.getStartTime();
+        this.logger.info(`Start time: ${ startTime }`);
     }
 
     clearTimerInterval = () => {
@@ -52,6 +50,45 @@ class Timer
 
     changeLang = (lang) => {
         this.audio = AUDIO(lang);
+        this.modifiedConfig = true;
+    }
+
+    changeOptions = (setting) => {
+        this.setting = setting;
+        this.modifiedConfig = true;
+    }
+
+    getUserId = () => {
+        return this.userId;
+    }
+
+    getConfig = () => {
+        const options = [ this.lang, this.setting ];
+        return options;
+    }
+
+    configChange = () => {
+        return this.modifiedConfig;
+    }
+
+    changeWave = () => {
+        switch (this.wave) {
+            case 1:
+                this.wave = 2;
+                break;
+            case 2:
+                this.wave = 1;
+                break;
+        }
+        return this.wave;
+    }
+
+    changeSetting = () => {
+        this.setting++;
+        if(this.setting >= 3) {
+            this.setting = 0;
+        }
+        return settings[this.setting];
     }
 
     getStartTime = () => { 
@@ -90,13 +127,10 @@ class Timer
         return InvasionTimings.find((timing) => chrono > timing.value);
     }
 
-    callInvasion = () => { 
+    callInvasion = () => {  
         if(this.interval !== null) { // TODO - Bandaid - Function is being called while interval is running. 
             return;
         }
-
-        const startTime = this.getStartTime();
-        this.logger.info(`Start time: ${ startTime }`);
 
         this.playAudio(this.audio["Invasion Notice"]);
 
@@ -115,8 +149,10 @@ class Timer
                 } 
 
                 if((chrono - nextTiming?.value) === 1) {
-                    this.logger.log(`Playing "${ nextTiming.name }" (chrono: ${ chrono })`);
-                    this.playAudio(this.audio[nextTiming.name]);
+                    if(this.setting === 0 || (this.setting > 0 && nextTiming.name.includes(settings[this.setting]))) {
+                        this.logger.log(`Playing "${ nextTiming.name }" (chrono: ${ chrono })`);
+                        this.playAudio(this.audio[nextTiming.name]);
+                    } 
                 } 
             } catch (e) {
                 console.error(e);
@@ -125,16 +161,13 @@ class Timer
     }
 
     getNextRespawn = (chrono) => {
-        return Respawns.find((respawn) => chrono > respawn);
+        return Respawns.find((respawn) => chrono > respawn.value && (respawn.wave === 0 || respawn.wave === this.wave));
     }
 
-    callRespawns = () => {
+    callRespawns = () => { 
         if(this.interval !== null) { // TODO - Bandaid - Function is being called while interval is running. 
             return;
         }
-
-        const startTime = this.getStartTime();
-        this.logger.info(`Start time: ${ startTime }`);
 
         this.playAudio(this.audio["War Notice"]);
 

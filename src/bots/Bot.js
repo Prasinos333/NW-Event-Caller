@@ -1,21 +1,16 @@
 import path from "path";
-import { createRequire } from "module";
 import { v4 as uuidv4 } from "uuid";
 import logger from "../util/Logger.js";
 import Timer from "../util/Timer.js";
-import { Default_Lang, AUDIO } from "../config.js";
+import db from "../index.js";
+import { invasionOptions, warOptions } from "../config.js";
 import Discord, { GatewayIntentBits, ActionRowBuilder, ButtonBuilder, StringSelectMenuBuilder, TextChannel, ButtonStyle, PermissionsBitField, ComponentType } from "discord.js";
-
-const {
-    joinVoiceChannel,
-    VoiceConnectionStatus,
-    getVoiceConnection
-} = createRequire(import.meta.url)("@discordjs/voice");
+import { joinVoiceChannel, VoiceConnectionStatus, getVoiceConnection } from "@discordjs/voice";
 
 class Bot
 {
     constructor({ name, token }) {
-        this.ID = uuidv4();
+        this.uId = uuidv4();
         
         this.client = new Discord.Client({
             intents: [
@@ -28,9 +23,9 @@ class Bot
     
         this.name = name;
         this.token = token;
-        this.lang = Default_Lang;
         this.timers = [];
         this.logger = logger(`${ path.resolve('logs') }/${ name }.log`);
+        this.eventLog = logger(`${ path.resolve('logs') }/${ EventLog }.log`);
 
         this.initialise();
     }
@@ -61,11 +56,11 @@ class Bot
         const guild = this.client.guilds.cache.get(guildId);
 
         if (!guild) {
-            this.logger.warn(`Not in server for guild id: ${ guildId }`);
+            this.eventLog.warn(`\'${ name }\' not in server for guild id: \'${ guildId }\'`);
             return false;
         }
 
-        const connection = getVoiceConnection(guildId, this.ID);
+        const connection = getVoiceConnection(guildId, this.uId);
 
         if (
             connection &&
@@ -92,49 +87,69 @@ class Bot
                 const hasViewAndSendPermissions = botPermissions.has([PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages]);
                 return hasViewAndSendPermissions;
             } else {
-                this.logger.error(`Unable to retrieve permissions in channel: ${textChannel.id}`);
+                this.eventLog.error(`Unable to retrieve permissions in channel: \'${ textChannel.id }\' for "${ guild.name }"`);
                 return false;
             }
         } catch (error) {
-            this.logger.error(`Error checking permissions: ${error}`);
+            this.eventLog.error(`Error checking permissions: ${ error }`);
             return false;
         }
     }
 
-    eventCall = async (type, interaction) => {
+    eventCall = async (type, interaction) => { 
         const textChannelId = interaction.channelId;
         const voiceChannelId = interaction.member.voice.channel.id;
         const voiceChannelName = interaction.member.voice.channel.name;
-        const guild_id = interaction.guildId;
-        const guild_name = interaction.member.guild.name;
-        const guild = await this.client.guilds.fetch(guild_id);
+        const guildId = interaction.guildId;
+        const guildName = interaction.member.guild.name;
+        const userId = interaction.user.id;
+        const guild = await this.client.guilds.fetch(guildId);
+        
+        const options = await db.retrieveConfig(userId); 
 
-        const buttonData = await this.createButtons(textChannelId);
-
-        if (guild) {
-            this.logger.info(`Attempting to join voice channel "${ voiceChannelName }" in guild: "${ guild_name }"`);
-
-            const connection = joinVoiceChannel({
-                channelId: voiceChannelId,
-                guildId: guild_id,
-                adapterCreator: guild.voiceAdapterCreator,
-                group: this.ID
-            });
-
-            const timer = new Timer(this.name, guild_id, connection, this, type, buttonData);
-            this.timers.push({ guildId: guild_id, timer: timer});
+        if (!guild) {
+            this.eventLog.error(`Failed to fetch guild`);
+            return;
         }
+        
+        const timer = new Timer(this.name, guildId, userId, this, options); 
+        this.timers.push({ guildId: guildId, timer: timer});
+        this.logger.info(`Attempting to join voice channel "${ voiceChannelName }" in guild: "${ guildName }"`);
+
+        const connection = joinVoiceChannel({
+            channelId: voiceChannelId,
+            guildId: guildId,
+            adapterCreator: guild.voiceAdapterCreator,
+            group: this.uId
+        });
+
+        connection.on(VoiceConnectionStatus.Ready, async () => {
+            timer.subscribeTimer(connection);
+
+            switch (type) {
+                case 'war':
+                    buttonData = await this.createButtons(textChannelId, type);
+                    timer.changeButtonData(buttonData);
+                    timer.callRespawns();
+                    break;
+                case 'invasion':
+                    buttonData = await this.createButtons(textChannelId, type);
+                    timer.changeButtonData(buttonData);
+                    timer.callInvasion();
+                    break;
+            }
+        });
     }
 
-    changeLang = (lang, guild_id) => {
-        const current = this.timers.find((timer) => timer.guildId === guild_id);
-        current.timer.changeLang(lang);
-    }
-
-    removeTimer = (guild_id) => {
-        const current = this.timers.find((timer) => timer.guildId === guild_id);
+    removeTimer = (guildId) => {
+        const current = this.timers.find((timer) => timer.guildId === guildId);
         current.timer.clearTimerInterval();
-        this.timers = this.timers.filter((timer) => timer.guildId !== guild_id);
+        if(current.timer.configChange) {
+            const options = current.timer.getConfig;
+            const userId = current.timer.getUserId;
+            db.addConfig(userId, options[0], options[1]);
+        }
+        this.timers = this.timers.filter((timer) => timer.guildId !== guildId);
     }
 
     stopCommand = (guildId, userID = 0) => {
@@ -144,11 +159,11 @@ class Bot
                 this.logger.log(`Stop command launched for guild: "${ guild.name }"`);
                 break;
             default:
-                this.logger.log(`Stop command launched for guild: "${ guild.name }" by user: ${ userID }`);
+                this.logger.log(`Stop command launched for guild: "${ guild.name }" by user: \'${ userID }\'`);
                 break;
         }
         
-        const connection = getVoiceConnection(guildId, this.ID);
+        const connection = getVoiceConnection(guildId, this.uId);
 
         if (connection?.state?.status === VoiceConnectionStatus.Ready) {
             connection?.destroy();
@@ -169,21 +184,21 @@ class Bot
                         if (err.httpStatus === 404) {
                             this.logger.error('Message already deleted');
                         } else {
-                            this.logger.error(`Error fetching message ${ messageId }`);
+                            this.logger.error(`Error fetching message: \'${ messageId }\'`, err);
                         }
                     });
 
                     if (message) {
                         await message.delete()
                             .then(() => this.logger.info('Message deleted successfully'))
-                            .catch((err) => this.logger.error(`Error deleting message ${ messageId }`, err));;
+                            .catch((err) => this.logger.error(`Error deleting message: \'${ messageId }\'`, err));
                         }
                     }
             }
         }  
     }
 
-    createButtons = async (textChannelId) => {  
+    createButtons = async (textChannelId, type) => { 
         return new Promise(async (resolve, reject) => {
             let messageId;
     
@@ -198,26 +213,33 @@ class Bot
                             .setStyle(ButtonStyle.Danger)
                             .setEmoji('✋');
 
-                        const configSelect = new StringSelectMenuBuilder() 
+                        let additionalButton;
+                        let selectOptions;
+
+                        switch (type) {
+                            case "war":
+                                additionalButton = new ButtonBuilder()
+                                    .setCustomId('waveSwitch')
+                                    .setLabel('Switch Wave');
+                                selectOptions = warOptions;
+                                break;
+                            case "invasion":
+                                additionalButton = new ButtonBuilder()
+                                    .setCustomId(`invasionLoop`)
+                                    .setLabel(`Change Setting`);
+                                selectOptions = invasionOptions;
+                                break;
+                        }
+
+                        const configSelect = new StringSelectMenuBuilder()
                             .setCustomId('select')
                             .setPlaceholder('Change Voice')
-                            .addOptions([
-                                {
-                                    label: 'Kimberly (EN)',
-                                    description: 'The first and default voice of the bot',
-                                    value: `en_1`,
-                                },
-                                {
-                                    label: 'Rachel (EN)',
-                                    description: 'Provided by JakeL',
-                                    value: `en_2`,
-                                }
-                            ]);
+                            .addOptions(selectOptions);
     
                         const message = await channel.send({
                             components: [
                                 new ActionRowBuilder().addComponents(configSelect),
-                                new ActionRowBuilder().addComponents(stopButton)
+                                new ActionRowBuilder().addComponents(stopButton, additionalButton)
                             ]
                         });
     
@@ -226,16 +248,30 @@ class Bot
 
                         collector.on('collect', async (interaction) => {
                             const { componentType } = interaction;
+                            const guildId = interaction.guildId;
+                            const current = this.timers.find((timer) => timer.guildId === guildId);
     
-                            if (componentType === ComponentType.Button) { 
-                                this.stopCommand(interaction.guildId, interaction.user.id);
-                                interaction.message.delete();
+                            if (componentType === ComponentType.Button) {
+                                switch (interaction.customId) {
+                                    case "invasionLoop":
+                                        const state = current.timer.changeSetting();
+                                        await interaction.Reply({content: `Changed setting to \`${ state }\``, ephemeral: true});
+                                        break;
+                                    case "waveSwitch":
+                                        const wave = current.timer.changeWave();
+                                        await interaction.Reply({content: `Changed to wave \`${ wave }\``, ephemeral: true});
+                                        break;
+                                    case "stop":
+                                        this.stopCommand(guildId, interaction.user.id);
+                                        break;
+                                }
                             } else if (componentType === ComponentType.StringSelect) {
+                                await interaction.deferReply({ ephemeral: true });
+                                 
                                 const newLang = interaction.values[0];
+                                current.timer.changeLang(newLang);
 
-                                this.changeLang(newLang, interaction.guildId);
-                                
-                                await interaction.reply({content: `Changed voice to \`${ newLang }\``, ephemeral: true});
+                                await interaction.editReply({content: `Changed voice to \`${ newLang }\``, ephemeral: true});
                                 this.logger.info(`Changed voice audio in guild: "${ guild.name }" to: \`${ newLang }\` `);
                             }
                         })
