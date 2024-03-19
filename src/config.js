@@ -73,7 +73,7 @@ export const InvasionTimings = [
 export const invasionOptions = [
     {
         label: 'Kimberly (EN)',
-        description: 'The first and default voice of the bot',
+        description: 'The first voice of the bot',
         value: `en_1`,
     },
     {
@@ -91,7 +91,7 @@ export const invasionOptions = [
 export const warOptions = [
     {
         label: 'Kimberly (EN)',
-        description: 'The first and default voice of the bot',
+        description: 'The first voice of the bot',
         value: `en_1`,
     },
     {
