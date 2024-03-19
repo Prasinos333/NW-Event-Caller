@@ -7,27 +7,31 @@ class Database {
     }
 
     async initialise(mySqlUrl) {
-        this.connection = await mysql.createConnection(mySqlUrl)
-        .then(() => console.log('Connected to database'))
-        .catch(err => console.log(`Error connecting to database: ${ err }`));
+        try {
+            this.connection = await mysql.createConnection(mySqlUrl);
+        } catch (err) {
+            console.log(err);
+        }
     }
 
-    async retrieveConfig(userID)  {
+    async retrieveConfig(userID) {
         return new Promise((resolve, reject) => {
             this.connection.query(
-                `SELECT Lang, Setting FROM InvasionConfig WHERE UserID = ${ userID }`,
+                'SELECT Lang, Setting FROM InvasionConfig WHERE UserID = ?',
+                [userID],
                 (err, results) => {
                     if (err) reject(err);
-                    else resolve(results);
+                    else resolve(results[0]);
                 }
             );
         });
     } 
 
-    async addConfig(userID, lang, type) {
+    async addConfig(userID, lang, setting) {
         return new Promise((resolve, reject) => {
             this.connection.query(
-                `INSERT INTO InvasionConfig (UserID, Lang, Setting) VALUES (${ userID }, ${ lang } , ${ type }) ON DUPLICATE KEY UPDATE Lang = VALUES(Setting), Type = VALUES(Setting)`,
+                'INSERT INTO InvasionConfig (UserID, Lang, Setting) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE Lang = VALUES(Lang), Setting = VALUES(Setting)',
+                [userID, lang, setting],
                 (err, results) => {
                     if (err) reject(err);
                     else resolve(results);
@@ -37,3 +41,4 @@ class Database {
     }
 }
 
+export default Database;
