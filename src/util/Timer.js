@@ -8,13 +8,13 @@ import { createAudioPlayer, NoSubscriberBehavior, AudioPlayerStatus, createAudio
 const settings = ["Buy&Skulls", "Buy", "Skull"];
 
 class Timer {
-    constructor(name, guildID, userId, bot, options) {
+    constructor(name, guildID, userId, bot) {
         this.logger = logger(`${ path.resolve('logs') }/${ name }.log`);
         this.guildID = guildID;
         this.userId = userId;
         this.bot = bot;
-        this.lang = options.Lang || Default_Lang;
-        this.setting = options.Setting !== null ? options.Setting : 0;
+        this.lang = Default_Lang;
+        this.setting = 0;
         this.audio = AUDIO(this.lang);
         this.interval = null;
         this.buttonData = null;

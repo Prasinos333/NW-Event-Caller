@@ -6,7 +6,6 @@ import { db } from "../index.js";
 import { invasionOptions, warOptions } from "../config.js";
 import Discord, { GatewayIntentBits, ActionRowBuilder, ButtonBuilder, StringSelectMenuBuilder, TextChannel, ButtonStyle, PermissionsBitField, ComponentType } from "discord.js";
 import { joinVoiceChannel, VoiceConnectionStatus, getVoiceConnection } from "@discordjs/voice";
-import { channel } from "diagnostics_channel";
 
 class Bot
 {
@@ -138,8 +137,13 @@ class Bot
                     timer.callRespawns();
                     break;
                 case 'invasion':
+                    const options = await db.retrieveConfig(userId);
                     buttonData = await this.createButtons(textChannelId, type);
                     timer.changeButtonData(buttonData);
+                    if(options) {
+                        timer.setting = options.Setting;
+                    timer.lang = options.Lang;
+                    }
                     timer.callInvasion();
                     break;
             }
