@@ -28,6 +28,12 @@ class Timer {
         }); 
     }
 
+    updateConfig = (options) => {
+        this.audio = AUDIO(options.Lang);
+        this.lang = options.Lang;
+        this.setting = options.Setting;
+    }
+
     changeButtonData = (buttonData) => {
         this.buttonData = buttonData;
     }

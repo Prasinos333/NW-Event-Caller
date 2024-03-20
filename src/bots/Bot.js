@@ -108,14 +108,12 @@ class Bot
         const guildName = interaction.member.guild.name;
         const userId = interaction.user.id;
         const guild = await this.client.guilds.fetch(guildId);
-        
-        const options = await db.retrieveConfig(userId); 
 
         if (!guild) {
             this.eventLog.error(`Failed to fetch guild`);
             return;
         } 
-        const timer = new Timer(this.name, guildId, userId, this, options); 
+        const timer = new Timer(this.name, guildId, userId, this); 
         this.timers.push({ guildId: guildId, timer: timer});
         this.logger.info(`Attempting to join voice channel "${ voiceChannelName }" in guild: "${ guildName }"`);
 
@@ -138,12 +136,9 @@ class Bot
                     break;
                 case 'invasion':
                     const options = await db.retrieveConfig(userId);
+                    timer.updateConfig(options);
                     buttonData = await this.createButtons(textChannelId, type);
                     timer.changeButtonData(buttonData);
-                    if(options) {
-                        timer.setting = options.Setting;
-                    timer.lang = options.Lang;
-                    }
                     timer.callInvasion();
                     break;
             }
@@ -289,6 +284,7 @@ class Bot
                                             break;
                                         case "stop":
                                             this.stopCommand(guildId, interaction.user.id);
+                                            await interaction.deleteReply().catch((err) => this.logger.error(`Error deleting reply:`, err));
                                             await message.delete() // TODO - Being called twice.
                                                     .then(() => this.logger.info('Message deleted successfully'))
                                                     .catch((err) => this.logger.error(`Error deleting message: \'${ messageId }\'`, err));
