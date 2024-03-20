@@ -21,7 +21,7 @@ const data = new SlashCommandBuilder()
 
 async function execute(interaction) {
     await interaction.deferReply({ ephemeral: true }); 
-    const EventLog = logger(`${ path.resolve('logs') }/Events.log`);
+    const EventLog = logger(`${ path.resolve('logs', 'bot') }/Events.log`);
  
     const voiceChannel = interaction.member?.voice?.channel;
     const textChannel = interaction.channel;
