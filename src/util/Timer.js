@@ -180,7 +180,7 @@ class Timer {
                 switch (chrono - nextRespawn?.value) {
                     case 11:
                         this.logger.log('10 seconds remaining (chrono: %s).', chrono);
-                        this.playAudio(this.audio["10_second_countdown"]);
+                        this.playAudio(this.audio["10_second countdown"]);
                         break;
                     
                     case 16:
