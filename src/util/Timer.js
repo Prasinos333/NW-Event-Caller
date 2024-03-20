@@ -9,7 +9,7 @@ const settings = ["Buy&Skulls", "Buy", "Skull"];
 
 class Timer {
     constructor(name, guildID, userId, bot) {
-        this.logger = logger(`${ path.resolve('logs', 'bot') }/${ name }.log`);
+        this.logger = logger(`${ path.resolve('logs', 'bots') }/${ name }.log`);
         this.guildID = guildID;
         this.userId = userId;
         this.bot = bot;

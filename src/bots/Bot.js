@@ -24,8 +24,8 @@ class Bot
         this.name = name;
         this.token = token;
         this.timers = [];
-        this.logger = logger(`${ path.resolve('logs', 'bot') }/${ name }.log`);
-        this.eventLog = logger(`${ path.resolve('logs', 'bot') }/Events.log`);
+        this.logger = logger(`${ path.resolve('logs', 'bots') }/${ name }.log`);
+        this.eventLog = logger(`${ path.resolve('logs', 'bots') }/Events.log`);
 
         this.initialise();
     }
