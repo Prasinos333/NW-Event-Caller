@@ -14,26 +14,32 @@ const mySqlUrl = process.env.SQL_URL;
 export const createdBots = [];
 export const db = new Database(mySqlUrl);
 
-// Create an array of promises for each Bot creation
-const botPromises = botsConfig.map((props, index) => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const newBot = new Bot(props);
-            createdBots.push(newBot);
-            resolve();
-        }, index * duration);
-    });
-});
-
-// Wait for all promises to resolve before creating MasterBot
-Promise.all(botPromises).then(() => {
+const createMasterBot = () => {
     const { name, token } = masterBotConfig;
-    
     const masterBot = new MasterBot({
         name: name,
-        token: token,
-        createdBots: createdBots,
+        token: token
     });
+    createdBots.push(masterBot);
+};
 
-    createdBots.unshift(masterBot);
-});
+// Then, create each Bot sequentially
+const createBotsSequentially = async () => {
+    for (let i = 0; i < botsConfig.length; i++) {
+        await new Promise(resolve => {
+            setTimeout(() => {
+                const newBot = new Bot(botsConfig[i]);
+                createdBots.push(newBot);
+                resolve();
+            }, i * duration);
+        });
+    }
+};
+
+// Main function to control the flow
+const initializeBots = async () => {
+    createMasterBot();
+    await createBotsSequentially();
+};
+
+initializeBots();

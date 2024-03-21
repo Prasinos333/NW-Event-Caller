@@ -29,10 +29,9 @@ class Database {
         this.eventLog.log(`Created Database connection pool.`);
         
         this.pool.on('error', async (err) => {
-            this.eventLog.error('MySQL pool error:', err);
             const now = new Date();
             if ((now - this.lastConnected) / (1000 * 60 * 60) < 8) { // Check if within 8 hours
-                this.eventLog.warn('Attempting to recreate the pool due to error...');
+                this.eventLog.error('Attempting to recreate the pool due to error:', err);
                 await this.reconnect();
             }
         });
@@ -45,7 +44,7 @@ class Database {
 
     isConnected() {
         const now = new Date();
-        return (now - this.lastConnected) / (1000 * 60 * 60) < 4; // Check if within 8 hours
+        return (now - this.lastConnected) / (1000 * 60 * 60) < 4; // Check if within 4 hours
     }
 
     async retrieveConfig(userID) {
