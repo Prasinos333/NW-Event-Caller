@@ -121,7 +121,7 @@ class Timer {
         }
 
         const startTime = this.getStartTime();
-        this.logger.info(`Start time: ${ startTime }`);
+        this.logger.log(`Start time: ${ startTime }`);
         this.playAudio(this.audio["Invasion Notice"]);
 
         this.interval = setInterval(() => {
@@ -144,8 +144,8 @@ class Timer {
                         this.playAudio(this.audio[nextTiming.name]);
                     } 
                 } 
-            } catch (e) {
-                console.error(e);
+            } catch (error) {
+                this.logger.error(`Error calling invasion:`, error);
             }
         }, 1000);
     }
@@ -160,7 +160,7 @@ class Timer {
         }
 
         const startTime = this.getStartTime();
-        this.logger.info(`Start time: ${ startTime }`);
+        this.logger.log(`Start time: ${ startTime }`);
         this.playAudio(this.audio["War Notice"]);
 
         this.interval = setInterval(() => {
@@ -208,8 +208,8 @@ class Timer {
                         this.playAudio(this.audio["50_seconds"]);
                         break;
                 } 
-            } catch (e) {
-                console.error(e);
+            } catch (error) {
+                this.logger.error(`Error calling respawns:`, error);
             }
         }, 1000);
     }

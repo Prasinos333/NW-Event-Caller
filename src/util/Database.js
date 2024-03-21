@@ -56,7 +56,7 @@ class Database {
             );
             return results[0];
         } catch (err) {
-            this.eventLog.error(`Error retrieving config:`, err);
+            this.eventLog.error(`Error retrieving config from database:`, err);
             throw err;
         }
     }
@@ -69,7 +69,7 @@ class Database {
             );
             return results;
         } catch (err) {
-            this.eventLog.error(`Error updating config:`, err);
+            this.eventLog.error(`Error updating config in database:`, err);
             throw err;
         }
     }

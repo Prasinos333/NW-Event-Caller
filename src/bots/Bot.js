@@ -73,7 +73,7 @@ class Bot
                 connection.state.status !== VoiceConnectionStatus.Disconnected) &&
             connection.joinConfig.guildId === guildId
         ) {
-            // this.logger.info(`Voice connection is not destroyed or disconnected in guild id: ${guildId}`);
+            // this.logger.warn(`Voice connection is not destroyed or disconnected in guild id: ${guildId}`);
             return false;
         }
 
@@ -165,10 +165,10 @@ class Bot
         const guild = this.client.guilds.cache.get(guildId);
         switch(userID) {
             case 0:
-                this.logger.log(`Stop command launched for guild: "${ guild.name }"`);
+                this.logger.info(`Stop command launched for guild: "${ guild.name }"`);
                 break;
             default:
-                this.logger.log(`Stop command launched for guild: "${ guild.name }" by user: \'${ userID }\'`);
+                this.logger.warn(`Stop command launched for guild: "${ guild.name }" by user: \'${ userID }\'`);
                 break;
         }
         
@@ -188,7 +188,7 @@ class Bot
             case 10008:
                 this.logger.error(`Message deletion error: 'Unknown message'`);
             default:
-                this.logger.error('New Error:', error.message);
+                this.logger.error('New Error:', error);
         }
     }
 
@@ -203,7 +203,7 @@ class Bot
                     const message = await channel.messages.fetch(messageId)
                         .catch((err) => {
                         if (err.httpStatus === 404) {
-                            this.logger.error('Message already deleted');
+                            this.logger.warn('Button already deleted');
                         } else {
                             this.logger.error(`Error fetching message: \'${ messageId }\'`, err);
                         }
@@ -211,7 +211,7 @@ class Bot
 
                     if (message) {
                         await message.delete()
-                            .then(() => this.logger.info('Message deleted successfully'))
+                            .then(() => this.logger.info('Button deleted successfully'))
                             .catch((error) => this.handleErrors(error));
                         }
                     }
@@ -290,7 +290,7 @@ class Bot
                                             this.stopCommand(guildId, interaction.user.id);
                                             await interaction.deleteReply().catch((err) => this.logger.error(`Error deleting reply:`, err));
                                             await message.delete() // TODO - Being called twice.
-                                                    .then(() => this.logger.info('Message deleted successfully'))
+                                                    .then(() => this.logger.info('Button deleted successfully'))
                                                     .catch((err) => this.logger.error(`Error deleting message: \'${ messageId }\'`, err));
                                             break;
                                     }
@@ -300,7 +300,7 @@ class Bot
                                     current.timer.changeLang(newLang);
 
                                     await interaction.editReply({content: `Changed voice to \`${ newLang }\``, ephemeral: true});
-                                    this.logger.info(`Changed voice audio in guild: "${ guild.name }" to: \`${ newLang }\``);
+                                    this.logger.log(`Changed voice audio in guild: "${ guild.name }" to: \`${ newLang }\``);
                                     break;
                             }
                         });
