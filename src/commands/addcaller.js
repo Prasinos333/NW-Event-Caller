@@ -25,7 +25,6 @@ async function execute(interaction) {
  
     const voiceChannel = interaction.member?.voice?.channel;
     const textChannel = interaction.channel;
-    const guild_name = interaction.member.guild.name;
 
     if(textChannel instanceof VoiceChannel) {
         return interaction.editReply({ content: 'Error: Cannot start in voice channel chat.', ephemeral: true });
@@ -84,8 +83,9 @@ async function execute(interaction) {
     const hasVoicePerms = await availableBot.hasPerms(voiceChannel);
 
     if (hasTextPerms && hasVoicePerms) {
+        const guildName = interaction.member.guild.name;
         availableBot.eventCall(callerType, interaction);
-        EventLog.log(`"${ availableBot.name }" calling '${ callerType }' in voice channel "${ voiceChannel.name }" for guild: "${ guild_name }"`);
+        EventLog.log(`"${ availableBot.name }" calling '${ callerType }' in voice channel "${ voiceChannel.name }" for guild: "${ guildName }"`);
         return interaction.editReply({content: `Adding \`${ availableBot.client.user.username }\` to \`${ voiceChannel.name }\``, ephemeral: true});  
     } else {
         return interaction.editReply({ content: `Error: \`${ availableBot.client.user.username }\` doesn't have permissions for the voice or text channel.`, ephemeral: true });

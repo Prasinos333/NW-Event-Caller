@@ -27,13 +27,11 @@ class Bot
         this.logger = logger(`${ path.resolve('logs', 'bots') }/${ name }.log`);
         this.eventLog = logger(`${ path.resolve('logs', 'bots') }/Events.log`);
 
-        this.initialise();
+        this.initialize();
     }
     
-    initialise = () => { 
-        this.client.login(this.token)
-            .catch(console.error)
-        ;
+    initialize() { 
+        this.client.login(this.token).catch(console.error);
 
         this.client.once('ready', () => {
             this.logger.info('Client is ready.');            
@@ -46,7 +44,7 @@ class Bot
 
                 if (oldId && newId && oldId !== newId) {
                     this.logger.warn('Bot moved voice channels. Stopping...');
-                    const current = this.timers.find((timer) => timer.guildId === oldState.guild.id);
+                    const current = this.getTimer(oldState.guild.id);
                     if(current) {
                         this.deleteButton(current.timer.buttonData);
                     }
@@ -56,7 +54,7 @@ class Bot
         });
     }
 
-    isAvailable = (guildId) => {
+    isAvailable(guildId) {
         const guild = this.client.guilds.cache.get(guildId);
 
         if (!guild) {
@@ -67,20 +65,18 @@ class Bot
         const connection = getVoiceConnection(guildId, this.uId);
 
         if (
-            connection &&
-            connection.state &&
+            connection && connection.state &&
             (connection.state.status !== VoiceConnectionStatus.Destroyed ||
                 connection.state.status !== VoiceConnectionStatus.Disconnected) &&
             connection.joinConfig.guildId === guildId
         ) {
-            // this.logger.warn(`Voice connection is not destroyed or disconnected in guild id: ${guildId}`);
             return false;
         }
 
         return true;
     }
     
-    hasPerms = async (Channel) => { 
+    async hasPerms(Channel) { 
         try {
             const guild = Channel.guild;
             await guild.members.fetch();
@@ -100,60 +96,14 @@ class Bot
         }
     }
 
-    eventCall = async (type, interaction) => { 
-        const textChannelId = interaction.channelId;
-        const voiceChannelId = interaction.member.voice.channel.id;
-        const voiceChannelName = interaction.member.voice.channel.name;
-        const guildId = interaction.guildId;
-        const guildName = interaction.member.guild.name;
-        const userId = interaction.user.id;
-        const guild = await this.client.guilds.fetch(guildId);
-
-        if(!db.isConnected()) {
-            db.reconnect();
-        }
-
-        if (!guild) {
-            this.eventLog.error(`Failed to fetch guild`);
-            return;
-        } 
-        const timer = new Timer(this.name, guildId, userId, this); 
-        this.timers.push({ guildId: guildId, timer: timer});
-        this.logger.info(`Attempting to join voice channel "${ voiceChannelName }" in guild: "${ guildName }"`);
-
-        const connection = joinVoiceChannel({
-            channelId: voiceChannelId,
-            guildId: guildId,
-            adapterCreator: guild.voiceAdapterCreator,
-            group: this.uId
-        });
-
-        connection.on(VoiceConnectionStatus.Ready, async () => {
-            timer.subscribeTimer(connection);
-            let buttonData;
-
-            switch (type) {
-                case 'war':
-                    buttonData = await this.createButtons(textChannelId, type);
-                    timer.changeButtonData(buttonData);
-                    timer.callRespawns();
-                    break;
-                case 'invasion':
-                    const options = await db.retrieveConfig(userId);
-                    console.log(options);
-                    if(options) {
-                        timer.updateConfig(options);
-                    }
-                    buttonData = await this.createButtons(textChannelId, type);
-                    timer.changeButtonData(buttonData);
-                    timer.callInvasion();
-                    break;
-            }
-        });
+    getTimer(guildId) {
+        const timer = this.timers.find((timer) => timer.guildId === guildId);
+        return timer;
     }
 
-    removeTimer = async (guildId) => {
-        const current = this.timers.find((timer) => timer.guildId === guildId);
+    async removeTimer(guildId) 
+    {
+        this.getTimer(guildId);
         if(current.timer.modifiedConfig) {
             const lang = current.timer.lang;
             const settings = current.timer.setting;
@@ -164,7 +114,7 @@ class Bot
         this.timers = this.timers.filter((timer) => timer.guildId !== guildId);
     }
 
-    stopCommand = (guildId, userID = 0) => {
+    stopCommand(guildId, userID = 0) {
         const guild = this.client.guilds.cache.get(guildId);
         switch(userID) {
             case 0:
@@ -177,13 +127,13 @@ class Bot
         
         const connection = getVoiceConnection(guildId, this.uId);
 
-        if (connection?.state?.status === VoiceConnectionStatus.Ready) {
-            connection?.destroy();
+        if (connection) {
+            connection.destroy();
             this.removeTimer(guildId);
         }
     }
 
-    handleErrors = (error) => {
+    handleErrors(error) {
         switch(error) {
             case 10062:
                 this.logger.error(`Interaction reply error: 'Unknown interaction'`);
@@ -195,7 +145,7 @@ class Bot
         }
     }
 
-    deleteButton = async (buttonData) => {
+    async deleteButton(buttonData) {
         if(buttonData) {
             const { textChannelId, messageId } = buttonData;
 
@@ -222,7 +172,7 @@ class Bot
         }  
     }
 
-    createButtons = async (textChannelId, type) => { 
+    async createButtons(textChannelId, type) { 
         return new Promise(async (resolve, reject) => {
             let messageId;
     
@@ -276,7 +226,7 @@ class Bot
                             await interaction.deferReply({ ephemeral: true });
                             const { componentType } = interaction;
                             const guildId = interaction.guildId;
-                            const current = this.timers.find((timer) => timer.guildId === guildId);
+                            const current = this.getTimer(guildId);
 
                             switch(componentType) {
                                 case ComponentType.Button:
@@ -317,6 +267,57 @@ class Bot
                 });
             } catch (error) {
                 reject(error);
+            }
+        });
+    }
+    
+    async eventCall(type, interaction) { 
+        const textChannelId = interaction.channelId;
+        const voiceChannelId = interaction.member.voice.channel.id;
+        const voiceChannelName = interaction.member.voice.channel.name;
+        const guildId = interaction.guildId;
+        const guildName = interaction.member.guild.name;
+        const userId = interaction.user.id;
+        const guild = await this.client.guilds.fetch(guildId);
+
+        if(!db.isConnected()) {
+            db.reconnect();
+        }
+
+        if (!guild) {
+            this.eventLog.error(`Failed to fetch guild`);
+            return;
+        } 
+        const timer = new Timer(this.name, guildId, userId, this); 
+        this.timers.push({ guildId: guildId, timer: timer});
+        this.logger.info(`Attempting to join voice channel "${ voiceChannelName }" in guild: "${ guildName }"`);
+
+        const connection = joinVoiceChannel({
+            channelId: voiceChannelId,
+            guildId: guildId,
+            adapterCreator: guild.voiceAdapterCreator,
+            group: this.uId
+        });
+
+        connection.on(VoiceConnectionStatus.Ready, async () => {
+            timer.subscribeTimer(connection);
+            let buttonData;
+
+            switch (type) {
+                case 'war':
+                    buttonData = await this.createButtons(textChannelId, type);
+                    timer.changeButtonData(buttonData);
+                    timer.callRespawns();
+                    break;
+                case 'invasion':
+                    const options = await db.retrieveConfig(userId);
+                    if(options) {
+                        timer.updateConfig(options);
+                    }
+                    buttonData = await this.createButtons(textChannelId, type);
+                    timer.changeButtonData(buttonData);
+                    timer.callInvasion();
+                    break;
             }
         });
     }

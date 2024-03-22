@@ -15,11 +15,7 @@ export const createdBots = [];
 export const db = new Database(mySqlUrl);
 
 const createMasterBot = () => {
-    const { name, token } = masterBotConfig;
-    const masterBot = new MasterBot({
-        name: name,
-        token: token
-    });
+    const masterBot = new MasterBot(masterBotConfig);
     createdBots.push(masterBot);
 };
 

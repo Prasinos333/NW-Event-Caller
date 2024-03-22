@@ -8,9 +8,9 @@ import { createAudioPlayer, NoSubscriberBehavior, AudioPlayerStatus, createAudio
 const settings = ["Buy&Skulls", "Buy", "Skull"];
 
 class Timer {
-    constructor(name, guildID, userId, bot) {
+    constructor(name, guildId, userId, bot) {
         this.logger = logger(`${ path.resolve('logs', 'bots') }/${ name }.log`);
-        this.guildID = guildID;
+        this.guildId = guildId;
         this.userId = userId;
         this.bot = bot;
         this.lang = Default_Lang;
@@ -28,7 +28,7 @@ class Timer {
         }); 
     }
 
-    updateConfig = (options) => {
+    updateConfig(options) {
         if (!options.Lang || !options.Setting) {
             return;
         }
@@ -38,31 +38,25 @@ class Timer {
         this.setting = options.Setting;
     }
 
-    changeButtonData = (buttonData) => {
+    changeButtonData(buttonData) {
         this.buttonData = buttonData;
     }
 
-    subscribeTimer = (connection) => {
+    subscribeTimer(connection) {
         connection.subscribe(this.player);
     }
 
-    clearTimerInterval = () => {
+    clearTimerInterval() {
         clearInterval(this.interval);
     }
 
-    stopTimer = () => {
-        this.clearTimerInterval();
-        this.bot.deleteButton(this.buttonData);
-        this.bot.stopCommand(this.guildID);
-    }
-
-    changeLang = (lang) => {
+    changeLang(lang) {
         this.audio = AUDIO(lang);
         this.lang = lang;
         this.modifiedConfig = true;
     }
 
-    changeWave = () => {
+    changeWave() {
         switch (this.wave) {
             case 1:
                 this.wave = 2;
@@ -74,7 +68,7 @@ class Timer {
         return this.wave;
     }
 
-    changeSetting = () => {
+    changeSetting() {
         this.setting++;
         if(this.setting >= 3) {
             this.setting = 0;
@@ -83,7 +77,7 @@ class Timer {
         return settings[this.setting];
     }
 
-    getStartTime = () => { 
+    getStartTime() { 
         const time = new Date();
         time.setSeconds(0);
         time.setMilliseconds(0);
@@ -101,25 +95,25 @@ class Timer {
         return time;
     }
 
-    getCurrentTime = () => {
+    getCurrentTime() {
         const time = new Date();
         time.setMilliseconds(0);
 
         return time;
     }
 
-    playAudio = (path) => {
+    playAudio(path) {
         const status = this.player?.state?.status || AudioPlayerStatus.Idle;
         if (status === AudioPlayerStatus.Idle) {
             this.player.play(createAudioResource(fs.createReadStream(path)));
         }
     }
 
-    getNextTiming = (chrono) => {  
+    getNextTiming(chrono) {  
         return InvasionTimings.find((timing) => chrono > timing.value);
     }
 
-    callInvasion = () => {  
+    callInvasion() {  
         if(this.interval !== null) { // TODO - Bandaid - Function is being called while interval is running. 
             return;
         }
@@ -154,11 +148,11 @@ class Timer {
         }, 1000);
     }
 
-    getNextRespawn = (chrono) => {
+    getNextRespawn(chrono) {
         return Respawns.find((respawn) => chrono > respawn.value && (respawn.wave === 0 || respawn.wave === this.wave));
     }
 
-    callRespawns = () => { 
+    callRespawns() { 
         if(this.interval !== null) { // TODO - Bandaid - Function is being called while interval is running. 
             return;
         }
