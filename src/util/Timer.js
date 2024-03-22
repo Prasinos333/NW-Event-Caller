@@ -29,6 +29,10 @@ class Timer {
     }
 
     updateConfig = (options) => {
+        if (!options.Lang || !options.Setting) {
+            return;
+        }
+        
         this.audio = AUDIO(options.Lang);
         this.lang = options.Lang;
         this.setting = options.Setting;

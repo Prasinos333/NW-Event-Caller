@@ -140,7 +140,10 @@ class Bot
                     break;
                 case 'invasion':
                     const options = await db.retrieveConfig(userId);
-                    timer.updateConfig(options);
+                    console.log(options);
+                    if(options) {
+                        timer.updateConfig(options);
+                    }
                     buttonData = await this.createButtons(textChannelId, type);
                     timer.changeButtonData(buttonData);
                     timer.callInvasion();
