@@ -44,6 +44,7 @@ class Database {
 
     isConnected() {
         const now = new Date();
+        this.eventLog.info(`Database last connected: ${ this.lastConnected }`);
         return (now - this.lastConnected) / (1000 * 60 * 60) < 4; // Check if within 4 hours
     }
 
