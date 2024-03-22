@@ -109,7 +109,7 @@ class Bot
         const userId = interaction.user.id;
         const guild = await this.client.guilds.fetch(guildId);
 
-        if(!db.isConnected) {
+        if(!db.isConnected()) {
             db.reconnect();
         }
 
