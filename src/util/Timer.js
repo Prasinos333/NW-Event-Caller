@@ -109,6 +109,12 @@ class Timer {
         }
     }
 
+    stopTimer() {
+        this.clearTimerInterval();
+        this.bot.stopCommand(this.guildId);
+        this.bot.deleteButton(this.buttonData);
+    }
+
     getNextTiming(chrono) {  
         return InvasionTimings.find((timing) => chrono > timing.value);
     }
@@ -132,7 +138,6 @@ class Timer {
                 } else if (chrono <= 0) {
                     this.logger.log('Stopping timer (chrono: %s).', chrono);
                     this.stopTimer();
-                    this.bot.deleteButton(this.buttonData);
                     return;
                 } 
 
@@ -171,7 +176,6 @@ class Timer {
                 } else if (chrono <= 0) {
                     this.logger.log('Stopping timer (chrono: %s).', chrono);
                     this.stopTimer();
-                    this.bot.deleteButton(this.buttonData);
                     return;
                 }
                 

@@ -103,7 +103,7 @@ class Bot
 
     async removeTimer(guildId) 
     {
-        this.getTimer(guildId);
+        const current = this.getTimer(guildId);
         if(current.timer.modifiedConfig) {
             const lang = current.timer.lang;
             const settings = current.timer.setting;
@@ -147,10 +147,11 @@ class Bot
 
     async deleteButton(buttonData) {
         if(buttonData) {
-            const { textChannelId, messageId } = buttonData;
+            const { channelId, messageId } = buttonData;
+            console.log(channelId, messageId);
 
-            if (textChannelId && messageId) {
-                const channel = await this.client.channels.fetch(textChannelId);
+            if (channelId && messageId) {
+                const channel = await this.client.channels.fetch(channelId);
     
                 if (channel instanceof TextChannel) {
                     const message = await channel.messages.fetch(messageId)
@@ -172,106 +173,93 @@ class Bot
         }  
     }
 
-    async createButtons(textChannelId, type) { 
-        return new Promise(async (resolve, reject) => {
-            let messageId;
+    setupCollector = async (channel, message) => {
+        if (!(channel instanceof TextChannel)) {
+            this.logger.error('Invalid channel type for setting up collector.');
+            return;
+        }
+        
+        const collector = message.createMessageComponentCollector();
     
-            try {
-                this.client.guilds.cache.forEach(async (guild) => {
-                    const channel = guild.channels.cache.get(textChannelId);
-                    if (channel instanceof TextChannel) {
-                        this.logger.log(`Creating buttons in: "${ channel.name }" for "${ guild.name }"`)
-                        const stopButton = new ButtonBuilder()
-                            .setCustomId('stop')
-                            .setLabel('Stop')
-                            .setStyle(ButtonStyle.Danger)
-                            .setEmoji('✋');
+        collector.on('collect', async (interaction) => {
+            await interaction.deferReply({ ephemeral: true });
+            const { componentType } = interaction;
+            const guildId = interaction.guildId;
+            const current = this.getTimer(guildId);
 
-                        let additionalButton;
-                        let selectOptions;
-
-                        switch (type) {
-                            case "war":
-                                additionalButton = new ButtonBuilder()
-                                    .setCustomId('waveSwitch')
-                                    .setLabel('Switch Wave')
-                                    .setStyle(ButtonStyle.Secondary);
-                                selectOptions = warOptions;
-                                break;
-                            case "invasion":
-                                additionalButton = new ButtonBuilder()
-                                    .setCustomId(`invasionLoop`)
-                                    .setLabel(`Change Setting`)
-                                    .setStyle(ButtonStyle.Secondary);
-                                selectOptions = invasionOptions;
-                                break;
-                        }
-
-                        const configSelect = new StringSelectMenuBuilder()
-                            .setCustomId('select')
-                            .setPlaceholder('Change Voice')
-                            .addOptions(selectOptions);
-    
-                        const message = await channel.send({
-                            components: [
-                                new ActionRowBuilder().addComponents(configSelect),
-                                new ActionRowBuilder().addComponents(stopButton, additionalButton)
-                            ]
-                        });
-    
-                        messageId = message.id;
-                        const collector = channel.createMessageComponentCollector();
-
-                        collector.on('collect', async (interaction) => {
-                            await interaction.deferReply({ ephemeral: true });
-                            const { componentType } = interaction;
-                            const guildId = interaction.guildId;
-                            const current = this.getTimer(guildId);
-
-                            switch(componentType) {
-                                case ComponentType.Button:
-                                    switch (interaction.customId) {
-                                        case "invasionLoop":
-                                            const state = current.timer.changeSetting();
-                                            await interaction.editReply({content: `Changed setting to \`${ state }\``, ephemeral: true});
-                                            break;
-                                        case "waveSwitch":
-                                            const wave = current.timer.changeWave();
-                                            await interaction.editReply({content: `Changed to wave \`${ wave }\``, ephemeral: true});
-                                            break;
-                                        case "stop":
-                                            this.stopCommand(guildId, interaction.user.id);
-                                            await interaction.deleteReply().catch((err) => this.logger.error(`Error deleting reply:`, err));
-                                            await message.delete() // TODO - Being called twice.
-                                                    .then(() => this.logger.info('Button deleted successfully'))
-                                                    .catch((err) => this.logger.error(`Error deleting message: \'${ messageId }\'`, err));
-                                            break;
-                                    }
-                                    break;
-                                case ComponentType.StringSelect:
-                                    const newLang = interaction.values[0];
-                                    current.timer.changeLang(newLang);
-
-                                    await interaction.editReply({content: `Changed voice to \`${ newLang }\``, ephemeral: true});
-                                    this.logger.log(`Changed voice audio in guild: "${ guild.name }" to: \`${ newLang }\``);
-                                    break;
-                            }
-                        });
-    
-                        if (messageId) {
-                            resolve({ textChannelId, messageId });
-                        } else {
-                            resolve(null);
-                        }
+            switch(componentType) {
+                case ComponentType.Button:
+                    switch (interaction.customId) {
+                        case "invasionLoop":
+                            const state = current.timer.changeSetting();
+                            await interaction.editReply({content: `Changed setting to \`${ state }\``, ephemeral: true});
+                            break;
+                        case "waveSwitch":
+                            const wave = current.timer.changeWave();
+                            await interaction.editReply({content: `Changed to wave \`${ wave }\``, ephemeral: true});
+                            break;
+                        case "stop":
+                            this.stopCommand(guildId, interaction.user.id);
+                            await interaction.deleteReply().catch((err) => this.logger.error(`Error deleting reply:`, err));
+                            await message.delete() 
+                                    .then(() => this.logger.info('Button deleted successfully'))
+                                    .catch((err) => this.logger.error(`Error deleting message: \'${ message.id }\'`, err));
+                            break;
                     }
-                });
-            } catch (error) {
-                reject(error);
+                    break;
+                case ComponentType.StringSelect:
+                    const newLang = interaction.values[0];
+                    current.timer.changeLang(newLang);
+
+                    await interaction.editReply({content: `Changed voice to \`${ newLang }\``, ephemeral: true});
+                    this.logger.log(`Changed voice audio in guild: "${ guild.name }" to: \`${ newLang }\``);
+                    break;
             }
         });
     }
+
+    async createButtons(textChannelId, type) {
+        try {
+            const channel = await this.client.channels.fetch(textChannelId);
+            if (!(channel instanceof TextChannel)) return null;
     
-    async eventCall(type, interaction) { 
+            this.logger.log(`Creating buttons in: "${channel.name}"`);
+    
+            const stopButton = new ButtonBuilder()
+                .setCustomId('stop')
+                .setLabel('Stop')
+                .setStyle(ButtonStyle.Danger)
+                .setEmoji('✋');
+    
+            let additionalButton;
+            let selectOptions = type === "war" ? warOptions : invasionOptions;
+    
+            additionalButton = new ButtonBuilder()
+                .setCustomId(type === "war" ? 'waveSwitch' : 'invasionLoop')
+                .setLabel(type === "war" ? 'Switch Wave' : 'Change Setting')
+                .setStyle(ButtonStyle.Secondary);
+    
+            const configSelect = new StringSelectMenuBuilder()
+                .setCustomId('select')
+                .setPlaceholder('Change Voice')
+                .addOptions(selectOptions);
+    
+            const message = await channel.send({
+                components: [
+                    new ActionRowBuilder().addComponents(configSelect),
+                    new ActionRowBuilder().addComponents(stopButton, additionalButton)
+                ]
+            });
+    
+            return { channel: channel, message: message };
+    
+        } catch (error) {
+            this.logger.error(`Error in createButtons: ${error}`);
+            return null;
+        }
+    }
+    
+    eventCall = async (type, interaction) => { 
         const textChannelId = interaction.channelId;
         const voiceChannelId = interaction.member.voice.channel.id;
         const voiceChannelName = interaction.member.voice.channel.name;
@@ -301,11 +289,14 @@ class Bot
 
         connection.on(VoiceConnectionStatus.Ready, async () => {
             timer.subscribeTimer(connection);
+            let channelMessage;
             let buttonData;
 
             switch (type) {
                 case 'war':
-                    buttonData = await this.createButtons(textChannelId, type);
+                    channelMessage = await this.createButtons(textChannelId, type);
+                    this.setupCollector(channelMessage.channel, channelMessage.message);
+                    buttonData = { channelId: channelMessage.channel.id, messageId: channelMessage.message.id }
                     timer.changeButtonData(buttonData);
                     timer.callRespawns();
                     break;
@@ -314,7 +305,9 @@ class Bot
                     if(options) {
                         timer.updateConfig(options);
                     }
-                    buttonData = await this.createButtons(textChannelId, type);
+                    channelMessage = await this.createButtons(textChannelId, type);
+                    this.setupCollector(channelMessage.channel, channelMessage.message);
+                    buttonData = { channelId: channelMessage.channel.id, messageId: channelMessage.message.id }
                     timer.changeButtonData(buttonData);
                     timer.callInvasion();
                     break;
