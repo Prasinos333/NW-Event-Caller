@@ -148,7 +148,6 @@ class Bot
     async deleteButton(buttonData) {
         if(buttonData) {
             const { channelId, messageId } = buttonData;
-            console.log(channelId, messageId);
 
             if (channelId && messageId) {
                 const channel = await this.client.channels.fetch(channelId);
