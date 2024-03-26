@@ -32,7 +32,7 @@ class Timer {
         if (!options.Lang || !options.Setting) {
             return;
         }
-        
+        console.log(`Updated config to ${ options.Lang } and ${ options.Setting }`);
         this.audio = AUDIO(options.Lang);
         this.lang = options.Lang;
         this.setting = options.Setting;
