@@ -212,7 +212,7 @@ class Bot
                     current.timer.changeLang(newLang);
 
                     await interaction.editReply({content: `Changed voice to \`${ newLang }\``, ephemeral: true});
-                    this.logger.log(`Changed voice audio in guild: "${ guild.name }" to: \`${ newLang }\``);
+                    this.logger.log(`Changed voice audio in guild: '${ interaction.guild.name }' to: '${ newLang }'`);
                     break;
             }
         });
