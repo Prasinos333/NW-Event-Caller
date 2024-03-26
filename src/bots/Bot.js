@@ -108,6 +108,7 @@ class Bot
             const lang = current.timer.lang;
             const settings = current.timer.setting;
             const userId = current.timer.userId;
+            this.eventLog.info(`Adding user: ${ userId } with ${ lang } and ${ settings }`);
             db.addConfig(userId, lang, settings);
         }
         current.timer.clearTimerInterval();
