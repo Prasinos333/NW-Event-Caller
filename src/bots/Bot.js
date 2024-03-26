@@ -58,7 +58,7 @@ class Bot
         const guild = this.client.guilds.cache.get(guildId);
 
         if (!guild) {
-            this.eventLog.warn(`\'${ this.name }\' not in server for guild id: \'${ guildId }\'`);
+            this.eventLog.warn(`Bot: '${ this.name }' not in server for guild id: '${ guildId }'`);
             return false;
         }
 
@@ -76,22 +76,22 @@ class Bot
         return true;
     }
     
-    async hasPerms(Channel) { 
+    async hasPerms(channel) { 
         try {
-            const guild = Channel.guild;
+            const guild = channel.guild;
             await guild.members.fetch();
             const botMember = guild.members.cache.get(this.client.user.id);
-            const botPermissions = botMember.permissionsIn(Channel);
+            const botPermissions = botMember.permissionsIn(channel);
     
             if (botPermissions) {
                 const hasViewAndSendPermissions = botPermissions.has([PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.Connect]);
                 return hasViewAndSendPermissions;
             } else {
-                this.eventLog.error(`Unable to retrieve permissions in channel: \'${ textChannel.id }\' for "${ guild.name }"`);
+                this.eventLog.error(`Unable to retrieve permissions in channel: '${ channel.id }' for '${ guild.name }'`);
                 return false;
             }
         } catch (error) {
-            this.eventLog.error(`Error checking permissions: ${ error }`);
+            this.eventLog.error(`Error checking permissions:`, error);
             return false;
         }
     }
@@ -108,7 +108,6 @@ class Bot
             const lang = current.timer.lang;
             const settings = current.timer.setting;
             const userId = current.timer.userId;
-            this.eventLog.info(`Adding user: ${ userId } with ${ lang } and ${ settings }`);
             db.addConfig(userId, lang, settings);
         }
         current.timer.clearTimerInterval();
@@ -119,10 +118,10 @@ class Bot
         const guild = this.client.guilds.cache.get(guildId);
         switch(userID) {
             case 0:
-                this.logger.info(`Stop command launched for guild: "${ guild.name }"`);
+                this.logger.info(`Stop command launched for guild:`, guild.name);
                 break;
             default:
-                this.logger.warn(`Stop command launched for guild: "${ guild.name }" by user: \'${ userID }\'`);
+                this.logger.warn(`Stop command launched for guild: "${ guild.name }" by user: '${ userID }'`);
                 break;
         }
         
@@ -223,7 +222,7 @@ class Bot
             const channel = await this.client.channels.fetch(textChannelId);
             if (!(channel instanceof TextChannel)) return null;
     
-            this.logger.log(`Creating buttons in: "${channel.name}"`);
+            this.logger.log(`Creating buttons in:`, channel.name);
     
             const stopButton = new ButtonBuilder()
                 .setCustomId('stop')
@@ -254,7 +253,7 @@ class Bot
             return { channel: channel, message: message };
     
         } catch (error) {
-            this.logger.error(`Error in createButtons: ${error}`);
+            this.logger.error(`Error while creating buttons:`, error);
             return null;
         }
     }
@@ -273,7 +272,7 @@ class Bot
         }
 
         if (!guild) {
-            this.eventLog.error(`Failed to fetch guild`);
+            this.eventLog.error(`Failed to fetch guild:`, guildId);
             return;
         } 
         const timer = new Timer(this.name, guildId, userId, this); 
