@@ -1,7 +1,7 @@
 import Bot from "./Bot.js";
 import { execute as voiceraffleExecute } from "../commands/voiceraffle.js"
 import { execute as addcallerExecute } from "../commands/addcaller.js"
-import Discord, { GatewayIntentBits } from "discord.js"
+import Discord, { ActivityType, GatewayIntentBits } from "discord.js"
 
 class MasterBot extends Bot {
 
@@ -23,6 +23,14 @@ class MasterBot extends Bot {
     initialise = () => {
         this.client.login(this.token)
             .catch(console.error);
+
+        this.client.once('ready', () => {
+            
+            this.client.user.setActivity({
+                name: "Slash Commands",
+                type: ActivityType.Listening
+            });
+        });
 
         this.client.on('interactionCreate', async interaction => { 
             if (!interaction.isCommand()) return;
