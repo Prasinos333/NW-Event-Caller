@@ -43,7 +43,7 @@ async function execute(interaction) {
     }
 
     if (voiceChannel.full) {
-        return interaction.editReply({ content: "Error: Channel is full", ephemeral: true });
+        return interaction.editReply({ content: "Error: Channel is full.", ephemeral: true });
     }
 
     const callerType = interaction.options.getString('type');

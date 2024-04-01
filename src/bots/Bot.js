@@ -58,7 +58,7 @@ class Bot
         const guild = this.client.guilds.cache.get(guildId);
 
         if (!guild) {
-            this.eventLog.warn(`Bot: '${ this.name }' not in server for guild id: '${ guildId }'`);
+            this.eventLog.warn(`Bot: '${ this.name }' not in server for guild id:`, guildId);
             return false;
         }
 
@@ -87,7 +87,7 @@ class Bot
                 const hasViewAndSendPermissions = botPermissions.has([PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.Connect]);
                 return hasViewAndSendPermissions;
             } else {
-                this.eventLog.error(`Unable to retrieve permissions in channel: '${ channel.id }' for '${ guild.name }'`);
+                this.eventLog.error(`Unable to retrieve permissions in channel: ${ channel.id } for '${ guild.name }'`);
                 return false;
             }
         } catch (error) {
@@ -114,15 +114,13 @@ class Bot
         this.timers = this.timers.filter((timer) => timer.guildId !== guildId);
     }
 
-    stopCommand(guildId, userID = 0) {
+    stopCommand(guildId, user = null) {
         const guild = this.client.guilds.cache.get(guildId);
-        switch(userID) {
-            case 0:
-                this.logger.info(`Stop command launched for guild:`, guild.name);
-                break;
-            default:
-                this.logger.warn(`Stop command launched for guild: "${ guild.name }" by user: '${ userID }'`);
-                break;
+
+        if(user) {
+            this.logger.warn(`Stop command launched for guild: '${ guild.name }' by user: ${ user.username }`);
+        } else {
+            this.logger.info(`Stop command launched for guild: '${ guild.name }'`);
         }
         
         const connection = getVoiceConnection(guildId, this.uId);
@@ -156,7 +154,7 @@ class Bot
                     const message = await channel.messages.fetch(messageId)
                         .catch((err) => {
                         if (err.httpStatus === 404) {
-                            this.logger.warn('Button already deleted');
+                            this.logger.warn('Button already deleted.');
                         } else {
                             this.logger.error(`Error fetching message: \'${ messageId }\'`, err);
                         }
@@ -164,7 +162,7 @@ class Bot
 
                     if (message) {
                         await message.delete()
-                            .then(() => this.logger.info('Button deleted successfully'))
+                            .then(() => this.logger.info('Button deleted successfully.'))
                             .catch((error) => this.handleErrors(error));
                         }
                     }
@@ -198,11 +196,12 @@ class Bot
                             await interaction.editReply({content: `Changed to wave \`${ wave }\``, ephemeral: true});
                             break;
                         case "stop":
-                            this.stopCommand(guildId, interaction.user.id);
+                            console.log(interaction.user);
+                            this.stopCommand(guildId, interaction.user);
                             await interaction.deleteReply().catch((err) => this.logger.error(`Error deleting reply:`, err));
                             await message.delete() 
                                     .then(() => this.logger.info('Button deleted successfully'))
-                                    .catch((err) => this.logger.error(`Error deleting message: \'${ message.id }\'`, err));
+                                    .catch((err) => this.logger.error(`Error deleting message: ${ message.id } \n`, err));
                             break;
                     }
                     break;
@@ -222,7 +221,7 @@ class Bot
             const channel = await this.client.channels.fetch(textChannelId);
             if (!(channel instanceof TextChannel)) return null;
     
-            this.logger.log(`Creating buttons in:`, channel.name);
+            this.logger.log(`Creating buttons in: '${ channel.name }'`);
     
             const stopButton = new ButtonBuilder()
                 .setCustomId('stop')
@@ -277,7 +276,7 @@ class Bot
         } 
         const timer = new Timer(this.name, guildId, userId, this); 
         this.timers.push({ guildId: guildId, timer: timer});
-        this.logger.info(`Attempting to join voice channel "${ voiceChannelName }" in guild: "${ guildName }"`);
+        this.logger.info(`Attempting to join voice channel: "${ voiceChannelName }" in guild: "${ guildName }"`);
 
         const connection = joinVoiceChannel({
             channelId: voiceChannelId,
