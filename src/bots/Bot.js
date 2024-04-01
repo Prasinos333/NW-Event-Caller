@@ -196,7 +196,6 @@ class Bot
                             await interaction.editReply({content: `Changed to wave \`${ wave }\``, ephemeral: true});
                             break;
                         case "stop":
-                            console.log(interaction.user);
                             this.stopCommand(guildId, interaction.user);
                             await interaction.deleteReply().catch((err) => this.logger.error(`Error deleting reply:`, err));
                             await message.delete() 
