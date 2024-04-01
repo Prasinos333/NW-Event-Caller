@@ -54,11 +54,11 @@ class Database {
                 'SELECT Lang, Setting FROM InvasionConfig WHERE UserID = ?',
                 [userID]
             );
-            this.eventLog.log(`Successfully retrieved config for: '${ userID }'.`)
+            this.eventLog.log(`Successfully retrieved config for:`, userID)
             return results[0];
-        } catch (err) {
-            this.eventLog.error(`Error retrieving config from database:`, err);
-            throw err;
+        } catch (error) {
+            this.eventLog.error(`Error retrieving config from database:`, error);
+            throw error;
         }
     }
 
@@ -70,9 +70,9 @@ class Database {
                 [userID, lang, setting]
             );
             return results;
-        } catch (err) {
-            this.eventLog.error(`Error updating config in database:`, err);
-            throw err;
+        } catch (error) {
+            this.eventLog.error(`Error updating config in database:`, error);
+            throw error;
         }
     }
 }

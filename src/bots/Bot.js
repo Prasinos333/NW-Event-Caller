@@ -58,7 +58,7 @@ class Bot
         const guild = this.client.guilds.cache.get(guildId);
 
         if (!guild) {
-            this.eventLog.warn(`Bot: '${ this.name }' not in server for guild id:`, guildId);
+            this.eventLog.warn(`Bot: "${ this.name }" not in server for guild id:`, guildId);
             return false;
         }
 
@@ -87,7 +87,7 @@ class Bot
                 const hasViewAndSendPermissions = botPermissions.has([PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.Connect]);
                 return hasViewAndSendPermissions;
             } else {
-                this.eventLog.error(`Unable to retrieve permissions in channel: ${ channel.id } for '${ guild.name }'`);
+                this.eventLog.error(`Unable to retrieve permissions in channel: ${ channel.id } for "${ guild.name }"`);
                 return false;
             }
         } catch (error) {
@@ -118,9 +118,9 @@ class Bot
         const guild = this.client.guilds.cache.get(guildId);
 
         if(user) {
-            this.logger.warn(`Stop command launched for guild: '${ guild.name }' by user: ${ user.username }`);
+            this.logger.warn(`Stop command launched for guild: "${ guild.name }" by user: "${ user.username }"`);
         } else {
-            this.logger.info(`Stop command launched for guild: '${ guild.name }'`);
+            this.logger.info(`Stop command launched for guild: "${ guild.name }"`);
         }
         
         const connection = getVoiceConnection(guildId, this.uId);
@@ -156,7 +156,7 @@ class Bot
                         if (err.httpStatus === 404) {
                             this.logger.warn('Button already deleted.');
                         } else {
-                            this.logger.error(`Error fetching message: \'${ messageId }\'`, err);
+                            this.logger.error(`Error fetching message: ${ messageId }`, err);
                         }
                     });
 
@@ -209,7 +209,7 @@ class Bot
                     current.timer.changeLang(newLang);
 
                     await interaction.editReply({content: `Changed voice to \`${ newLang }\``, ephemeral: true});
-                    this.logger.log(`Changed voice audio in guild: '${ interaction.guild.name }' to: '${ newLang }'`);
+                    this.logger.log(`Changed voice audio in guild: "${ interaction.guild.name }" to: '${ newLang }'`);
                     break;
             }
         });
@@ -220,7 +220,7 @@ class Bot
             const channel = await this.client.channels.fetch(textChannelId);
             if (!(channel instanceof TextChannel)) return null;
     
-            this.logger.log(`Creating buttons in: '${ channel.name }'`);
+            this.logger.log(`Creating buttons in: "${ channel.name }"`);
     
             const stopButton = new ButtonBuilder()
                 .setCustomId('stop')
