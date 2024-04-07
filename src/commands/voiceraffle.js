@@ -52,7 +52,7 @@ async function execute(interaction) {
         .setDescription(randomMembers.map(member => `• <@${member.id}>`).join('\n'));
     
     interaction.editReply({ content: `Raffle Completed`});
-    interaction.reply({ embeds: [embed], ephemeral: false });
+    interaction.followUp({ embeds: [embed] });
 }
 
 export {
