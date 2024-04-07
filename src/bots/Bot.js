@@ -199,7 +199,7 @@ class Bot
                             this.stopCommand(guildId, interaction.user);
                             await interaction.deleteReply().catch((err) => this.logger.error(`Error deleting reply:`, err));
                             await message.delete() 
-                                    .then(() => this.logger.info('Button deleted successfully'))
+                                    .then(() => this.logger.info('Button deleted successfully.'))
                                     .catch((err) => this.logger.error(`Error deleting message: ${ message.id } \n`, err));
                             break;
                     }
