@@ -14,6 +14,7 @@ async function execute(interaction) {
     await interaction.deferReply({ ephemeral: true }); 
 
     const voiceChannel = interaction.member?.voice?.channel;
+    const textChannelId = interaction.channelId;
 
     if(!voiceChannel) {
         return interaction.editReply({ content: 'Error: You are not currently in a voice channel.', ephemeral: true });
@@ -51,8 +52,8 @@ async function execute(interaction) {
         .setColor('#0099ff') // Change the color as needed
         .setDescription(randomMembers.map(member => `• <@${member.id}>`).join('\n'));
     
+    await channel.send({ embeds: [embed] });
     interaction.editReply({ content: `Raffle Completed`});
-    interaction.followUp({ embeds: [embed] });
 }
 
 export {

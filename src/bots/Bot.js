@@ -215,7 +215,7 @@ class Bot
         });
     }
 
-    async createButtons(textChannelId, type) {
+    createButtons = async (textChannelId, type) => {
         try {
             const channel = await this.client.channels.fetch(textChannelId);
             if (!(channel instanceof TextChannel)) return null;
