@@ -14,7 +14,7 @@ async function execute(interaction) {
     await interaction.deferReply({ ephemeral: true }); 
 
     const voiceChannel = interaction.member?.voice?.channel;
-    const textChannelId = interaction.channelId;
+    const channel = interaction.channel;
 
     if(!voiceChannel) {
         return interaction.editReply({ content: 'Error: You are not currently in a voice channel.', ephemeral: true });
