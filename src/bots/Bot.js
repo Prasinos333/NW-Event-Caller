@@ -216,6 +216,7 @@ class Bot
     }
 
     createButtons = async (textChannelId, type) => {
+        // TODO - Check if buttondata exists. 5
         try {
             const channel = await this.client.channels.fetch(textChannelId);
             if (!(channel instanceof TextChannel)) return null;
@@ -284,7 +285,7 @@ class Bot
             group: this.uId
         });
 
-        connection.on(VoiceConnectionStatus.Ready, async () => {
+        connection.once(VoiceConnectionStatus.Ready, async () => {
             timer.subscribeTimer(connection);
             let channelMessage;
             let buttonData;
