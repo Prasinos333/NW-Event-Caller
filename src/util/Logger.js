@@ -7,10 +7,10 @@ export default (path) => {
     });
 
     const overwrite = [
-        [logger.log, (message) => `[${ new Date().toLocaleString('en-US', { timeZone: 'EST'}) }] [LOG] ${ message }`],
-        [logger.info, (message) => `[${ new Date().toLocaleString('en-US', { timeZone: 'EST'}) }] [INFO] ${ message }`],
-        [logger.warn, (message) => `[${ new Date().toLocaleString('en-US', { timeZone: 'EST'}) }] [WARN] ${ message }`],
-        [logger.error, (message) => `[${ new Date().toLocaleString('en-US', { timeZone: 'EST'}) }] [ERROR] ${ message }`]
+        [logger.log, (message) => `[${ new Date().toLocaleString('en-US', { timeZone: "America/New_York", timeZoneName: 'shortOffset'}) }] [LOG] ${ message }`],
+        [logger.info, (message) => `[${ new Date().toLocaleString('en-US', { timeZone: "America/New_York", timeZoneName: 'shortOffset'}) }] [INFO] ${ message }`],
+        [logger.warn, (message) => `[${ new Date().toLocaleString('en-US', { timeZone: "America/New_York", timeZoneName: 'shortOffset'}) }] [WARN] ${ message }`],
+        [logger.error, (message) => `[${ new Date().toLocaleString('en-US', { timeZone: "America/New_York", timeZoneName: 'shortOffset'}) }] [ERROR] ${ message }`]
     ];
 
     overwrite.forEach(([ _function, _format ]) => {

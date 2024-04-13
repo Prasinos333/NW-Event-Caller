@@ -121,7 +121,7 @@ class Timer {
         }
 
         const startTime = this.getStartTime();
-        this.logger.log(`Start time: ${ startTime.toLocaleString('en-US', { timeZone: 'EST'}) }`);
+        this.logger.log(`Start time: ${ startTime.toLocaleString('en-US', { timeZone: "America/New_York", timeStyle: 'short'}) }`);
         this.playAudio(this.audio["Invasion Notice"]);
 
         this.interval = setInterval(() => {
@@ -159,7 +159,7 @@ class Timer {
         }
 
         const startTime = this.getStartTime();
-        this.logger.log(`Start time: ${ startTime.toLocaleString('en-US', { timeZone: 'EST'}) }`);
+        this.logger.log(`Start time: ${ startTime.toLocaleString('en-US', { timeZone: "America/New_York", timeStyle: 'short'}) }`);
         this.playAudio(this.audio["War Notice"]);
 
         this.interval = setInterval(() => {
