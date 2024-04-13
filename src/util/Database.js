@@ -44,7 +44,6 @@ class Database {
 
     isConnected() {
         const now = new Date();
-        this.eventLog.info(`Database last connected: ${ this.lastConnected }`);
         return (now - this.lastConnected) / (1000 * 60 * 60) < 4; // Check if within 4 hours
     }
 
@@ -54,7 +53,6 @@ class Database {
                 'SELECT Lang, Setting FROM InvasionConfig WHERE UserID = ?',
                 [userID]
             );
-            this.eventLog.log(`Successfully retrieved config for:`, userID)
             return results[0];
         } catch (error) {
             this.eventLog.error(`Error retrieving config from database:`, error);
@@ -63,7 +61,7 @@ class Database {
     }
 
     async addConfig(userID, lang, setting) {
-        this.eventLog.log(`Adding config for User: '${ userID }' with Lang: '${ lang }' and Setting: '${ setting }' into database.`);
+        this.eventLog.log(`Updating config for user: '${ userID }' with lang: '${ lang }' and setting: '${ setting }'`);
         try {
             const [results] = await this.pool.query(
                 'INSERT INTO InvasionConfig (UserID, Lang, Setting) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE Lang = VALUES(Lang), Setting = VALUES(Setting)',

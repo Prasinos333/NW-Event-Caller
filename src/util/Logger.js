@@ -7,10 +7,10 @@ export default (path) => {
     });
 
     const overwrite = [
-        [logger.log, (message) => `[${ new Date().toLocaleString() }] [LOG] ${ message }`],
-        [logger.info, (message) => `[${ new Date().toLocaleString() }] [INFO] ${ message }`],
-        [logger.warn, (message) => `[${ new Date().toLocaleString() }] [WARN] ${ message }`],
-        [logger.error, (message) => `[${ new Date().toLocaleString() }] [ERROR] ${ message }`]
+        [logger.log, (message) => `[${ new Date().toLocaleString('en-US', { timeZone: 'EST'}) }] [LOG] ${ message }`],
+        [logger.info, (message) => `[${ new Date().toLocaleString('en-US', { timeZone: 'EST'}) }] [INFO] ${ message }`],
+        [logger.warn, (message) => `[${ new Date().toLocaleString('en-US', { timeZone: 'EST'}) }] [WARN] ${ message }`],
+        [logger.error, (message) => `[${ new Date().toLocaleString('en-US', { timeZone: 'EST'}) }] [ERROR] ${ message }`]
     ];
 
     overwrite.forEach(([ _function, _format ]) => {
