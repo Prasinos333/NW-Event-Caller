@@ -20,5 +20,7 @@
     "mysql2": "^3.9.2",
     "uuid": "9.0.*"
   },
-  "keywords": []
+  "keywords": [],
+  "nodeVersion": "21.6.2",
+  "file": "bot.js"
 }
