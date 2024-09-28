@@ -11,26 +11,26 @@ const data = new SlashCommandBuilder()
         ); 
     
 async function execute(interaction) {
-    await interaction.deferReply({ ephemeral: true }); 
+    // await interaction.deferReply({ ephemeral: true }); 
 
     const voiceChannel = interaction.member?.voice?.channel;
     const channel = interaction.channel;
 
     if(!voiceChannel) {
-        return interaction.editReply({ content: 'Error: You are not currently in a voice channel.', ephemeral: true });
+        return interaction.reply({ content: 'Error: You are not currently in a voice channel.', ephemeral: true });
     }
 
     const number = interaction.options.getInteger('number');
 
     if(number <= 0) {
-        return interaction.editReply({ content: 'Error: Number must be positive', ephemeral: true });
+        return interaction.reply({ content: 'Error: Number must be positive', ephemeral: true });
     }
 
     const membersArray = Array.from(voiceChannel.members.values());
     const nonBotMembers = membersArray.filter(member => !member.user.bot);
 
     if(number >= nonBotMembers.length) {
-        return interaction.editReply({ content: 'Error: Cannot be equal to or greater than amount in channel excluding bots.', ephemeral: true });
+        return interaction.reply({ content: 'Error: Cannot be equal to or greater than amount in channel excluding bots.', ephemeral: true });
     }
 
     const randomMembers = [];
@@ -52,8 +52,8 @@ async function execute(interaction) {
         .setColor('#0099ff') // Change the color as needed
         .setDescription(randomMembers.map(member => `• <@${member.id}>`).join('\n'));
     
-    await channel.send({ embeds: [embed] });
-    interaction.editReply({ content: `Raffle Completed`});
+    
+    interaction.reply({ embeds: [embed], ephemeral: false });
 }
 
 export {
