@@ -19,6 +19,13 @@ All timings are visible in the [config file](/src/config.js).
 - `/voiceraffle <number>`
   - Randomly selects `number` of users from your current voice channel. Replies with a bulleted list of randomly selected user(s) in an embed.
 
+## Controls
+
+After starting there will be a string select menu to change the voice and a button below it to `Stop` the bot. for invasions to `Change Setting`. 
+
+### Invasion Specific Controls
+For invasions an additional button titled `Change Setting` loops through upon pressing `Buy&Skulls` , `Buy`, and `Skull`. The default, `Buy&Skulls` calls both buy phases and skulls, `Buy` will only call buy phases, and `Skull` will only call skulls.
+
 --------------
 
 Alternatively, typing just `/` will bring up the command menu. From there you can select `! NW Caller` and you will see all the commands for the bot, from which you can choose. Currently, both commands require: *To be used in a text channel the bot has 'send messages' permissions and while you're in a voice channel it has access to*.
