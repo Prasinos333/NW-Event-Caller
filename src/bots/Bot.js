@@ -58,7 +58,7 @@ class Bot
         const guild = this.client.guilds.cache.get(guildId);
 
         if (!guild) {
-            this.eventLog.warn(`Bot: "${ this.name }" not in server for guild id:`, guildId);
+            this.eventLog.warn(`Bot: "${ this.name }" not in server for guild: "${guild.name}"(Id: ${ guildId } )`);
             return false;
         }
 
