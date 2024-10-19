@@ -2,6 +2,16 @@
 
 A discord bot to call buy times and skulls in invasions and respawn times in wars for the game New World.
 
+## Invite Link
+
+- [Main Bot](https://discord.com/oauth2/authorize?client_id=1171903368713744454)
+
+### Copies 
+> [!WARNING]
+> *Only add after the main bot and if your server hosts multiple simultaneous events.*
+- [NW Event Caller (2)](https://discord.com/oauth2/authorize?client_id=1173464789293469837)
+- [NW Event Caller (3)](https://discord.com/oauth2/authorize?client_id=1173465231079522406)
+
 ## How It Works
 
 Siege windows occur in a 30-minute time slot, such as 8:30-9:00 or 10:00-10:30.
@@ -18,6 +28,13 @@ All timings are visible in the [config file](/src/config.js).
   - The two options for `type` are `Invasions` and `Respawns`. This will add the next available bot if any, to your current voice channel. 
 - `/voiceraffle <number>`
   - Randomly selects `number` of users from your current voice channel. Replies with a bulleted list of randomly selected user(s) in an embed.
+
+## Controls
+
+After starting there will be a string select menu to change the voice and a button below it to `Stop` the bot. for invasions to `Change Setting`. 
+
+### Invasion Specific Controls
+For invasions an additional button titled `Change Setting` loops through upon pressing `Buy&Skulls` , `Buy`, and `Skull`. The default, `Buy&Skulls` calls both buy phases and skulls, `Buy` will only call buy phases, and `Skull` will only call skulls.
 
 --------------
 
