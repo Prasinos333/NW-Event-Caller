@@ -75,17 +75,24 @@ async function execute(interaction) {
     }
     
     if (!availableBot) {
-        EventLog.warn(`Not enough bots! Bot request in voice channel: "${ voiceChannel.name }"`);
+        EventLog.warn(`Not enough bots! Bot request for voice channel: "${ voiceChannel.name }" in "${ textChannel.parent.name }"`);
         return interaction.editReply({ content: 'Error: No available bots.', ephemeral: true });
     }
 
     const hasTextPerms = await availableBot.hasPerms(textChannel);
+    if(!hasTextPerms) {
+        EventLog.warn(`"${ availableBot.name }" doesn't have the proper perms for text channel: "${ textChannel.name }" in "${ textChannel.parent.name }" for guild: "${ guildName }"`)
+    }
+
     const hasVoicePerms = await availableBot.hasPerms(voiceChannel);
+    if(!hasVoicePerms) {
+        EventLog.warn(`"${ availableBot.name }" doesn't have the proper perms for voice channel: "${ voiceChannel.name }" in "${ textChannel.parent.name }" for guild: "${ guildName }"`)
+    }
 
     if (hasTextPerms && hasVoicePerms) {
         const guildName = interaction.member.guild.name;
         availableBot.eventCall(callerType, interaction);
-        EventLog.log(`"${ availableBot.name }" calling '${ callerType }' in voice channel: "${ voiceChannel.name }" for guild: "${ guildName }"`);
+        EventLog.log(`"${ availableBot.name }" calling '${ callerType }' for voice channel: "${ voiceChannel.name }" in "${ textChannel.parent.name }" for guild: "${ guildName }"`);
         return interaction.editReply({content: `Adding \`${ availableBot.client.user.username }\` to \`${ voiceChannel.name }\``, ephemeral: true});  
     } else {
         return interaction.editReply({ content: `Error: \`${ availableBot.client.user.username }\` doesn't have permissions for the voice or text channel.`, ephemeral: true });

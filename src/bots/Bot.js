@@ -87,7 +87,7 @@ class Bot
                 const hasViewAndSendPermissions = botPermissions.has([PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.Connect]);
                 return hasViewAndSendPermissions;
             } else {
-                this.eventLog.error(`Unable to retrieve permissions in channel: ${ channel.id } for "${ guild.name }"`);
+                this.eventLog.error(`Unable to retrieve permissions for channel: ${ channel.id } in "${ channel.parent.name }" for guild: "${ guild.name }"`);
                 return false;
             }
         } catch (error) {
@@ -221,7 +221,7 @@ class Bot
             const channel = await this.client.channels.fetch(textChannelId);
             if (!(channel instanceof TextChannel)) return null;
     
-            this.logger.log(`Creating buttons in: "${ channel.name }"`);
+            this.logger.log(`Creating buttons for channel: "${ channel.name }" in "${ channel.parent.name }"`);
     
             const stopButton = new ButtonBuilder()
                 .setCustomId('stop')
@@ -259,6 +259,7 @@ class Bot
     
     eventCall = async (type, interaction) => { 
         const textChannelId = interaction.channelId;
+        const voiceChannel = interaction.member.voice.channel;
         const voiceChannelId = interaction.member.voice.channel.id;
         const voiceChannelName = interaction.member.voice.channel.name;
         const guildId = interaction.guildId;
@@ -276,7 +277,7 @@ class Bot
         } 
         const timer = new Timer(this.name, guildId, userId, this); 
         this.timers.push({ guildId: guildId, timer: timer});
-        this.logger.info(`Attempting to join voice channel: "${ voiceChannelName }" in guild: "${ guildName }"`);
+        this.logger.info(`Attempting to join voice channel: "${ voiceChannelName }" in "${ voiceChannel.parent.name }" for guild: "${ guildName }"`);
 
         const connection = joinVoiceChannel({
             channelId: voiceChannelId,
