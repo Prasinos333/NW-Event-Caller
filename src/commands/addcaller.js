@@ -93,7 +93,7 @@ async function execute(interaction) {
         const guildName = interaction.member.guild.name;
         availableBot.eventCall(callerType, interaction);
         EventLog.log(`"${ availableBot.name }" calling '${ callerType }' for voice channel: "${ voiceChannel.name }" in "${ voiceChannel.parent.name }" for guild: "${ guildName }"`);
-        return interaction.reply({content: `\@${ availableBot.client.user.username } calling \`${ callerType }\` in \`${ voiceChannel.name }\` for \`${ voiceChannel.parent.name }\``, ephemeral: false});  
+        return interaction.reply({content: `<@${ availableBot.client.user.id }> calling \`${ callerType }\` in \`${ voiceChannel.name }\` for \`${ voiceChannel.parent.name }\``, ephemeral: false});  
     } else {
         return interaction.reply({ content: `Error: \`${ availableBot.client.user.username }\` doesn't have permissions for the voice or text channel.`, ephemeral: true });
     }
