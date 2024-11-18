@@ -20,36 +20,36 @@ const data = new SlashCommandBuilder()
         );
 
 async function execute(interaction) {
-    await interaction.deferReply({ ephemeral: true }); 
+    // await interaction.deferReply({ ephemeral: true }); 
     const EventLog = logger(`${ path.resolve('logs', 'bots') }/Events.log`);
  
     const voiceChannel = interaction.member?.voice?.channel;
     const textChannel = interaction.channel;
 
     if(textChannel instanceof VoiceChannel) {
-        return interaction.editReply({ content: 'Error: Cannot start in voice channel chat.', ephemeral: true });
+        return interaction.reply({ content: 'Error: Cannot start in voice channel chat.', ephemeral: true });
     }
 
     if(!voiceChannel) {
-        return interaction.editReply({ content: 'Error: You are not currently in a voice channel.', ephemeral: true });
+        return interaction.reply({ content: 'Error: You are not currently in a voice channel.', ephemeral: true });
     }
 
     if (!voiceChannel.viewable) {
-        return interaction.editReply({ content: "Error: Lacking 'View Channel' permission.", ephemeral: true });
+        return interaction.reply({ content: "Error: Lacking 'View Channel' permission.", ephemeral: true });
     }
 
     if (!voiceChannel.joinable) {
-        return interaction.editReply({ content: "Error: Lacking 'Connect Channel' permission.", ephemeral: true });
+        return interaction.reply({ content: "Error: Lacking 'Connect Channel' permission.", ephemeral: true });
     }
 
     if (voiceChannel.full) {
-        return interaction.editReply({ content: "Error: Channel is full.", ephemeral: true });
+        return interaction.reply({ content: "Error: Channel is full.", ephemeral: true });
     }
 
     const callerType = interaction.options.getString('type');
 
     if (!callerType) {
-        return interaction.editReply({ content: 'Error: Unable to retrieve bot caller type.', ephemeral: true }); 
+        return interaction.reply({ content: 'Error: Unable to retrieve bot caller type.', ephemeral: true }); 
     }
 
     let hasbot = false;
@@ -61,7 +61,7 @@ async function execute(interaction) {
     }
 
     if(hasbot) {
-        return interaction.editReply({ content: 'Error: Voice channel currently has active bot. Press stop to change type', ephemeral: true });
+        return interaction.reply({ content: 'Error: Voice channel currently has active bot. Press stop to change type', ephemeral: true });
     }
     
    
@@ -76,7 +76,7 @@ async function execute(interaction) {
     
     if (!availableBot) {
         EventLog.warn(`Not enough bots! Bot request for voice channel: "${ voiceChannel.name }" in "${ textChannel.parent.name }"`);
-        return interaction.editReply({ content: 'Error: No available bots.', ephemeral: true });
+        return interaction.reply({ content: 'Error: No available bots.', ephemeral: true });
     }
 
     const hasTextPerms = await availableBot.hasPerms(textChannel);
@@ -93,9 +93,9 @@ async function execute(interaction) {
         const guildName = interaction.member.guild.name;
         availableBot.eventCall(callerType, interaction);
         EventLog.log(`"${ availableBot.name }" calling '${ callerType }' for voice channel: "${ voiceChannel.name }" in "${ textChannel.parent.name }" for guild: "${ guildName }"`);
-        return interaction.editReply({content: `Adding \`${ availableBot.client.user.username }\` to \`${ voiceChannel.name }\``, ephemeral: true});  
+        return interaction.reply({content: `Adding \`${ availableBot.client.user.username }\` to \`${ voiceChannel.name }\``, ephemeral: false});  
     } else {
-        return interaction.editReply({ content: `Error: \`${ availableBot.client.user.username }\` doesn't have permissions for the voice or text channel.`, ephemeral: true });
+        return interaction.reply({ content: `Error: \`${ availableBot.client.user.username }\` doesn't have permissions for the voice or text channel.`, ephemeral: true });
     }
 }
 
