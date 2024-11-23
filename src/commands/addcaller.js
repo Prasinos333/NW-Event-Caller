@@ -36,11 +36,11 @@ async function execute(interaction) {
     }
 
     if (!voiceChannel.viewable) {
-        return interaction.reply({ content: "Error: Lacking 'View Channel' permission.", ephemeral: true });
+        return interaction.reply({ content: "Error: Lacking \`View Channel\` permission.", ephemeral: true });
     }
 
     if (!voiceChannel.joinable) {
-        return interaction.reply({ content: "Error: Lacking 'Connect Channel' permission.", ephemeral: true });
+        return interaction.reply({ content: "Error: Lacking \`Connect Channel\` permission.", ephemeral: true });
     }
 
     if (voiceChannel.full) {
@@ -78,14 +78,19 @@ async function execute(interaction) {
         return interaction.reply({ content: 'Error: No available bots.', ephemeral: true });
     }
 
+    const hasTextPerms = await availableBot.hasPerms(textChannel);
     const hasVoicePerms = await availableBot.hasPerms(voiceChannel);
-    if (hasVoicePerms) {
-        availableBot.eventCall(callerType, interaction);
-        EventLog.log(`"${ availableBot.name }" calling '${ callerType }' for voice channel: "${ voiceChannel.name }" in "${ voiceChannel.parent.name }" for guild: "${ guildName }"`);
-        return interaction.reply({content: `<@${ availableBot.client.user.id }> calling \`${ callerType }\` in \`${ voiceChannel.name }\` for \`${ voiceChannel.parent.name }\``, ephemeral: false});  
-    } else {
+
+    if(!hasTextPerms) {
+        EventLog.warn(`"${ availableBot.name }" doesn't have the proper perms for text channel: "${ textChannel.name }" in "${ textChannel.parent.name }" for guild: "${ guildName }"`)
+        return interaction.reply({ content: `Error: \`${ availableBot.client.user.username }\` doesn't have proper permissions for this text channel.`, ephemeral: true });
+    } else if(!hasVoicePerms) {
         EventLog.warn(`"${ availableBot.name }" doesn't have the proper perms for voice channel: "${ voiceChannel.name }" in "${ voiceChannel.parent.name }" for guild: "${ guildName }"`)
         return interaction.reply({ content: `Error: \`${ availableBot.client.user.username }\` doesn't have proper permissions for the voice channel.`, ephemeral: true });
+    } else {
+        availableBot.eventCall(callerType, interaction);
+        EventLog.log(`"${ availableBot.name }" calling '${ callerType }' for voice channel: "${ voiceChannel.name }" in "${ voiceChannel.parent.name }" for guild: "${ guildName }"`);
+        return interaction.reply({content: `<@${ availableBot.client.user.id }> calling \`${ callerType }\` in \`${ voiceChannel.name }\` for \`${ voiceChannel.parent.name }\``, ephemeral: false});
     }
 }
 
