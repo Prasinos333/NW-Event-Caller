@@ -80,11 +80,6 @@ async function execute(interaction) {
         return interaction.reply({ content: 'Error: No available bots.', ephemeral: true });
     }
 
-    const hasTextPerms = await availableBot.hasPerms(textChannel);
-    if(!hasTextPerms) {
-        EventLog.warn(`"${ availableBot.name }" doesn't have the proper perms for text channel: "${ textChannel.name }" in "${ textChannel.parent.name }" for guild: "${ guildName }"`)
-    }
-
     const hasVoicePerms = await availableBot.hasPerms(voiceChannel);
     if(!hasVoicePerms) {
         EventLog.warn(`"${ availableBot.name }" doesn't have the proper perms for voice channel: "${ voiceChannel.name }" in "${ voiceChannel.parent.name }" for guild: "${ guildName }"`)
