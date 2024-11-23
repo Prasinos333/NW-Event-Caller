@@ -25,6 +25,7 @@ async function execute(interaction) {
  
     const voiceChannel = interaction.member?.voice?.channel;
     const textChannel = interaction.channel;
+    const guildName = interaction.member.guild.name;
 
     if(textChannel instanceof VoiceChannel) {
         return interaction.reply({ content: 'Error: Cannot start in voice channel chat.', ephemeral: true });
@@ -90,7 +91,6 @@ async function execute(interaction) {
     }
 
     if (hasTextPerms && hasVoicePerms) {
-        const guildName = interaction.member.guild.name;
         availableBot.eventCall(callerType, interaction);
         EventLog.log(`"${ availableBot.name }" calling '${ callerType }' for voice channel: "${ voiceChannel.name }" in "${ voiceChannel.parent.name }" for guild: "${ guildName }"`);
         return interaction.reply({content: `<@${ availableBot.client.user.id }> calling \`${ callerType }\` in \`${ voiceChannel.name }\` for \`${ voiceChannel.parent.name }\``, ephemeral: false});  
