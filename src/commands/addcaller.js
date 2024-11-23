@@ -65,8 +65,6 @@ async function execute(interaction) {
         return interaction.reply({ content: 'Error: Voice channel currently has active bot. Press stop to change type', ephemeral: true });
     }
     
-   
-
     let availableBot = null;
     for (const bot of createdBots) {
         if(bot instanceof Bot && bot.isAvailable(interaction.guildId)) {
@@ -81,16 +79,13 @@ async function execute(interaction) {
     }
 
     const hasVoicePerms = await availableBot.hasPerms(voiceChannel);
-    if(!hasVoicePerms) {
-        EventLog.warn(`"${ availableBot.name }" doesn't have the proper perms for voice channel: "${ voiceChannel.name }" in "${ voiceChannel.parent.name }" for guild: "${ guildName }"`)
-    }
-
-    if (hasTextPerms && hasVoicePerms) {
+    if (hasVoicePerms) {
         availableBot.eventCall(callerType, interaction);
         EventLog.log(`"${ availableBot.name }" calling '${ callerType }' for voice channel: "${ voiceChannel.name }" in "${ voiceChannel.parent.name }" for guild: "${ guildName }"`);
         return interaction.reply({content: `<@${ availableBot.client.user.id }> calling \`${ callerType }\` in \`${ voiceChannel.name }\` for \`${ voiceChannel.parent.name }\``, ephemeral: false});  
     } else {
-        return interaction.reply({ content: `Error: \`${ availableBot.client.user.username }\` doesn't have permissions for the voice or text channel.`, ephemeral: true });
+        EventLog.warn(`"${ availableBot.name }" doesn't have the proper perms for voice channel: "${ voiceChannel.name }" in "${ voiceChannel.parent.name }" for guild: "${ guildName }"`)
+        return interaction.reply({ content: `Error: \`${ availableBot.client.user.username }\` doesn't have proper permissions for the voice channel.`, ephemeral: true });
     }
 }
 
