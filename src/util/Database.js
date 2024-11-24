@@ -61,7 +61,7 @@ class Database {
     }
 
     async addConfig(userID, lang, setting) {
-        this.eventLog.log(`Updating config for user: '${ userID }' with lang: '${ lang }' and setting: '${ setting }'`);
+        this.eventLog.log(`Updating config for user: '${ userID }' | Lang: '${ lang }' | Setting: '${ setting }'`);
         try {
             const [results] = await this.pool.query(
                 'INSERT INTO InvasionConfig (UserID, Lang, Setting) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE Lang = VALUES(Lang), Setting = VALUES(Setting)',

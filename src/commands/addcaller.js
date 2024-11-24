@@ -74,7 +74,7 @@ async function execute(interaction) {
     }
     
     if (!availableBot) {
-        EventLog.warn(`Not enough bots! Bot request for voice channel: "${ voiceChannel.name }" in "${ voiceChannel.parent.name }"`);
+        EventLog.warn(`Not enough bots! Guild: "${ guildName }" | Voice channel: "${ voiceChannel.name }" in "${ voiceChannel.parent.name }"`);
         return interaction.reply({ content: 'Error: No available bots.', ephemeral: true });
     }
 
@@ -89,7 +89,7 @@ async function execute(interaction) {
         return interaction.reply({ content: `Error: \`${ availableBot.client.user.username }\` doesn't have proper permissions for the voice channel.`, ephemeral: true });
     } else {
         availableBot.eventCall(callerType, interaction);
-        EventLog.log(`"${ availableBot.name }" calling '${ callerType }' for voice channel: "${ voiceChannel.name }" in "${ voiceChannel.parent.name }" for guild: "${ guildName }"`);
+        EventLog.log(`"${ availableBot.name }" calling '${ callerType }' | Guild: "${ guildName }" | Voice channel: "${ voiceChannel.name }" in "${ voiceChannel.parent.name }" | Text channel: "${ textChannel.name }" in "${ textChannel.parent.name }"`);
         return interaction.reply({content: `<@${ availableBot.client.user.id }> calling \`${ callerType }\` in \`${ voiceChannel.name }\` for \`${ voiceChannel.parent.name }\``, ephemeral: false});
     }
 }

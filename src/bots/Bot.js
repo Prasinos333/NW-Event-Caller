@@ -58,7 +58,7 @@ class Bot
         const guild = this.client.guilds.cache.get(guildId);
 
         if (!guild) {
-            this.eventLog.warn(`Bot: "${ this.name }" not in server for guild: "${guild.name}"(Id: ${ guildId } )`);
+            this.eventLog.warn(`"${ this.name }" not in server for guild: "${guild.name}"| Id: ${ guildId }`);
             return false;
         }
 
@@ -87,7 +87,7 @@ class Bot
                 const hasViewAndSendPermissions = botPermissions.has([PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.Connect]);
                 return hasViewAndSendPermissions;
             } else {
-                this.eventLog.error(`Unable to retrieve permissions for channel: ${ channel.id } in "${ channel.parent.name }" for guild: "${ guild.name }"`);
+                this.eventLog.error(`Unable to retrieve permissions. Guild: "${ guild.name }" | Channel: ${ channel.id } in "${ channel.parent.name }"`);
                 return false;
             }
         } catch (error) {

@@ -43,8 +43,6 @@ class MasterBot extends Bot {
         
             if(commandName === 'voiceraffle') { 
                 await voiceraffleExecute(interaction);
-                const guild_name = interaction.member.guild.name;
-                this.eventLog.log(`Raffle completed in guild: "${ guild_name }" for channel: "${ interaction.channel.name }" in "${ interaction.channel.parent.name }"`);
             }
         });
     }

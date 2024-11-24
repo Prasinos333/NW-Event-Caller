@@ -1,4 +1,5 @@
 import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
+import logger from "../util/Logger.js";
 
 
 const data = new SlashCommandBuilder()
@@ -12,7 +13,7 @@ const data = new SlashCommandBuilder()
     
 async function execute(interaction) {
     // await interaction.deferReply({ ephemeral: true }); 
-
+    const EventLog = logger(`${ path.resolve('logs', 'bots') }/Events.log`);
     const voiceChannel = interaction.member?.voice?.channel;
     const textChannel = interaction.channel;
 
@@ -53,6 +54,8 @@ async function execute(interaction) {
         .setDescription(randomMembers.map(member => `• <@${member.id}>`).join('\n'));
     
     interaction.reply({ embeds: [embed], ephemeral: false });
+    const guild_name = interaction.member.guild.name;
+    EventLog.log(`Raffle completed. Guild: "${ guild_name }" | Text channel: "${ textChannel.name }" in "${ textChannel.parent.name }" | Voice channel: "${ voiceChannel }" in "${ voiceChannel.parent.name }"`);
 }
 
 export {
