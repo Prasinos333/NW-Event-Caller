@@ -55,7 +55,7 @@ async function execute(interaction) {
     
     interaction.reply({ embeds: [embed], ephemeral: false });
     const guild_name = interaction.member.guild.name;
-    EventLog.log(`Raffle completed. Guild: "${ guild_name }" | Text channel: "${ textChannel.name }" in "${ textChannel.parent.name }" | Voice channel: "${ voiceChannel }" in "${ voiceChannel.parent.name }"`);
+    EventLog.log(`Raffle completed. Guild: "${ guild_name }" | Text channel: "${ textChannel.name }" in "${ textChannel.parent.name }" | Voice channel: "${ voiceChannel.name }" in "${ voiceChannel.parent.name }"`);
 }
 
 export {
