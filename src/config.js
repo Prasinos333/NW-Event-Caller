@@ -85,6 +85,11 @@ export const invasionOptions = [
         label: 'Chris (EN)',
         description: 'New and only male voice',
         value: `en_3`,
+    },
+    {
+        label: 'Jake (EN)',
+        description: '"We have jake at home" Jake at home:',
+        value: `en_4`,
     }
 ];
 
