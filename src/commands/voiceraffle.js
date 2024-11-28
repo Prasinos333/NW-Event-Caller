@@ -1,6 +1,6 @@
 import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import logger from "../util/Logger.js";
-
+import path from "path";
 
 const data = new SlashCommandBuilder()
     .setName('voiceraffle')
