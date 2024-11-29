@@ -88,7 +88,7 @@ export const invasionOptions = [
     },
     {
         label: 'Jake (EN)',
-        description: '"We have jake at home" Jake at home:',
+        description: '"We have Jake at home" Jake at home:',
         value: `en_4`,
     }
 ];
