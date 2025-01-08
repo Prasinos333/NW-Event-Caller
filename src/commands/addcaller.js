@@ -72,9 +72,12 @@ async function execute(interaction) {
             break;  
         } 
     }
+
+    const VC_CategoryName = voiceChannel.parent.name ?? "No Category";
+    const TC_CategoryName = textChannel.parent.name ?? "No Category";
     
     if (!availableBot) {
-        EventLog.warn(`Not enough bots! Guild: "${ guildName }" | Voice channel: "${ voiceChannel.name }" in "${ voiceChannel.parent.name }"`);
+        EventLog.warn(`Not enough bots! Guild: "${ guildName }" | Voice channel: "${ voiceChannel.name }" in "${ VC_CategoryName }"`);
         return interaction.reply({ content: 'Error: No available bots.', ephemeral: true });
     }
 
@@ -82,15 +85,15 @@ async function execute(interaction) {
     const hasVoicePerms = await availableBot.hasPerms(voiceChannel);
 
     if(!hasTextPerms) {
-        EventLog.warn(`"${ availableBot.name }" doesn't have the proper perms for text channel: "${ textChannel.name }" in "${ textChannel.parent.name }" for guild: "${ guildName }"`)
+        EventLog.warn(`"${ availableBot.name }" doesn't have the proper perms for text channel: "${ textChannel.name }" in "${ TC_CategoryName }" for guild: "${ guildName }"`)
         return interaction.reply({ content: `Error: \`${ availableBot.client.user.username }\` doesn't have proper permissions for this text channel.`, ephemeral: true });
     } else if(!hasVoicePerms) {
-        EventLog.warn(`"${ availableBot.name }" doesn't have the proper perms for voice channel: "${ voiceChannel.name }" in "${ voiceChannel.parent.name }" for guild: "${ guildName }"`)
+        EventLog.warn(`"${ availableBot.name }" doesn't have the proper perms for voice channel: "${ voiceChannel.name }" in "${ VC_CategoryName }" for guild: "${ guildName }"`)
         return interaction.reply({ content: `Error: \`${ availableBot.client.user.username }\` doesn't have proper permissions for the voice channel.`, ephemeral: true });
     } else {
         availableBot.eventCall(callerType, interaction);
-        EventLog.log(`"${ availableBot.name }" calling '${ callerType }' | Guild: "${ guildName }" | Voice channel: "${ voiceChannel.name }" in "${ voiceChannel.parent.name }" | Text channel: "${ textChannel.name }" in "${ textChannel.parent.name }"`);
-        return interaction.reply({content: `<@${ availableBot.client.user.id }> calling \`${ callerType }\` in \`${ voiceChannel.name }\` for \`${ voiceChannel.parent.name }\``, ephemeral: false});
+        EventLog.log(`"${ availableBot.name }" calling '${ callerType }' | Guild: "${ guildName }" | Voice channel: "${ voiceChannel.name }" in "${ VC_CategoryName }" | Text channel: "${ textChannel.name }" in "${ TC_CategoryName }"`);
+        return interaction.reply({content: `<@${ availableBot.client.user.id }> calling \`${ callerType }\` in \`${ voiceChannel.name }\` for \`${ VC_CategoryName }\``, ephemeral: false});
     }
 }
 

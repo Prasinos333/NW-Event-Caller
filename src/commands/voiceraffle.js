@@ -48,6 +48,9 @@ async function execute(interaction) {
         title = "Rigged Raffle Results";
     } 
     
+    const VC_CategoryName = voiceChannel.parent.name ?? "No Category";
+    const TC_CategoryName = textChannel.parent.name ?? "No Category";
+
     const embed = new EmbedBuilder()
         .setTitle(title)
         .setColor('#0099ff') // Change the color as needed
@@ -55,7 +58,7 @@ async function execute(interaction) {
     
     interaction.reply({ embeds: [embed], ephemeral: false });
     const guild_name = interaction.member.guild.name;
-    EventLog.log(`Raffle completed. Guild: "${ guild_name }" | Text channel: "${ textChannel.name }" in "${ textChannel.parent.name }" | Voice channel: "${ voiceChannel.name }" in "${ voiceChannel.parent.name }"`);
+    EventLog.log(`Raffle completed. Guild: "${ guild_name }" | Text channel: "${ textChannel.name }" in "${ TC_CategoryName }" | Voice channel: "${ voiceChannel.name }" in "${ VC_CategoryName }"`);
 }
 
 export {

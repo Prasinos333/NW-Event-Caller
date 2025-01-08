@@ -87,7 +87,8 @@ class Bot
                 const hasViewAndSendPermissions = botPermissions.has([PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.Connect]);
                 return hasViewAndSendPermissions;
             } else {
-                this.eventLog.error(`Unable to retrieve permissions. Guild: "${ guild.name }" | Channel: ${ channel.id } in "${ channel.parent.name }"`);
+                const categoryName = channel.parent.name ?? "No Category";
+                this.eventLog.error(`Unable to retrieve permissions. Guild: "${ guild.name }" | Channel: ${ channel.id } in "${ categoryName }"`);
                 return false;
             }
         } catch (error) {
@@ -220,8 +221,9 @@ class Bot
         try {
             const channel = await this.client.channels.fetch(textChannelId);
             if (!(channel instanceof TextChannel)) return null;
-    
-            this.logger.log(`Creating buttons for channel: "${ channel.name }" in "${ channel.parent.name }"`);
+            
+            const categoryName = channel.parent.name ?? "No Category";
+            this.logger.log(`Creating buttons for channel: "${ channel.name }" in "${ categoryName }"`);
     
             const stopButton = new ButtonBuilder()
                 .setCustomId('stop')
@@ -277,7 +279,9 @@ class Bot
         } 
         const timer = new Timer(this.name, guildId, userId, this); 
         this.timers.push({ guildId: guildId, timer: timer});
-        this.logger.info(`Attempting to join voice channel: "${ voiceChannelName }" in "${ voiceChannel.parent.name }" for guild: "${ guildName }"`);
+
+        const VC_CategoryName = voiceChannel.parent.name ?? "No Category";
+        this.logger.info(`Attempting to join voice channel: "${ voiceChannelName }" in "${ VC_CategoryName }" for guild: "${ guildName }"`);
 
         const connection = joinVoiceChannel({
             channelId: voiceChannelId,
