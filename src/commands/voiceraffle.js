@@ -39,7 +39,7 @@ async function execute(interaction) {
     let title = `${ number } Random Member(s)`;
 
     // Shuffle the array using the Fisher-Yates algorithm
-    for (let i = number; i > 0; i--) {
+    for (let i = memberArray.length - 1; i >= memberArray.length - number; i--) {
         const randomIndex = Math.floor(Math.random() * (i + 1));
         [memberArray[i], memberArray[randomIndex]] = [memberArray[randomIndex], memberArray[i]];
 
@@ -48,7 +48,7 @@ async function execute(interaction) {
         }
     }
 
-    const randomMembers = memberArray.slice(0, number);
+    const randomMembers = memberArray.slice(-number);
     
     const VC_CategoryName = voiceChannel.parent.name ?? "No Category";
     const TC_CategoryName = textChannel.parent.name ?? "No Category";
