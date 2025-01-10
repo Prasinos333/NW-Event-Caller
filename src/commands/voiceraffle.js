@@ -34,26 +34,21 @@ async function execute(interaction) {
         return interaction.reply({ content: 'Error: Cannot be equal to or greater than amount in channel excluding bots.', ephemeral: true });
     }
 
-    const shuffled = [...nonBotMembers];
-
-    // Shuffle the array using the Fisher-Yates algorithm
-    for (let i = shuffled.length - 1; i > 0; i--) {
-        const randomIndex = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[i]];
-    }
-
-    const randomMembers = shuffled.slice(0, number);
-
+    const memberArray = [...nonBotMembers];
     const RIGGED_ID = process.env.RIGGED_ID;
     let title = `${ number } Random Members`;
-    
-    if(interaction.user.id === RIGGED_ID) {
-        for(member in randomMembers) {
-            if(member.id === RIGGED_ID) {
-                title = `${ number } Rigged Results`;
-            }
-        } 
-    } 
+
+    // Shuffle the array using the Fisher-Yates algorithm
+    for (let i = number; i > 0; i--) {
+        const randomIndex = Math.floor(Math.random() * (i + 1));
+        [memberArray[i], memberArray[randomIndex]] = [memberArray[randomIndex], memberArray[i]];
+        
+        if(memberArray[i].id == RIGGED_ID) {
+            title = `${ number } Rigged Results`;
+        }
+    }
+
+    const randomMembers = memberArray.slice(0, number);
     
     const VC_CategoryName = voiceChannel.parent.name ?? "No Category";
     const TC_CategoryName = textChannel.parent.name ?? "No Category";
