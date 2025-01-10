@@ -36,15 +36,15 @@ async function execute(interaction) {
 
     const memberArray = [...nonBotMembers];
     const RIGGED_ID = process.env.RIGGED_ID;
-    let title = `${ number } Random Members`;
+    let title = `${ number } Random Member(s)`;
 
     // Shuffle the array using the Fisher-Yates algorithm
     for (let i = number; i > 0; i--) {
         const randomIndex = Math.floor(Math.random() * (i + 1));
         [memberArray[i], memberArray[randomIndex]] = [memberArray[randomIndex], memberArray[i]];
-        
+
         if(memberArray[i].id == RIGGED_ID) {
-            title = `${ number } Rigged Results`;
+            title = `${ number } Rigged Result(s)`;
         }
     }
 
