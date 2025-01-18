@@ -151,7 +151,7 @@ class Timer {
 
     getNextRespawn(chrono) {
         const nextRespawn = Respawns.find((respawn) => chrono > respawn.value && (respawn.wave == 0 || respawn.wave == this.wave));
-        console.log(`Next Respawn: ${JSON.stringify(nextRespawn)}, Chrono: ${chrono}, Current Wave: ${this.wave}`);
+        this.logger.log(`Next Respawn: ${JSON.stringify(nextRespawn)}, Chrono: ${chrono}, Current Wave: ${this.wave}`);
         return nextRespawn;
     }
 
