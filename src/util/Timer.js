@@ -112,37 +112,45 @@ class Timer {
     }
 
     getNextTiming(chrono) {  
-        return InvasionTimings.find((timing) => chrono > timing.value);
+        const nextInvasionTiming = InvasionTimings.find((timing) => chrono > timing.value);
+        return nextInvasionTiming;
     }
 
     callInvasion() {  
-        if(this.interval !== null) { // TODO - Function is being called while interval is running. 
+        if (this.interval !== null) { // TODO - Function is being called while interval is running. 
             return;
         }
-
+    
         const startTime = this.getStartTime();
-        this.logger.log(`Start time: ${ startTime.toLocaleString('en-US', { timeZone: "America/New_York", timeStyle: 'short'}) }`);
-        this.playAudio(this.audio["Invasion Notice"]);
-
+        this.logger.log(`Start time: ${startTime.toLocaleString('en-US', { timeZone: "America/New_York", timeStyle: 'short' })}`);
+        setTimeout(() => {
+            this.playAudio(this.audio["Invasion Notice"]);
+        }, 500);
+    
+        let nextTiming = null;
+    
         this.interval = setInterval(() => {
             try {
                 const chrono = 1500 - (this.getCurrentTime() - startTime) / 1000;
-                const nextTiming = this.getNextTiming(chrono);
-
-                if(chrono === 1501) {
+    
+                if (chrono === 1501) {
                     this.playAudio(this.audio["Invasion Start"]);
                 } else if (chrono <= 0) {
                     this.logger.log('Stopping timer (chrono: %s).', chrono);
                     this.stopTimer();
                     return;
-                } 
-
-                if((chrono - nextTiming?.value) === 1) {
-                    if(this.setting === 0 || (this.setting > 0 && nextTiming.name.includes(settings[this.setting]))) {
-                        this.logger.log(`Playing "${ nextTiming.name }" (chrono: ${ chrono })`);
+                }
+    
+                if (!nextTiming || chrono - nextTiming.value < 0) {
+                    nextTiming = this.getNextTiming(chrono);
+                }
+    
+                if (nextTiming && (chrono - nextTiming.value) === 1) {
+                    if (this.setting === 0 || (this.setting > 0 && nextTiming.name.includes(settings[this.setting]))) {
+                        this.logger.log(`Playing "${nextTiming.name}" (chrono: ${chrono})`);
                         this.playAudio(this.audio[nextTiming.name]);
-                    } 
-                } 
+                    }
+                }
             } catch (error) {
                 this.logger.error(`Error calling invasion:`, error);
             }
@@ -151,63 +159,66 @@ class Timer {
 
     getNextRespawn(chrono) {
         const nextRespawn = Respawns.find((respawn) => chrono > respawn.value && (respawn.wave == 0 || respawn.wave == this.wave));
-        this.logger.log(`Next Respawn: ${JSON.stringify(nextRespawn)}, Chrono: ${chrono}, Current Wave: ${this.wave}`);
         return nextRespawn;
     }
 
     callRespawns() { 
-        if(this.interval !== null) { // TODO - Function is being called while interval is running. 
+        if (this.interval !== null) { // TODO - Function is being called while interval is running. 
             return;
         }
-
+    
         const startTime = this.getStartTime();
-        this.logger.log(`Start time: ${ startTime.toLocaleString('en-US', { timeZone: "America/New_York", timeStyle: 'short'}) }`);
-        this.playAudio(this.audio["War Notice"]);
-
+        this.logger.log(`Start time: ${startTime.toLocaleString('en-US', { timeZone: "America/New_York", timeStyle: 'short' })}`);
+        setTimeout(() => {
+            this.playAudio(this.audio["War Notice"]);
+        }, 500);
+    
+        let currentRespawn = null;
+    
         this.interval = setInterval(() => {
             try {
-                const chrono = 1800 - (this.getCurrentTime() - startTime) / 1000; 
-                const nextRespawn = this.getNextTiming(chrono);
-
-                if(chrono === 1801) {
+                const chrono = 1800 - (this.getCurrentTime() - startTime) / 1000;
+    
+                if (chrono === 1801) {
                     this.playAudio(this.audio["War Start"]);
                 } else if (chrono <= 0) {
                     this.logger.log('Stopping timer (chrono: %s).', chrono);
                     this.stopTimer();
                     return;
                 }
-                
-                switch (chrono - nextRespawn?.value) {
-                    case 11:
-                        this.logger.log('10 seconds remaining (chrono: %s).', chrono);
-                        this.playAudio(this.audio["10_second countdown"]);
-                        break;
-                    
-                    case 16:
-                        this.logger.log('15 seconds remaining (chrono: %s).', chrono);
-                        this.playAudio(this.audio["15_seconds"]);
-                        break;
-
-                    case 21:
-                        this.logger.log('20 seconds remaining (chrono: %s).', chrono);
-                        this.playAudio(this.audio["20_seconds"]);
-                        break;
-
-                    case 31:
-                        this.logger.log('30 seconds remaining (chrono: %s).', chrono);
-                        this.playAudio(this.audio["30_seconds"]);
-                        break;
-
-                    case 41:
-                        this.logger.log('40 seconds remaining (chrono: %s).', chrono);
-                        this.playAudio(this.audio["40_seconds"]);
-                        break;
-
-                    case 51:
-                        this.logger.log('50 seconds remaining (chrono: %s).', chrono);
-                        this.playAudio(this.audio["50_seconds"]);
-                        break;
-                } 
+    
+                if (!currentRespawn || chrono - currentRespawn.value < 0) {
+                    currentRespawn = this.getNextRespawn(chrono);
+                }
+    
+                if (currentRespawn) {
+                    switch (chrono - currentRespawn.value) {
+                        case 11:
+                            this.logger.log('10 seconds remaining (chrono: %s).', chrono);
+                            this.playAudio(this.audio["10_second countdown"]);
+                            break;
+    
+                        case 21:
+                            this.logger.log('20 seconds remaining (chrono: %s).', chrono);
+                            this.playAudio(this.audio["20_seconds"]);
+                            break;
+    
+                        case 31:
+                            this.logger.log('30 seconds remaining (chrono: %s).', chrono);
+                            this.playAudio(this.audio["30_seconds"]);
+                            break;
+    
+                        case 41:
+                            this.logger.log('40 seconds remaining (chrono: %s).', chrono);
+                            this.playAudio(this.audio["40_seconds"]);
+                            break;
+    
+                        case 51:
+                            this.logger.log('50 seconds remaining (chrono: %s).', chrono);
+                            this.playAudio(this.audio["50_seconds"]);
+                            break;
+                    }
+                }
             } catch (error) {
                 this.logger.error(`Error calling respawns:`, error);
             }
