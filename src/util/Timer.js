@@ -191,7 +191,7 @@ class Timer {
                     currentRespawn = this.getNextRespawn(chrono);
                 }
     
-                if (currentRespawn) {
+                if (chrono <= 1800 && currentRespawn) {
                     switch (chrono - currentRespawn.value) {
                         case 11:
                             this.logger.log('10 seconds remaining (chrono: %s).', chrono);
