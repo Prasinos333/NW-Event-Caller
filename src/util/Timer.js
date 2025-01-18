@@ -116,7 +116,7 @@ class Timer {
     }
 
     callInvasion() {  
-        if(this.interval !== null) { // TODO - Bandaid - Function is being called while interval is running. 
+        if(this.interval !== null) { // TODO - Function is being called while interval is running. 
             return;
         }
 
@@ -150,11 +150,11 @@ class Timer {
     }
 
     getNextRespawn(chrono) {
-        return Respawns.find((respawn) => chrono > respawn.value && (respawn.wave === 0 || respawn.wave === this.wave));
+        return Respawns.find((respawn) => chrono > respawn.value && (respawn.wave == 0 || respawn.wave == this.wave));
     }
 
     callRespawns() { 
-        if(this.interval !== null) { // TODO - Bandaid - Function is being called while interval is running. 
+        if(this.interval !== null) { // TODO - Function is being called while interval is running. 
             return;
         }
 
