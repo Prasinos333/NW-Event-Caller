@@ -11,6 +11,7 @@ A discord bot to call buy times and skulls in invasions and respawn times in war
 > *Only add after the main bot and if your server hosts multiple simultaneous events.*
 - [NW Event Caller (2)](https://discord.com/oauth2/authorize?client_id=1173464789293469837)
 - [NW Event Caller (3)](https://discord.com/oauth2/authorize?client_id=1173465231079522406)
+- [NW Event Caller (4)](https://discord.com/oauth2/authorize?client_id=1337627489094340688)
 
 ## How It Works
 
