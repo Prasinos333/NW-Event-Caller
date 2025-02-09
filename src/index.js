@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import path from "path";
-import Bot from "./bots/Bot.js";
+import Bot from "./bots/bot.js";
 import MainBot from "./bots/mainBot.js";
 import Database from "./util/database.js";
 import logger from "./util/logger.js";
