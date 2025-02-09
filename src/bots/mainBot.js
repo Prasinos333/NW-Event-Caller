@@ -1,9 +1,9 @@
 import Bot from "./Bot.js";
-import { execute as voiceraffleExecute } from "../commands/voiceraffle.js"
-import { execute as addcallerExecute } from "../commands/addcaller.js"
+import { execute as voiceraffleExecute } from "../commands/voiceRaffle.js"
+import { execute as addcallerExecute } from "../commands/addCaller.js"
 import Discord, { ActivityType, GatewayIntentBits } from "discord.js"
 
-class MasterBot extends Bot {
+class MainBot extends Bot {
 
     constructor({ name, token }) {
         super({ name, token });
@@ -48,4 +48,4 @@ class MasterBot extends Bot {
     }
 }
 
-export default MasterBot;
+export default MainBot;

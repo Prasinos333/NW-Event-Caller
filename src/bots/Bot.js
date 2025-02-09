@@ -1,7 +1,7 @@
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
-import logger from "../util/Logger.js";
-import Timer from "../util/Timer.js";
+import logger from "../util/logger.js";
+import Timer from "../util/timer.js";
 import { db } from "../index.js";
 import { invasionOptions, warOptions } from "../config.js";
 import Discord, { GatewayIntentBits, ActionRowBuilder, ButtonBuilder, StringSelectMenuBuilder, TextChannel, ButtonStyle, PermissionsBitField, ComponentType } from "discord.js";

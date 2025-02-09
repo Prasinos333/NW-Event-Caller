@@ -1,15 +1,15 @@
 import dotenv from "dotenv";
 import path from "path";
 import Bot from "./bots/Bot.js";
-import MasterBot from "./bots/MasterBot.js";
-import Database from "./util/Database.js";
-import logger from "./util/Logger.js";
+import MainBot from "./bots/mainBot.js";
+import Database from "./util/database.js";
+import logger from "./util/logger.js";
 
 dotenv.config({ path: path.resolve('.env'), override: true });
 
 const duration = 1000;
 const botsConfig = JSON.parse(process.env.BOTS);
-const masterBotConfig = JSON.parse(process.env.MASTER_BOT);
+const mainBotConfig = JSON.parse(process.env.MASTER_BOT);
 const mySqlUrl = process.env.SQL_URL;
 
 export const createdBots = [];
@@ -24,7 +24,7 @@ const validateConfig = (config, configName) => {
 
 const createMasterBot = () => {
     try {
-        const masterBot = new MasterBot(masterBotConfig);
+        const masterBot = new MainBot(mainBotConfig);
         createdBots.push(masterBot);
     } catch (error) {
         EventLog.error('Error creating MasterBot:', error);
@@ -50,7 +50,7 @@ const createBotsSequentially = async () => {
 const initializeBots = async () => {
     try {
         validateConfig(botsConfig, 'BOTS');
-        validateConfig(masterBotConfig, 'MASTER_BOT');
+        validateConfig(mainBotConfig, 'MASTER_BOT');
         createMasterBot();
         await createBotsSequentially();
     } catch (error) {

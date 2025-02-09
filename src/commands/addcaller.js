@@ -1,8 +1,8 @@
 import path from "path";
 import Bot from "../bots/Bot.js";
 import { SlashCommandBuilder, VoiceChannel } from "discord.js";
-import logger from "../util/Logger.js";
-import { createdBots } from "../Index.js";
+import logger from "../util/logger.js";
+import { createdBots } from "../index.js";
 import { getVoiceConnection } from "@discordjs/voice";
 
 const data = new SlashCommandBuilder()

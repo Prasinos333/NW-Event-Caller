@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import path from 'path';
 import mysql from 'mysql2/promise';
-import logger from '../util/Logger.js';
+import logger from './logger.js';
 
 dotenv.config({ path: path.resolve('.env'), override: true });
 

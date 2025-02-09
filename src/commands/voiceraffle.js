@@ -1,5 +1,5 @@
 import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
-import logger from "../util/Logger.js";
+import logger from "../util/logger.js";
 import path from "path";
 
 const data = new SlashCommandBuilder()
