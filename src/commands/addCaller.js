@@ -1,5 +1,5 @@
 import path from "path";
-import Bot from "../bots/Bot.js";
+import Bot from "../bots/bot.js";
 import { SlashCommandBuilder, VoiceChannel } from "discord.js";
 import logger from "../util/logger.js";
 import { createdBots } from "../index.js";
