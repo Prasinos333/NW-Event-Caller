@@ -1,6 +1,6 @@
 import path from "path";
 import fs from "fs";
-import logger from "../util/Logger.js";
+import logger from "../util/logger.js";
 import { Default_Lang } from "../config.js";
 import { AUDIO, Respawns, InvasionTimings } from "../config.js";
 import { createAudioPlayer, NoSubscriberBehavior, AudioPlayerStatus, createAudioResource } from "@discordjs/voice";
