@@ -1,20 +1,32 @@
-import dotenv from "dotenv"
-import path from "path";
-import mysql from "mysql2/promise";
-import logger from "../util/Logger.js";
+import dotenv from 'dotenv';
+import path from 'path';
+import mysql from 'mysql2/promise';
+import logger from '../util/Logger.js';
 
 dotenv.config({ path: path.resolve('.env'), override: true });
 
 class Database {
+    static instance = null;
+
     constructor() {
+        if (Database.instance) {
+            return Database.instance;
+        }
+        Database.instance = this;
         this.pool = null;
-        this.lastConnected = new Date();
-        this.eventLog = logger(`${ path.resolve('logs', 'bots') }/Events.log`);
+        this.eventLog = logger(`${path.resolve('logs', 'bots')}/Events.log`);
         this.initPool();
     }
 
-    initPool() {
-        const config = {
+    getPoolConfig() {
+        const requiredEnvVars = ['MYSQL_HOST', 'MYSQL_NAME', 'MYSQL_PORT', 'MYSQL_USER', 'MYSQL_PASS'];
+        requiredEnvVars.forEach((envVar) => {
+            if (!process.env[envVar]) {
+                throw new Error(`Missing required environment variable: ${envVar}`);
+            }
+        });
+
+        return {
             host: process.env.MYSQL_HOST,
             database: process.env.MYSQL_NAME,
             port: process.env.MYSQL_PORT,
@@ -22,32 +34,47 @@ class Database {
             password: process.env.MYSQL_PASS,
             waitForConnections: true,
             connectionLimit: 4,
+            queueLimit: 10,
+            idleTimeout: 60000,
         };
+    }
 
+    initPool() {
+        const config = this.getPoolConfig();
         this.pool = mysql.createPool(config);
-        this.lastConnected = new Date(); 
-        this.eventLog.log(`Created Database connection pool.`);
-        
+        this.eventLog.log('Created Database connection pool.');
+
         this.pool.on('error', async (err) => {
-            const now = new Date();
-            if ((now - this.lastConnected) / (1000 * 60 * 60) < 8) { // Check if within 8 hours
-                this.eventLog.error('Attempting to recreate the pool due to error:', err);
-                await this.reconnect();
-            }
+            this.eventLog.error('Database pool error:', err);
+            await this.reconnect();
         });
     }
 
     async reconnect() {
-        await this.pool.end();
-        this.initPool();
+        try {
+            await this.pool.end();
+        } catch (err) {
+            this.eventLog.error('Error ending pool:', err);
+        } finally {
+            this.initPool();
+        }
     }
 
-    isConnected() {
-        const now = new Date();
-        return (now - this.lastConnected) / (1000 * 60 * 60) < 4; // Check if within 4 hours
+    async isConnected() {
+        try {
+            await this.pool.query('SELECT 1');
+            return true;
+        } catch (error) {
+            this.eventLog.error('Database connection check failed:', error);
+            return false;
+        }
     }
 
     async retrieveConfig(userID) {
+        if (!userID || typeof userID !== 'string') {
+            throw new Error('Invalid userID');
+        }
+
         try {
             const [results] = await this.pool.query(
                 'SELECT Lang, Setting FROM InvasionConfig WHERE UserID = ?',
@@ -55,13 +82,17 @@ class Database {
             );
             return results[0];
         } catch (error) {
-            this.eventLog.error(`Error retrieving config from database:`, error);
+            this.eventLog.error(`Error retrieving config for user ${userID}:`, error);
             throw error;
         }
     }
 
     async addConfig(userID, lang, setting) {
-        this.eventLog.log(`Updating config for user: '${ userID }' | Lang: '${ lang }' | Setting: '${ setting }'`);
+        if (!userID || typeof userID !== 'string' || !lang || !setting) {
+            throw new Error('Invalid input parameters');
+        }
+
+        this.eventLog.log(`Updating config for user: '${userID}' | Lang: '${lang}' | Setting: '${setting}'`);
         try {
             const [results] = await this.pool.query(
                 'INSERT INTO InvasionConfig (UserID, Lang, Setting) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE Lang = VALUES(Lang), Setting = VALUES(Setting)',
@@ -69,7 +100,7 @@ class Database {
             );
             return results;
         } catch (error) {
-            this.eventLog.error(`Error updating config in database:`, error);
+            this.eventLog.error(`Error updating config for user ${userID}:`, error);
             throw error;
         }
     }
