@@ -1,4 +1,4 @@
-import Bot from "./bot.js";
+import Bot from "./basicBot.js";
 import { execute as voiceraffleExecute } from "../commands/voiceRaffle.js"
 import { execute as addcallerExecute } from "../commands/addCaller.js"
 import Discord, { ActivityType, GatewayIntentBits } from "discord.js"

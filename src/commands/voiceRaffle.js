@@ -31,7 +31,7 @@ async function execute(interaction) {
         const number = interaction.options.getInteger('count');
         const excludeSelf = interaction.options.getBoolean('exclude-self');
 
-        if(number > 0) {
+        if(number <= 0) {
             return interaction.reply({ content: 'Error: Number must be positive', ephemeral: true });
         }
 

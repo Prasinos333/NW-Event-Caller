@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import path from "path";
-import Bot from "./bots/bot.js";
+import Bot from "./bots/basicBot.js";
 import MainBot from "./bots/mainBot.js";
 import Database from "./util/database.js";
 import logger from "./util/logger.js";
@@ -25,7 +25,6 @@ const validateConfig = (config, configName) => {
 const createMasterBot = () => {
     try {
         validateConfig(mainBotConfig, 'MASTER_BOT');
-        console.log(mainBotConfig);
         const masterBot = new MainBot(mainBotConfig);
         createdBots.push(masterBot);
     } catch (error) {
