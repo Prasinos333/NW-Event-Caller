@@ -17,13 +17,15 @@ export const db = new Database(mySqlUrl);
 const EventLog = logger(`${path.resolve('logs', 'bots')}/Events.log`);
 
 const validateConfig = (config, configName) => {
-    if (!config || !Array.isArray(config) || config.length === 0) {
+    if (!config || typeof config !== 'object' || !config.name || !config.token) {
         throw new Error(`Invalid or missing configuration for ${configName}`);
     }
 };
 
 const createMasterBot = () => {
     try {
+        validateConfig(mainBotConfig, 'MASTER_BOT');
+        console.log(mainBotConfig);
         const masterBot = new MainBot(mainBotConfig);
         createdBots.push(masterBot);
     } catch (error) {
@@ -34,6 +36,7 @@ const createMasterBot = () => {
 const createBotsSequentially = async () => {
     for (let i = 0; i < botsConfig.length; i++) {
         try {
+            validateConfig(botsConfig[i], `BOTS[${i}]`);
             await new Promise(resolve => {
                 setTimeout(() => {
                     const newBot = new Bot(botsConfig[i]);
@@ -49,8 +52,6 @@ const createBotsSequentially = async () => {
 
 const initializeBots = async () => {
     try {
-        validateConfig(botsConfig, 'BOTS');
-        validateConfig(mainBotConfig, 'MASTER_BOT');
         createMasterBot();
         await createBotsSequentially();
     } catch (error) {
