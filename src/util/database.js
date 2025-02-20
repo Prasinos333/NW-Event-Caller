@@ -71,7 +71,8 @@ class Database {
     }
 
     async retrieveConfig(userID) {
-        if (!userID || typeof userID !== 'string') {
+        // TODO - Placeholder
+        if (!userID) {
             throw new Error('Invalid userID');
         }
 
@@ -88,7 +89,8 @@ class Database {
     }
 
     async addConfig(userID, lang, setting) {
-        if (!userID || typeof userID !== 'string' || !lang || !setting) {
+        // TODO - Placeholder
+        if (!userID || !lang || !setting) {
             throw new Error('Invalid input parameters');
         }
 
