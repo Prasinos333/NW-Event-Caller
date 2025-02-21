@@ -91,7 +91,7 @@ class Database {
     async addConfig(userID, lang, setting) {
         // TODO - Placeholder
         if (!userID || !lang || !setting) {
-            throw new Error('Invalid input parameters');
+            throw new Error(`Invalid input parameters: ${userID}, ${lang}, ${setting}`);
         }
 
         this.eventLog.log(`Updating config for user: '${userID}' | Lang: '${lang}' | Setting: '${setting}'`);
