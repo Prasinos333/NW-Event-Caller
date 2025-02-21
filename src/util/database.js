@@ -90,7 +90,7 @@ class Database {
 
     async addConfig(userID, lang, setting) {
         // TODO - Placeholder
-        if (!userID || !lang || !setting) {
+        if (!userID || !lang || setting == null) {
             throw new Error(`Invalid input parameters: ${userID}, ${lang}, ${setting}`);
         }
 
