@@ -71,7 +71,8 @@ class Database {
     }
 
     async retrieveConfig(userID) {
-        if (!userID || typeof userID !== 'string') {
+        // TODO - Placeholder
+        if (!userID) {
             throw new Error('Invalid userID');
         }
 
@@ -88,8 +89,9 @@ class Database {
     }
 
     async addConfig(userID, lang, setting) {
-        if (!userID || typeof userID !== 'string' || !lang || !setting) {
-            throw new Error('Invalid input parameters');
+        // TODO - Placeholder
+        if (!userID || !lang || setting == null) {
+            throw new Error(`Invalid input parameters: ${userID}, ${lang}, ${setting}`);
         }
 
         this.eventLog.log(`Updating config for user: '${userID}' | Lang: '${lang}' | Setting: '${setting}'`);

@@ -109,7 +109,11 @@ class Bot
             const lang = current.timer.lang;
             const settings = current.timer.setting;
             const userId = current.timer.userId;
-            db.addConfig(userId, lang, settings);
+            try {
+                db.addConfig(userId, lang, settings);
+            } catch (error) {
+                this.eventLog.error(`Error adding config to db:`, error);
+            }
         }
         current.timer.clearTimerInterval();
         this.timers = this.timers.filter((timer) => timer.guildId !== guildId);
