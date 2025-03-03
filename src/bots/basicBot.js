@@ -229,7 +229,7 @@ class Bot
                 .setCustomId('stop')
                 .setLabel('Stop')
                 .setStyle(ButtonStyle.Danger)
-                .setEmoji('✋');
+                .setEmoji('🛑');
     
             let additionalButton;
             let selectOptions = type === "war" ? warOptions : invasionOptions;
