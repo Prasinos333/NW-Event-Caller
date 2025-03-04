@@ -20,7 +20,7 @@ export const AUDIO = (lang = Default_Lang) => ({
     'R_Skull': path.resolve('src', 'resources', lang, `invasion`, 'Skull_right.mp3'), 
     'M_Skull' : path.resolve('src', 'resources', lang, `invasion`, 'Skull_mid.mp3'), 
     'L_Skull' : path.resolve('src', 'resources', lang, `invasion`, 'Skull_left.mp3'), 
-    'Last Wave' : path.resolve('src', 'resources', lang, `invasion`, 'Last_wave.mp3'), 
+    'Last Wave' : path.resolve('src', 'resources', lang, `invasion`, 'Last_spawn.mp3'), 
     'Invasion Notice' : path.resolve('src', 'resources', lang, `invasion`, 'Invasion_notice.mp3'), 
     'Invasion Start' : path.resolve('src', 'resources', lang, `invasion`, 'Invasion_start.mp3'), 
 }); 
