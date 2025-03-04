@@ -1,8 +1,8 @@
 import path from "path";
 
-export const Default_Lang = "en_2";
+export const Default_Lang = "en_1";
 
-export const AUDIO = (lang = 'en_2') => ({
+export const AUDIO = (lang = Default_Lang) => ({
     '10_second countdown': path.resolve('src', 'resources', lang, `war`, '10_second_countdown.mp3'), 
     '15_seconds': path.resolve('src', 'resources', lang, `war`, '15_seconds.mp3'), 
     '20_seconds': path.resolve('src', 'resources', lang, `war`, '20_seconds.mp3'), 
@@ -11,10 +11,9 @@ export const AUDIO = (lang = 'en_2') => ({
     '50_seconds': path.resolve('src', 'resources', lang, `war`, '50_seconds.mp3'), 
     'War Notice' : path.resolve('src', 'resources', lang, `war`, 'War_notice.mp3'), 
     'War Start' : path.resolve('src', 'resources', lang, `war`, 'War_start.mp3'), 
-    'Buy Start': path.resolve('src', 'resources', lang, `invasion`, 'Buy_phase_start.mp3'), 
-    'Buy Warn_15': path.resolve('src', 'resources', lang, `invasion`, 'Buy_phase_warn_15.mp3'), 
-    'Buy Warn_10': path.resolve('src', 'resources', lang, `invasion`, 'Buy_phase_warn_10.mp3'), 
-    'Buy phase end': path.resolve('src', 'resources', lang, `invasion`, 'Buy_phase_end.mp3'), 
+    'Buy Start': path.resolve('src', 'resources', lang, `invasion`, 'Phase_start.mp3'), 
+    'Buy Warn_10': path.resolve('src', 'resources', lang, `invasion`, 'Phase_warn_10.mp3'), 
+    'Buy phase end': path.resolve('src', 'resources', lang, `invasion`, 'Phase_end.mp3'), 
     'R_Skull Warn': path.resolve('src', 'resources', lang, `invasion`, 'Skull_warn_right.mp3'), 
     'M_Skull Warn': path.resolve('src', 'resources', lang, `invasion`, 'Skull_warn_mid.mp3'), 
     'L_Skull Warn': path.resolve('src', 'resources', lang, `invasion`, 'Skull_warn_left.mp3'), 
@@ -72,18 +71,18 @@ export const InvasionTimings = [
 
 export const invasionOptions = [
     {
-        label: 'Kimberly (EN)',
-        description: 'The first voice of the bot',
+        label: 'Rachel (EN)',
+        description: 'Calm American female',
         value: `en_1`,
     },
     {
-        label: 'Rachel (EN)',
-        description: 'Provided by JakeL',
+        label: 'Matilda (EN)',
+        description: 'Friendly female',
         value: `en_2`,
     },
     {
         label: 'Chris (EN)',
-        description: 'New and only male voice',
+        description: 'Casual male',
         value: `en_3`,
     },
     {
@@ -95,14 +94,19 @@ export const invasionOptions = [
 
 export const warOptions = [
     {
-        label: 'Kimberly (EN)',
-        description: 'The first voice of the bot',
+        label: 'Rachel (EN)',
+        description: 'Calm American female',
         value: `en_1`,
     },
     {
-        label: 'Rachel (EN)',
-        description: 'Provided by JakeL',
+        label: 'Matilda (EN)',
+        description: 'Friendly female',
         value: `en_2`,
+    },
+    {
+        label: 'Chris (EN)',
+        description: 'Casual male',
+        value: `en_3`,
     }
 ];
 

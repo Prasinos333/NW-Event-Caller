@@ -3,7 +3,6 @@ import path from "path";
 import { glob } from "glob";
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v10';
-import { pathToFileURL } from 'url';
 
 dotenv.config({ path: path.resolve('.env'), override: true });
 
@@ -12,9 +11,9 @@ const commandFiles = glob.sync(("src/commands/*.js"));
 const rest = new REST().setToken(process.env.TOKEN);
 
 (async () => {
+    console.log(`Command Files: ${commandFiles}`);
     for (const file of commandFiles) {
-        const normalizedPath = pathToFileURL(path.resolve(file)).href;
-        const command = await import(normalizedPath); 
+        const command = await import(`../../${file}`); 
         console.log(command);
         if ('data' in command && 'execute' in command) {
             commands.push(command.data);
