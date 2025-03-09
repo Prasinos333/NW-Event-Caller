@@ -1,4 +1,4 @@
-import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
+import { MessageFlags, EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import logger from "../util/logger.js";
 import path from "path";
 
@@ -20,19 +20,19 @@ async function execute(interaction) {
     const EventLog = logger(`${ path.resolve('logs', 'bots') }/Events.log`);
 
     try {
-        // await interaction.deferReply({ ephemeral: true }); 
+        // await interaction.deferReply({ flags: MessageFlags.Ephemeral }); 
         const voiceChannel = interaction.member?.voice?.channel;
         const textChannel = interaction.channel;
 
         if(!voiceChannel) {
-            return interaction.reply({ content: 'Error: You are not currently in a voice channel.', ephemeral: true });
+            return interaction.reply({ content: 'Error: You are not currently in a voice channel.', flags: MessageFlags.Ephemeral });
         }
 
         const number = interaction.options.getInteger('count');
         const excludeSelf = interaction.options.getBoolean('exclude-self');
 
         if(number <= 0) {
-            return interaction.reply({ content: 'Error: Number must be positive', ephemeral: true });
+            return interaction.reply({ content: 'Error: Number must be positive', flags: MessageFlags.Ephemeral });
         }
 
         const membersArray = Array.from(voiceChannel.members.values());
@@ -46,7 +46,7 @@ async function execute(interaction) {
             const errorMessage = excludeSelf 
                 ? 'Error: Cannot be equal to or greater than amount in channel excluding yourself and bots.' 
                 : 'Error: Cannot be equal to or greater than amount in channel excluding bots.';
-            return interaction.reply({ content: errorMessage, ephemeral: true });
+            return interaction.reply({ content: errorMessage, flags: MessageFlags.Ephemeral });
         }
 
         const memberArray = [...nonBotMembers];
@@ -73,12 +73,12 @@ async function execute(interaction) {
             .setColor('#0099ff') // Change the color as needed
             .setDescription(randomMembers.map(member => `• <@${member.id}>`).join('\n'));
         
-        interaction.reply({ embeds: [embed], ephemeral: false });
+        interaction.reply({ embeds: [embed] });
         const guild_name = interaction.member.guild.name;
         EventLog.log(`Raffle completed. Guild: "${ guild_name }" | Text channel: "${ textChannel.name }" in "${ TC_CategoryName }" | Voice channel: "${ voiceChannel.name }" in "${ VC_CategoryName }"`);
     } catch (error) {
         EventLog.error('Error executing voiceraffle command:', error);
-        interaction.reply({ content: 'An error occurred while executing the command.', ephemeral: true });
+        interaction.reply({ content: 'An error occurred while executing the command.', flags: MessageFlags.Ephemeral });
     }
 }
 

@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import logger from "../util/logger.js";
 import Timer from "../util/timer.js";
 import { db } from "../index.js";
-import Discord, { GatewayIntentBits, ActionRowBuilder, ButtonBuilder, StringSelectMenuBuilder, TextChannel, ButtonStyle, PermissionsBitField, ComponentType } from "discord.js";
+import Discord, { GatewayIntentBits, ActionRowBuilder, ButtonBuilder, TextChannel, ButtonStyle, PermissionsBitField, ComponentType, MessageFlags } from "discord.js";
 import { joinVoiceChannel, VoiceConnectionStatus, getVoiceConnection } from "@discordjs/voice";
 import { invasionSelect, stopButton, warSelect } from "../util/buttons.js";
 
@@ -184,7 +184,7 @@ class Bot
         const collector = message.createMessageComponentCollector();
     
         collector.on('collect', async (interaction) => {
-            await interaction.deferReply({ ephemeral: true });
+            await interaction.deferReply({ flags: MessageFlags.Ephemeral });
             const { componentType } = interaction;
             const guildId = interaction.guildId;
             const current = this.getTimer(guildId);
@@ -194,11 +194,11 @@ class Bot
                     switch (interaction.customId) {
                         case "invasionLoop":
                             const state = current.timer.changeSetting();
-                            await interaction.editReply({content: `Changed setting to \`${ state }\``, ephemeral: true});
+                            await interaction.editReply({content: `Changed setting to \`${ state }\``, flags: MessageFlags.Ephemeral});
                             break;
                         case "waveSwitch":
                             const wave = current.timer.changeWave();
-                            await interaction.editReply({content: `Changed to wave \`${ wave }\``, ephemeral: true});
+                            await interaction.editReply({content: `Changed to wave \`${ wave }\``, flags: MessageFlags.Ephemeral});
                             break;
                         case "stop":
                             this.stopCommand(guildId, interaction.user);
@@ -213,7 +213,7 @@ class Bot
                     const newLang = interaction.values[0];
                     current.timer.changeLang(newLang);
 
-                    await interaction.editReply({content: `Changed voice to \`${ newLang }\``, ephemeral: true});
+                    await interaction.editReply({content: `Changed voice to \`${ newLang }\``, flags: MessageFlags.Ephemeral});
                     this.logger.log(`Changed voice audio in guild: "${ interaction.guild.name }" to: '${ newLang }'`);
                     break;
             }
