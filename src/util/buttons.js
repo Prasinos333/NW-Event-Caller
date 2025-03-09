@@ -1,5 +1,5 @@
 import { ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } from 'discord.js';
-import { invasionOptions, invasionVoices, warVoices } from '../config';
+import { invasionOptions, invasionVoices, warVoices } from '../config.js';
 
 export const stopButton = new ButtonBuilder()
                 .setCustomId('stop')
