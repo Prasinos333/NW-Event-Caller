@@ -71,6 +71,29 @@ export const InvasionTimings = [
 
 export const invasionOptions = [
     {
+        label: 'Buy Phase',
+        description: 'Buy Phase Timings',
+        value: 'buy',
+    }, 
+    {
+        label: 'Skulls',
+        description: 'Skull Timings',
+        value: 'skull',
+    },
+    {
+        label: 'Close Spawns',
+        description: 'Close Spawn Timings',
+        value: 'close',
+    },
+    {
+        label: 'Siege Spawns',
+        description: 'Siege Spawn Timings',
+        value: 'siege',
+    }
+]
+
+export const invasionVoices = [
+    {
         label: 'Rachel (EN)',
         description: 'Calm American female',
         value: `en_1`,
@@ -92,7 +115,7 @@ export const invasionOptions = [
     }
 ];
 
-export const warOptions = [
+export const warVoices = [
     {
         label: 'Rachel (EN)',
         description: 'Calm American female',

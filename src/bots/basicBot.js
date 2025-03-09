@@ -3,9 +3,9 @@ import { v4 as uuidv4 } from "uuid";
 import logger from "../util/logger.js";
 import Timer from "../util/timer.js";
 import { db } from "../index.js";
-import { invasionOptions, warOptions } from "../config.js";
 import Discord, { GatewayIntentBits, ActionRowBuilder, ButtonBuilder, StringSelectMenuBuilder, TextChannel, ButtonStyle, PermissionsBitField, ComponentType } from "discord.js";
 import { joinVoiceChannel, VoiceConnectionStatus, getVoiceConnection } from "@discordjs/voice";
+import { invasionSelect, stopButton, warSelect } from "../util/buttons.js";
 
 class Bot
 {
@@ -229,28 +229,16 @@ class Bot
             const categoryName = channel.parent.name ?? "No Category";
             this.logger.log(`Creating buttons for channel: "${ channel.name }" in "${ categoryName }"`);
     
-            const stopButton = new ButtonBuilder()
-                .setCustomId('stop')
-                .setLabel('Stop')
-                .setStyle(ButtonStyle.Danger)
-                .setEmoji('🛑');
+            let selectButton = type === "war" ? warSelect : invasionSelect;
     
-            let additionalButton;
-            let selectOptions = type === "war" ? warOptions : invasionOptions;
-    
-            additionalButton = new ButtonBuilder()
+            let additionalButton = new ButtonBuilder()
                 .setCustomId(type === "war" ? 'waveSwitch' : 'invasionLoop')
                 .setLabel(type === "war" ? 'Switch Wave' : 'Change Setting')
                 .setStyle(ButtonStyle.Secondary);
     
-            const configSelect = new StringSelectMenuBuilder()
-                .setCustomId('select')
-                .setPlaceholder('Change Voice')
-                .addOptions(selectOptions);
-    
             const message = await channel.send({
                 components: [
-                    new ActionRowBuilder().addComponents(configSelect),
+                    new ActionRowBuilder().addComponents(selectButton),
                     new ActionRowBuilder().addComponents(stopButton, additionalButton)
                 ]
             });
