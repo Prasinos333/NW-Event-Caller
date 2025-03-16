@@ -193,9 +193,14 @@ class Timer {
     
                 if (chrono <= 1800 && currentRespawn) {
                     switch (chrono - currentRespawn.value) {
+                        case 6:
+                            this.logger.log('5 seconds remaining (chrono: %s).', chrono);
+                            this.playAudio(this.audio["5_second Countdown"]);
+                            break;
+                            
                         case 11:
                             this.logger.log('10 seconds remaining (chrono: %s).', chrono);
-                            this.playAudio(this.audio["10_second countdown"]);
+                            this.playAudio(this.audio["10_seconds"]);
                             break;
     
                         case 21:
