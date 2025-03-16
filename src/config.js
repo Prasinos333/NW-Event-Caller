@@ -3,14 +3,14 @@ import path from "path";
 export const Default_Lang = "en_1";
 
 export const AUDIO = (lang = Default_Lang) => ({
-    '10_second countdown': path.resolve('src', 'resources', lang, `war`, '10_second_countdown.mp3'), 
-    '15_seconds': path.resolve('src', 'resources', lang, `war`, '15_seconds.mp3'), 
+    '5_second Countdown': path.resolve('src', 'resources', lang, `war`, '5_second_countdown.mp3'), 
+    '10_seconds': path.resolve('src', 'resources', lang, `war`, '10_seconds.mp3'), 
     '20_seconds': path.resolve('src', 'resources', lang, `war`, '20_seconds.mp3'), 
     '30_seconds': path.resolve('src', 'resources', lang, `war`, '30_seconds.mp3'), 
     '40_seconds': path.resolve('src', 'resources', lang, `war`, '40_seconds.mp3'), 
     '50_seconds': path.resolve('src', 'resources', lang, `war`, '50_seconds.mp3'), 
-    'War Notice' : path.resolve('src', 'resources', lang, `war`, 'War_notice.mp3'), 
-    'War Start' : path.resolve('src', 'resources', lang, `war`, 'War_start.mp3'), 
+    'War Notice': path.resolve('src', 'resources', lang, `war`, 'War_notice.mp3'), 
+    'War Start': path.resolve('src', 'resources', lang, `war`, 'War_start.mp3'), 
     'Buy Start': path.resolve('src', 'resources', lang, `invasion`, 'Phase_start.mp3'), 
     'Buy Warn_10': path.resolve('src', 'resources', lang, `invasion`, 'Phase_warn_10.mp3'), 
     'Buy phase end': path.resolve('src', 'resources', lang, `invasion`, 'Phase_end.mp3'), 
@@ -18,11 +18,11 @@ export const AUDIO = (lang = Default_Lang) => ({
     'M_Skull Warn': path.resolve('src', 'resources', lang, `invasion`, 'Skull_warn_mid.mp3'), 
     'L_Skull Warn': path.resolve('src', 'resources', lang, `invasion`, 'Skull_warn_left.mp3'), 
     'R_Skull': path.resolve('src', 'resources', lang, `invasion`, 'Skull_right.mp3'), 
-    'M_Skull' : path.resolve('src', 'resources', lang, `invasion`, 'Skull_mid.mp3'), 
-    'L_Skull' : path.resolve('src', 'resources', lang, `invasion`, 'Skull_left.mp3'), 
-    'Last Wave' : path.resolve('src', 'resources', lang, `invasion`, 'Last_spawn.mp3'), 
-    'Invasion Notice' : path.resolve('src', 'resources', lang, `invasion`, 'Invasion_notice.mp3'), 
-    'Invasion Start' : path.resolve('src', 'resources', lang, `invasion`, 'Invasion_start.mp3'), 
+    'M_Skull': path.resolve('src', 'resources', lang, `invasion`, 'Skull_mid.mp3'), 
+    'L_Skull': path.resolve('src', 'resources', lang, `invasion`, 'Skull_left.mp3'), 
+    'Last Wave': path.resolve('src', 'resources', lang, `invasion`, 'Last_spawn.mp3'), 
+    'Invasion Notice': path.resolve('src', 'resources', lang, `invasion`, 'Invasion_notice.mp3'), 
+    'Invasion Start': path.resolve('src', 'resources', lang, `invasion`, 'Invasion_start.mp3'), 
 }); 
 
 export const InvasionTimings = [ 
