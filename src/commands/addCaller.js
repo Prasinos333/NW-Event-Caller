@@ -94,7 +94,7 @@ async function execute(interaction) {
         } else {
             availableBot.eventCall(callerType, interaction);
             EventLog.log(`"${availableBot.name}" calling '${callerType}' | Guild: "${guildName}" | Voice channel: "${voiceChannel.name}" in "${VC_CategoryName}" | Text channel: "${textChannel.name}" in "${TC_CategoryName}"`);
-            return interaction.reply({ content: `<@${availableBot.client.user.id}> calling \`${callerType}\` in \`${voiceChannel.name}\` for \`${VC_CategoryName}\``, flags: MessageFlags.Ephemeral });
+            return interaction.reply({ content: `<@${availableBot.client.user.id}> calling \`${callerType}\` in \`${voiceChannel.name}\` for \`${VC_CategoryName}\`` });
         }
     } catch (error) {
         EventLog.error('Error executing addcaller command:', error);
