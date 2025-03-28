@@ -226,7 +226,7 @@ class Bot
             const channel = await this.client.channels.fetch(textChannelId);
             if (!(channel instanceof TextChannel)) return null;
             
-            const categoryName = channel.parent.name ?? "No Category";
+            const categoryName = channel.parent?.name ?? "No Category";
             this.logger.log(`Creating buttons for channel: "${ channel.name }" in "${ categoryName }"`);
     
             let selectButton = type === "war" ? warSelect : invasionSelect;
