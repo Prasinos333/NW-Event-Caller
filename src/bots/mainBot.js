@@ -1,8 +1,8 @@
 import Bot from "./basicBot.js";
+import Discord, { ActivityType, GatewayIntentBits } from "discord.js";
 import { execute as voiceraffleExecute } from "../commands/voiceRaffle.js";
 import { execute as addcallerExecute } from "../commands/addCaller.js";
 import { execute as allowRolesExecute } from "../commands/allowRoles.js";
-import Discord, { ActivityType, GatewayIntentBits } from "discord.js";
 
 class MainBot extends Bot {
   constructor({ name, token }) {
@@ -17,14 +17,14 @@ class MainBot extends Bot {
       ],
     });
 
-    this.initialise();
+    this._initialise();
   }
 
   /**
    * Initialises the bot and sets up the event listeners.
    */
-  initialise = () => {
-    this.client.login(this.token).catch(console.error);
+  _initialise() {
+    this.client.login(this._token).catch(console.error);
 
     this.client.once("ready", () => {
       this.client.user.setActivity({

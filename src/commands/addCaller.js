@@ -1,5 +1,3 @@
-import path from "path";
-import Bot from "../bots/basicBot.js";
 import {
   MessageFlags,
   SlashCommandBuilder,
@@ -7,8 +5,10 @@ import {
   InteractionContextType,
 } from "discord.js";
 import logger from "../util/logger.js";
-import { createdBots } from "../index.js";
+import path from "path";
 import { getVoiceConnection } from "@discordjs/voice";
+import Bot from "../bots/basicBot.js";
+import { createdBots } from "../index.js";
 
 const data = new SlashCommandBuilder()
   .setName("addcaller")
@@ -127,7 +127,7 @@ async function execute(interaction) {
 
     if (!hasTextPerms) {
       EventLog.warn(
-        `"${availableBot.name}" doesn't have the proper perms for text channel: "${textChannel.name}" in "${TC_CategoryName}" for guild: "${guildName}"`
+        `"${availableBot._name}" doesn't have the proper perms for text channel: "${textChannel.name}" in "${TC_CategoryName}" for guild: "${guildName}"`
       );
       return interaction.reply({
         content: `Error: \`${availableBot.client.user.username}\` doesn't have proper permissions for this text channel.`,
@@ -135,7 +135,7 @@ async function execute(interaction) {
       });
     } else if (!hasVoicePerms) {
       EventLog.warn(
-        `"${availableBot.name}" doesn't have the proper perms for voice channel: "${voiceChannel.name}" in "${VC_CategoryName}" for guild: "${guildName}"`
+        `"${availableBot._name}" doesn't have the proper perms for voice channel: "${voiceChannel.name}" in "${VC_CategoryName}" for guild: "${guildName}"`
       );
       return interaction.reply({
         content: `Error: \`${availableBot.client.user.username}\` doesn't have proper permissions for the voice channel.`,
@@ -144,7 +144,7 @@ async function execute(interaction) {
     } else {
       availableBot.eventCall(interaction);
       EventLog.log(
-        `"${availableBot.name}" calling '${callerType}' | Guild: "${guildName}" | Voice channel: "${voiceChannel.name}" in "${VC_CategoryName}" | Text channel: "${textChannel.name}" in "${TC_CategoryName}"`
+        `"${availableBot._name}" calling '${callerType}' | Guild: "${guildName}" | Voice channel: "${voiceChannel.name}" in "${VC_CategoryName}" | Text channel: "${textChannel.name}" in "${TC_CategoryName}"`
       );
       return interaction.reply({
         content: `<@${availableBot.client.user.id}> calling \`${callerType}\` in \`${voiceChannel.name}\` for \`${VC_CategoryName}\``,

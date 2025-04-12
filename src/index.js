@@ -1,10 +1,10 @@
 /* eslint-disable no-undef */
 import dotenv from "dotenv";
 import path from "path";
-import Bot from "./bots/basicBot.js";
-import MainBot from "./bots/mainBot.js";
 import Database from "./util/database.js";
 import logger from "./util/logger.js";
+import MainBot from "./bots/mainBot.js";
+import Bot from "./bots/basicBot.js";
 
 dotenv.config({ path: path.resolve(".env"), override: true });
 
