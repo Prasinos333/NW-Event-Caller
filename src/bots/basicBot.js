@@ -1,314 +1,231 @@
-import path from "path";
 import { v4 as uuidv4 } from "uuid";
+import Discord, {
+  GatewayIntentBits,
+  ActionRowBuilder,
+  TextChannel,
+  PermissionsBitField,
+} from "discord.js";
 import logger from "../util/logger.js";
-import Timer from "../util/timer.js";
-import { db } from "../index.js";
-import Discord, { GatewayIntentBits, ActionRowBuilder, ButtonBuilder, TextChannel, ButtonStyle, PermissionsBitField, ComponentType, MessageFlags } from "discord.js";
-import { joinVoiceChannel, VoiceConnectionStatus, getVoiceConnection } from "@discordjs/voice";
-import { invasionSelect, stopButton, warSelect } from "../util/buttons.js";
+import path from "path";
+import timer from "../util/timer.js";
+import {
+  joinVoiceChannel,
+  VoiceConnectionStatus,
+  getVoiceConnection,
+} from "@discordjs/voice";
+import { WarHandler } from "./warHandler.js";
+import { InvasionHandler } from "./invasionHandler.js";
+import {
+  stopButton,
+  langButton,
+  settingsButton,
+  waveButton,
+} from "../util/buttons.js"; 
 
-class Bot
-{
-    constructor({ name, token }) {
-        this.uId = uuidv4();
-        
-        this.client = new Discord.Client({
-            intents: [
-                GatewayIntentBits.Guilds,
-                GatewayIntentBits.GuildMembers,
-                GatewayIntentBits.GuildMessages,
-                GatewayIntentBits.GuildVoiceStates
-            ]
-        });
-    
-        this.name = name;
-        this.token = token;
-        this.timers = [];
-        this.logger = logger(`${ path.resolve('logs', 'bots') }/${ name }.log`);
-        this.eventLog = logger(`${ path.resolve('logs', 'bots') }/Events.log`);
+class Bot {
+  constructor({ name, token, color }) {
+    this.uId = uuidv4();
 
-        this.initialize();
-    }
-    
-    initialize() { 
-        this.client.login(this.token).catch(console.error);
+    this.client = new Discord.Client({
+      intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.GuildVoiceStates,
+      ],
+    });
 
-        this.client.once('ready', () => {
-            this.logger.info('Client is ready.');            
-        });
+    this._name = name;
+    this._token = token;
+    this._color = color;
+    this._logger = logger(`${path.resolve("logs", "bots")}/${name}.log`);
+    this._eventLog = logger(`${path.resolve("logs", "bots")}/Events.log`);
 
-        this.client.on('voiceStateUpdate', (oldState, newState) => { 
-            if (oldState.member && oldState.member.user.id === this.client.user.id) {
-                const oldId = oldState.channelId;
-                const newId = newState.channelId;
+    this._initialize();
+  }
 
-                if (oldId && newId && oldId !== newId) {
-                    this.logger.warn('Bot moved voice channels. Stopping...');
-                    const current = this.getTimer(oldState.guild.id);
-                    if(current) {
-                        this.deleteButton(current.timer.buttonData);
-                    }
-                    this.stopCommand(newState.guild.id);
-                }
-            }
-        });
-    }
+  /**
+   * Initalizes the bot and sets up the event listeners.
+   * Logs once the bot is ready.
+   * Stops timer if the bot is moved to another channel.
+   */
+  _initialize() {
+    this.client.login(this._token).catch(console.error);
 
-    isAvailable(guildId) {
-        const guild = this.client.guilds.cache.get(guildId);
+    this.client.once("ready", () => {
+      this._logger.info("Client is ready.");
+    });
 
-        if (!guild) {
-            this.eventLog.warn(`"${ this.name }" not in server for guild: "${guild.name}"| Id: ${ guildId }`);
-            return false;
+    this.client.on("voiceStateUpdate", (oldState, newState) => {
+      if (oldState.member && oldState.member.user.id === this.client.user.id) {
+        const oldId = oldState.channelId;
+        const newId = newState.channelId;
+
+        if (oldId && newId && oldId !== newId) {
+          this._logger.warn("Bot moved voice channels. Stopping...");
+          const handler = timer.getHandler(this._name, oldState.guild.id);
+          handler.stop();
         }
+      }
+    });
+  }
 
-        const connection = getVoiceConnection(guildId, this.uId);
+  /**
+   * Checks if the bot is available for the given server.
+   *
+   * @param {snowflake} guildId
+   * @returns {boolean} - True if the bot is available, false otherwise.
+   */
+  isAvailable(guildId) {
+    const guild = this.client.guilds.cache.get(guildId);
 
-        if (
-            connection && connection.state &&
-            (connection.state.status !== VoiceConnectionStatus.Destroyed ||
-                connection.state.status !== VoiceConnectionStatus.Disconnected) &&
-            connection.joinConfig.guildId === guildId
-        ) {
-            return false;
-        }
-
-        return true;
-    }
-    
-    async hasPerms(channel) { 
-        try {
-            const guild = channel.guild;
-            await guild.members.fetch();
-            const botMember = guild.members.cache.get(this.client.user.id);
-            const botPermissions = botMember.permissionsIn(channel);
-    
-            if (botPermissions) {
-                const hasViewAndSendPermissions = botPermissions.has([PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.Connect]);
-                return hasViewAndSendPermissions;
-            } else {
-                const categoryName = channel.parent.name ?? "No Category";
-                this.eventLog.error(`Unable to retrieve permissions. Guild: "${ guild.name }" | Channel: ${ channel.id } in "${ categoryName }"`);
-                return false;
-            }
-        } catch (error) {
-            this.eventLog.error(`Error checking permissions:`, error);
-            return false;
-        }
+    if (!guild) {
+      this._eventLog.warn(`"${this._name}" not in server for guild: ${guildId}`);
+      return false;
     }
 
-    getTimer(guildId) {
-        const timer = this.timers.find((timer) => timer.guildId === guildId);
-        return timer;
+    const connection = getVoiceConnection(guildId, this.uId);
+
+    if (
+      connection &&
+      connection.state &&
+      (connection.state.status !== VoiceConnectionStatus.Destroyed ||
+        connection.state.status !== VoiceConnectionStatus.Disconnected) &&
+      connection.joinConfig.guildId === guildId
+    ) {
+      return false;
     }
 
-    async removeTimer(guildId) 
-    {
-        const current = this.getTimer(guildId);
-        if(current.timer.modifiedConfig) {
-            const lang = current.timer.lang;
-            const settings = current.timer.setting;
-            const userId = current.timer.userId;
-            try {
-                db.addConfig(userId, lang, settings);
-            } catch (error) {
-                this.eventLog.error(`Error adding config to db:`, error);
-            }
-        }
-        current.timer.clearTimerInterval();
-        this.timers = this.timers.filter((timer) => timer.guildId !== guildId);
+    return true;
+  }
+
+  /**
+   * Checks if the bot has the necessary permissions in the given channel.
+   *
+   * @param {*} channel - The channel to check permissions for.
+   * @returns {boolean} - True if the bot has permissions, false otherwise.
+   */
+  async hasPerms(channel) {
+    try {
+      const guild = channel.guild;
+      await guild.members.fetch();
+      const botMember = guild.members.cache.get(this.client.user.id);
+      const botPermissions = botMember.permissionsIn(channel);
+
+      if (botPermissions) {
+        const hasViewAndSendPermissions = botPermissions.has([
+          PermissionsBitField.Flags.ViewChannel,
+          PermissionsBitField.Flags.SendMessages,
+          PermissionsBitField.Flags.Connect,
+        ]);
+        return hasViewAndSendPermissions;
+      } else {
+        const categoryName = channel.parent.name ?? "No Category";
+        this._eventLog.error(
+          `Unable to retrieve permissions. Guild: "${guild.name}" | Channel: ${channel.id} in "${categoryName}"`
+        );
+        return false;
+      }
+    } catch (error) {
+      this._eventLog.error(`Error checking permissions:`, error);
+      return false;
+    }
+  }
+
+  /**
+   * Creates the voice connection and handler for the event.
+   * 
+   * @param {object} interaction - The interaction object from Discord.
+   * @returns {Promise<void>} - Void
+   */
+  async eventCall(interaction) {
+    const callerType = interaction.options.getString("type");
+    const textChannelId = interaction.channelId;
+    const voiceChannel = interaction.member.voice.channel;
+    const voiceChannelId = voiceChannel?.id;
+    const voiceChannelName = voiceChannel?.name;
+    const guildId = interaction.guildId;
+    const guild = await this.client.guilds.fetch(guildId);
+    const guildName = interaction.member.guild.name;
+    const userId = interaction.user.id;
+    const botData = { name: this._name, color: this._color };
+    let handler = null;
+    let embed = null;
+
+    if (!guild) {
+      this._eventLog.error(`Failed to fetch guild:`, guildId);
+      return;
     }
 
-    stopCommand(guildId, user = null) {
-        const guild = this.client.guilds.cache.get(guildId);
+    const VC_CategoryName = voiceChannel.parent.name ?? "No Category";
+    this._logger.info(
+      `Attempting to join voice channel: "${voiceChannelName}" in "${VC_CategoryName}" for guild: "${guildName}"`
+    );
 
-        if(user) {
-            this.logger.warn(`Stop command launched for guild: "${ guild.name }" by user: "${ user.username }"`);
-        } else {
-            this.logger.info(`Stop command launched for guild: "${ guild.name }"`);
-        }
-        
-        const connection = getVoiceConnection(guildId, this.uId);
+    const connection = joinVoiceChannel({
+      channelId: voiceChannelId,
+      guildId: guildId,
+      adapterCreator: guild.voiceAdapterCreator,
+      group: this.uId,
+    });
 
-        if (connection) {
-            connection.destroy();
-            this.removeTimer(guildId);
-        }
+    connection.once(VoiceConnectionStatus.Ready, async () => {
+      switch (callerType) {
+        case "war":
+          handler = new WarHandler(botData, guildId, userId, voiceChannel);
+          embed = handler.createEmbed();
+          break;
+        case "invasion":
+          handler = new InvasionHandler(botData, guildId, userId, voiceChannel);
+          embed = handler.createEmbed();
+          break;
+      } 
+
+      const messageData = await this._sendMessageData(textChannelId, callerType, embed);
+      handler.messageData = messageData;
+      handler.subscribeConnection(connection);
+      handler.start();
+      return;
+    });
+  };
+
+  /**
+   * Creates and sends buttons with an embed in a specified text channel based on the event type.
+   * 
+   * @param {snowflake} textChannelId - The ID of the text channel to send buttons in.
+   * @param {string} type - The type of event (e.g., "war" or "invasion").
+   * @param {object} embed - The embed object to send with the buttons.
+   * @returns {object|null} - The channel and message objects if successful, null otherwise.
+   */
+  async _sendMessageData(textChannelId, type, embed) {
+    try {
+      const channel = await this.client.channels.fetch(textChannelId);
+      if (!(channel instanceof TextChannel)) return null;
+
+      const categoryName = channel.parent?.name ?? "No Category";
+      this._logger.log(
+        `Creating buttons for channel: "${channel.name}" in "${categoryName}"`
+      );
+
+      const buttons = [stopButton, langButton];
+
+      if (type === "war") {
+        buttons.push(waveButton); 
+      } else if (type === "invasion") {
+        buttons.push(settingsButton); 
+      }
+
+      const message = await channel.send({
+        embeds: [embed],
+        components: [new ActionRowBuilder().addComponents(...buttons)],
+      });
+
+      return { channel: channel, message: message };
+    } catch (error) {
+      this._logger.error(`Error while creating buttons:`, error);
+      return null;
     }
-
-    handleErrors(error) {
-        switch(error) {
-            case 10062:
-                this.logger.error(`Interaction reply error: 'Unknown interaction'`);
-                break;
-            case 10008:
-                this.logger.error(`Message deletion error: 'Unknown message'`);
-            default:
-                this.logger.error('New Error:', error);
-        }
-    }
-
-    async deleteButton(buttonData) {
-        if(buttonData) {
-            const { channelId, messageId } = buttonData;
-
-            if (channelId && messageId) {
-                const channel = await this.client.channels.fetch(channelId);
-    
-                if (channel instanceof TextChannel) {
-                    const message = await channel.messages.fetch(messageId)
-                        .catch((err) => {
-                        if (err.httpStatus === 404) {
-                            this.logger.warn('Button already deleted.');
-                        } else {
-                            this.logger.error(`Error fetching message: ${ messageId }`, err);
-                        }
-                    });
-
-                    if (message) {
-                        await message.delete()
-                            .then(() => this.logger.info('Button deleted successfully.'))
-                            .catch((error) => this.handleErrors(error));
-                        }
-                    }
-            }
-        }  
-    }
-
-    setupCollector = async (channel, message) => {
-        if (!(channel instanceof TextChannel)) {
-            this.logger.error('Invalid channel type for setting up collector.');
-            return;
-        }
-        
-        const collector = message.createMessageComponentCollector();
-    
-        collector.on('collect', async (interaction) => {
-            await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-            const { componentType } = interaction;
-            const guildId = interaction.guildId;
-            const current = this.getTimer(guildId);
-
-            switch(componentType) {
-                case ComponentType.Button:
-                    switch (interaction.customId) {
-                        case "invasionLoop":
-                            const state = current.timer.changeSetting();
-                            await interaction.editReply({content: `Changed setting to \`${ state }\``, flags: MessageFlags.Ephemeral});
-                            break;
-                        case "waveSwitch":
-                            const wave = current.timer.changeWave();
-                            await interaction.editReply({content: `Changed to wave \`${ wave }\``, flags: MessageFlags.Ephemeral});
-                            break;
-                        case "stop":
-                            this.stopCommand(guildId, interaction.user);
-                            await interaction.deleteReply().catch((err) => this.logger.error(`Error deleting reply:`, err));
-                            await message.delete() 
-                                    .then(() => this.logger.info('Button deleted successfully.'))
-                                    .catch((err) => this.logger.error(`Error deleting message: ${ message.id } \n`, err));
-                            break;
-                    }
-                    break;
-                case ComponentType.StringSelect:
-                    const newLang = interaction.values[0];
-                    current.timer.changeLang(newLang);
-
-                    await interaction.editReply({content: `Changed voice to \`${ newLang }\``, flags: MessageFlags.Ephemeral});
-                    this.logger.log(`Changed voice audio in guild: "${ interaction.guild.name }" to: '${ newLang }'`);
-                    break;
-            }
-        });
-    }
-
-    createButtons = async (textChannelId, type) => {
-        // TODO - Check if buttondata exists. 5
-        try {
-            const channel = await this.client.channels.fetch(textChannelId);
-            if (!(channel instanceof TextChannel)) return null;
-            
-            const categoryName = channel.parent?.name ?? "No Category";
-            this.logger.log(`Creating buttons for channel: "${ channel.name }" in "${ categoryName }"`);
-    
-            let selectButton = type === "war" ? warSelect : invasionSelect;
-    
-            let additionalButton = new ButtonBuilder()
-                .setCustomId(type === "war" ? 'waveSwitch' : 'invasionLoop')
-                .setLabel(type === "war" ? 'Switch Wave' : 'Change Setting')
-                .setStyle(ButtonStyle.Secondary);
-    
-            const message = await channel.send({
-                components: [
-                    new ActionRowBuilder().addComponents(selectButton),
-                    new ActionRowBuilder().addComponents(stopButton, additionalButton)
-                ]
-            });
-    
-            return { channel: channel, message: message };
-    
-        } catch (error) {
-            this.logger.error(`Error while creating buttons:`, error);
-            return null;
-        }
-    }
-    
-    eventCall = async (type, interaction) => { 
-        const textChannelId = interaction.channelId;
-        const voiceChannel = interaction.member.voice.channel;
-        const voiceChannelId = interaction.member.voice.channel.id;
-        const voiceChannelName = interaction.member.voice.channel.name;
-        const guildId = interaction.guildId;
-        const guildName = interaction.member.guild.name;
-        const userId = interaction.user.id;
-        const guild = await this.client.guilds.fetch(guildId);
-
-        if(!db.isConnected()) {
-            db.reconnect();
-        }
-
-        if (!guild) {
-            this.eventLog.error(`Failed to fetch guild:`, guildId);
-            return;
-        } 
-        const timer = new Timer(this.name, guildId, userId, this); 
-        this.timers.push({ guildId: guildId, timer: timer});
-
-        const VC_CategoryName = voiceChannel.parent.name ?? "No Category";
-        this.logger.info(`Attempting to join voice channel: "${ voiceChannelName }" in "${ VC_CategoryName }" for guild: "${ guildName }"`);
-
-        const connection = joinVoiceChannel({
-            channelId: voiceChannelId,
-            guildId: guildId,
-            adapterCreator: guild.voiceAdapterCreator,
-            group: this.uId
-        });
-
-        connection.once(VoiceConnectionStatus.Ready, async () => {
-            timer.subscribeTimer(connection);
-            let channelMessage;
-            let buttonData;
-
-            switch (type) {
-                case 'war':
-                    channelMessage = await this.createButtons(textChannelId, type);
-                    this.setupCollector(channelMessage.channel, channelMessage.message);
-                    buttonData = { channelId: channelMessage.channel.id, messageId: channelMessage.message.id }
-                    timer.changeButtonData(buttonData);
-                    timer.callRespawns();
-                    break;
-                case 'invasion':
-                    const options = await db.retrieveConfig(userId);
-                    if(options) {
-                        timer.updateConfig(options);
-                    }
-                    channelMessage = await this.createButtons(textChannelId, type);
-                    this.setupCollector(channelMessage.channel, channelMessage.message);
-                    buttonData = { channelId: channelMessage.channel.id, messageId: channelMessage.message.id }
-                    timer.changeButtonData(buttonData);
-                    timer.callInvasion();
-                    break;
-            }
-        });
-    }
+  };
 }
 
 export default Bot;
