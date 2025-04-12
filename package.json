@@ -23,5 +23,11 @@
   },
   "keywords": [],
   "nodeVersion": "21.6.2",
-  "file": "bot.js"
+  "file": "bot.js",
+  "devDependencies": {
+    "@eslint/js": "^9.24.0",
+    "eslint": "^9.24.0",
+    "globals": "^16.0.0",
+    "prettier": "3.5.3"
+  }
 }
