@@ -7,13 +7,13 @@ import {
   createAudioResource,
   getVoiceConnection,
 } from "@discordjs/voice";
-import {
-  MessageFlags,
-  ComponentType,
-  ActionRowBuilder,
-} from "discord.js";
+import { MessageFlags, ComponentType, ActionRowBuilder } from "discord.js";
 import { DEFAULT_LANG } from "../config.js";
-import { invasionSettings, invasionSelect, warSelect } from "../util/buttons.js";
+import {
+  invasionSettings,
+  invasionSelect,
+  warSelect,
+} from "../util/buttons.js";
 import timer from "../util/timer.js";
 import { db } from "../index.js";
 import fs from "fs";
@@ -143,22 +143,20 @@ class Handler {
         });
         return;
       }
-      
+
       switch (interaction.customId) {
         case "stop":
           this.stop(interaction.user);
           await interaction
             .deleteReply()
-            .catch((err) =>
-              this._logger.error(`Error deleting reply:`, err)
-            );
+            .catch((err) => this._logger.error(`Error deleting reply:`, err));
           break;
 
         case "lang": {
           const langMenu = type === "invasion" ? invasionSelect : warSelect;
 
           if (this._activeLangCollector) {
-            this._activeLangCollector.stop(); 
+            this._activeLangCollector.stop();
           }
 
           await interaction.editReply({
@@ -166,22 +164,24 @@ class Handler {
             flags: MessageFlags.Ephemeral,
           });
 
-          const filter = (i) => i.user.id === interaction.user.id; 
-          const collector = interaction.channel.createMessageComponentCollector({
-            filter,
-            componentType: ComponentType.StringSelect,
-            time: 60000, 
-          });
+          const filter = (i) => i.user.id === interaction.user.id;
+          const collector = interaction.channel.createMessageComponentCollector(
+            {
+              filter,
+              componentType: ComponentType.StringSelect,
+              time: 60000,
+            }
+          );
 
           this._activeLangCollector = collector;
 
           collector.on("collect", async (menuInteraction) => {
             const selectedLang = menuInteraction.values[0];
-            this._changeLang(selectedLang); 
+            this._changeLang(selectedLang);
 
             await menuInteraction.update({
               content: `Language changed to: \`${selectedLang}\``,
-              components: [], 
+              components: [],
             });
 
             this._logger.log(
@@ -200,7 +200,7 @@ class Handler {
 
           break;
         }
-          
+
         case "settings":
           if (this._setting) {
             await interaction.editReply({
@@ -210,22 +210,23 @@ class Handler {
               flags: MessageFlags.Ephemeral,
             });
 
-            const filter = (i) => i.user.id === interaction.user.id; 
-            const collector = interaction.channel.createMessageComponentCollector({
-              filter,
-              componentType: ComponentType.StringSelect,
-              time: 60000, 
-            });
+            const filter = (i) => i.user.id === interaction.user.id;
+            const collector =
+              interaction.channel.createMessageComponentCollector({
+                filter,
+                componentType: ComponentType.StringSelect,
+                time: 60000,
+              });
 
             this._activeSettingsCollector = collector;
 
             collector.on("collect", async (menuInteraction) => {
-              const selectedSettings = menuInteraction.values; 
-              this._changeSetting(selectedSettings); 
+              const selectedSettings = menuInteraction.values;
+              this._changeSetting(selectedSettings);
 
               await menuInteraction.update({
                 content: `Settings updated to: \`${selectedSettings.join(", ")}\``,
-                components: [], 
+                components: [],
               });
 
               this._logger.log(
@@ -334,7 +335,6 @@ class Handler {
         const status = this._player?.state?.status || AudioPlayerStatus.Idle;
         if (status === AudioPlayerStatus.Idle) {
           this._player.play(createAudioResource(fs.createReadStream(filePath)));
-          this._logger.info(`Playing audio: ${audioName}`);
         }
       } else {
         this._logger.warn(`Audio file not found: ${filePath}`);
@@ -385,15 +385,49 @@ class Handler {
   }
 
   /**
+   *
+   */
+  _checkMessage() {
+    if (this._messageData && this._messageData.message) {
+      this._messageData.message.fetch().catch((err) => {
+        if (err.code === 10008) {
+          this._logger.warn("Message no longer exists. Stopping...");
+          this._messageData = null;
+          this.stop();
+        } else {
+          this._logger.error(`Error fetching message:`, err);
+        }
+      });
+    }
+
+    return;
+  }
+
+  /**
    * Deletes a message based on the provided message data.
    */
   async _deleteMessage() {
-    if (this._messageData) {
+    if (this._messageData && this._messageData.message) {
       const message = this._messageData.message;
       await message
-        .delete()
-        .then(() => this._logger.info("Message deleted successfully."))
-        .catch((error) => this._logger.error(`Error deleting message:`, error));
+        .fetch() // Check if the message still exists
+        .then((message) => {
+          message
+            .delete()
+            .then(() => this._logger.info("Message deleted successfully."))
+            .catch((error) =>
+              this._logger.error(`Error deleting message:`, error)
+            );
+        })
+        .catch((err) => {
+          if (err.code === 10008) {
+            // DiscordAPIError: Unknown Message (message was deleted)
+            this._logger.warn("Message no longer exists. Skipping deletion.");
+            this._messageData = null; // Clear the message data
+          } else {
+            this._logger.error(`Error fetching message:`, err);
+          }
+        });
     }
 
     return;

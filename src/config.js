@@ -28,22 +28,22 @@ export const invasionVoices = [
 
 export const invasionOptions = [
   {
-    label: "Buy Phase",
+    label: "Phase",
     description: "Buy Phase Timings",
     value: "phase",
   },
   {
     label: "Skulls",
-    description: "Skull Timings",
+    description: "Skull Spawn Timings",
     value: "skull",
   },
   {
-    label: "Close Spawns",
-    description: "Close Spawn Timings",
+    label: "Close",
+    description: "Close Spawns Timings",
     value: "close",
   },
   {
-    label: "Siege Spawns",
+    label: "Siege",
     description: "Siege Spawn Timings",
     value: "siege",
   },
@@ -255,8 +255,8 @@ export const respawns = [
   { wave: 0, value: 50 },   // 00:50
 ];
 
-export const Bar_Config = {
-  barWidth: 30,
-  barIconFull: "■",
-  barIconEmpty: "□",
+export const BAR_CONFIG = {
+  barWidth: 25,
+  barIconFull: "●",
+  barIconEmpty: "○",
 };

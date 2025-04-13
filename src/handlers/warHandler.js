@@ -7,7 +7,7 @@ import {
   BOT_ICON,
   DEFAULT_LANG,
   respawns,
-  Bar_Config,
+  BAR_CONFIG,
 } from "../config.js";
 
 class WarHandler extends Handler {
@@ -48,6 +48,7 @@ class WarHandler extends Handler {
       const chrono = 1800 - (this._getCurrentTime() - this._startTime) / 1000;
       const currentRespawn = this._getNextRespawn(chrono);
 
+      this._checkMessage();
       this._updateEmbed(this.createEmbed(chrono, currentRespawn));
 
       if (chrono === 1801) {
@@ -62,7 +63,10 @@ class WarHandler extends Handler {
       if (chrono <= 1800 && currentRespawn) {
         switch (chrono - currentRespawn.value) {
           case 6:
-            this._logger.log("Playing 5 second countdown (chrono: %s).", chrono);
+            this._logger.log(
+              "Playing 5 second countdown (chrono: %s).",
+              chrono
+            );
             this._playAudio("5_second_countdown.mp3", "war");
             break;
 
@@ -118,9 +122,6 @@ class WarHandler extends Handler {
     const respawnTime = this._formatSeconds(currentRespawn.value);
     const totalRemaining = this._formatSeconds(chrono);
     const { currentInterval, nextInterval } = this._getInterval(chrono);
-    const currentIntervalFormatted = this._formatSeconds(currentInterval);
-    const nextIntervalFormatted = this._formatSeconds(nextInterval);
-    
 
     const warEmbed = new EmbedBuilder()
       .setColor(this._botColor)
@@ -135,12 +136,12 @@ class WarHandler extends Handler {
         { name: "Next Respawn", value: `\`${respawnTime}\`` },
         {
           name: "Current Interval",
-          value: `**${currentIntervalFormatted}** *Secs*`,
+          value: `**${currentInterval}** *Secs*`,
           inline: true,
         },
         {
           name: "Next Interval",
-          value: `**${nextIntervalFormatted}** *Secs*`,
+          value: `**${nextInterval}** *Secs*`,
           inline: true,
         },
         { name: "Time Remaing", value: `\`${totalRemaining}\``, inline: true },
@@ -278,11 +279,11 @@ class WarHandler extends Handler {
       return "|N/A|";
     }
 
-    const { barWidth, barIconFull, barIconEmpty } = Bar_Config;
+    const { barWidth, barIconFull, barIconEmpty } = BAR_CONFIG;
     const percentageCompleted = (currentInterval - seconds) / currentInterval;
     const fullIcons = Math.round(percentageCompleted * barWidth);
     const emptyIcons = barWidth - fullIcons;
-    const progressBar = `|${barIconFull.repeat(fullIcons)}${barIconEmpty.repeat(emptyIcons)}|`;
+    const progressBar = `[${barIconFull.repeat(fullIcons)}${barIconEmpty.repeat(emptyIcons)}]`;
 
     return progressBar;
   }

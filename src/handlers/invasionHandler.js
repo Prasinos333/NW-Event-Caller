@@ -46,11 +46,12 @@ class InvasionHandler extends Handler {
         this._playAudio("Invasion_start.mp3", "invasion");
       } else if (chrono <= 0) {
         this._logger.log("Stopping timer (chrono: %s).", chrono);
-        this.stopAudio();
+        this.stop();
         return;
       }
 
       if (nextTiming && chrono - nextTiming.value === 1) {
+        this._checkMessage();
         this._updateEmbed(this.createEmbed(chrono));
 
         if (
@@ -94,6 +95,11 @@ class InvasionHandler extends Handler {
         { name: "   Siege   ", value: `   \`${siegeTime}\``, inline: true },
         { name: "   Phase   ", value: `   \`${phaseTime}\``, inline: true },
         { name: "   Lang    ", value: `   \`${this._lang}\``, inline: true },
+        {
+          name: " Settings ",
+          value: `\`${this._setting.join("` \n `")}\``,
+          inline: true,
+        },
         {
           name: "Voice Chanel",
           value: `<#${this._voiceChannel.id}>`,
