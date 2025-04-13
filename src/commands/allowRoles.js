@@ -5,6 +5,7 @@ import {
   RoleSelectMenuBuilder,
   ActionRowBuilder,
   InteractionContextType,
+  MessageFlags,
 } from "discord.js";
 import { db } from "../index.js";
 
@@ -27,7 +28,7 @@ async function execute(interaction) {
   if (!guild) {
     return interaction.reply({
       content: "This command can only be used in a server.",
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 
@@ -42,7 +43,7 @@ async function execute(interaction) {
   await interaction.reply({
     content: "Select the roles you want to allow:",
     components: [actionRow],
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 
   const collector = interaction.channel.createMessageComponentCollector({
