@@ -56,7 +56,7 @@ class WarHandler extends Handler {
         this._playAudio("War_start.mp3", "war");
       } else if (chrono <= 0) {
         this._logger.log("Stopping timer (chrono: %s).", chrono);
-        this._stop();
+        this.stop();
         return;
       }
 
