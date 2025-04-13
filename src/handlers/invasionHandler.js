@@ -126,6 +126,7 @@ class InvasionHandler extends Handler {
     if (config) {
       this._lang = config.Lang;
       this._setting = config.Setting;
+      this._updateRequired = true;
     }
 
     return;
