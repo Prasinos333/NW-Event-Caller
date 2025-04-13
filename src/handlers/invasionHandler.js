@@ -62,6 +62,11 @@ class InvasionHandler extends Handler {
           this._logger.log(`Playing "${nextTiming.name}"`);
           this._playAudio(nextTiming.name, "invasion");
         }
+      } else {
+        if(this.updateRequired) {
+          this._updateEmbed(this.createEmbed(chrono));
+          this._updateRequired = false;
+        }
       }
     } catch (error) {
       this._logger.error(`Error calling invasion:`, error);
@@ -79,9 +84,9 @@ class InvasionHandler extends Handler {
    * @returns {object} - The embed object.
    */
   createEmbed(chrono = 1500) {
-    const closeTime = this._getTimingByName(chrono, "Close");
-    const siegeTime = this._getTimingByName(chrono, "Siege");
-    const phaseTime = this._getTimingByName(chrono, "Phase");
+    const { name: closeName, time: closeTime } = this._getTimingByName(chrono, "Close");
+    const { name: siegeName, time: siegeTime } = this._getTimingByName(chrono, "Siege");
+    const { name: phaseName, time: phaseTime } = this._getTimingByName(chrono, "Phase");
 
     const invasionEmbed = new EmbedBuilder()
       .setColor(this._botColor)
@@ -91,9 +96,9 @@ class InvasionHandler extends Handler {
         url: REPO_URL,
       })
       .addFields(
-        { name: "   Close   ", value: `   \`${closeTime}\``, inline: true },
-        { name: "   Siege   ", value: `   \`${siegeTime}\``, inline: true },
-        { name: "   Phase   ", value: `   \`${phaseTime}\``, inline: true },
+        { name: closeName, value: `   \`${closeTime}\``, inline: true },
+        { name: siegeName, value: `   \`${siegeTime}\``, inline: true },
+        { name: phaseName, value: `   \`${phaseTime}\``, inline: true },
         { name: "   Lang    ", value: `   \`${this._lang}\``, inline: true },
         {
           name: " Settings ",
@@ -151,19 +156,26 @@ class InvasionHandler extends Handler {
     const nextTiming = invasionTimings.find(
       (timing) =>
         timing.name.includes(name) &&
+        !timing.name.includes("warn") &&
         Math.round(timing.value / 10) * 10 < chrono
     );
 
+    const timingData = {}; // Initialize the timingData object
     if (nextTiming) {
-      return this._formatSeconds(Math.round(nextTiming.value / 10) * 10);
+      timingData.name = nextTiming.name.replace(".mp3", "").replace(/_/g, " "); // Remove ".mp3" and replace "_" with spaces
+      timingData.time = this._formatSeconds(Math.round(nextTiming.value / 10) * 10); // Format the time
     } else {
-      return "None";
+      timingData.name = "None";
+      timingData.time = "N/A";
     }
+
+  return timingData;
   }
 
   _changeSetting(setting) {
     this._setting = setting;
     this._modifiedConfig = true;
+    this._updateRequired = true;
   }
 }
 
