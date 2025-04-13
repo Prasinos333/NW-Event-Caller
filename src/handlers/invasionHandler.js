@@ -2,29 +2,30 @@ import Handler from "./handler.js";
 import { db } from "../index.js";
 import timer from "../util/timer.js";
 import { EmbedBuilder } from "discord.js";
-import { BOT_ICON, invasionTimings, REPO_URL } from "../config";
+import { BOT_ICON, invasionTimings, REPO_URL } from "../config.js";
 
 class InvasionHandler extends Handler {
-  constructor({ botData, userId, voiceChannel }) {
-    super({ botData, userId, voiceChannel });
-    this._setting = ["phase", "skull", "close"]; 
+  constructor(botData, userId, voiceChannel) {
+    super(botData, userId, voiceChannel);
+    this._setting = ["phase", "skull", "close"];
   }
 
   /**
    * Starts the invasion timer and plays the initial audio.
-   * 
+   *
    * @returns {void} - No return value.
    */
-  start() {
+  async start() {
     if (!db.isConnected()) {
       db.reconnect();
     }
 
-    this._getConfig();
+    this.setupCollector(this._messageData.message);
+    await this._getConfig();
     this._logger.log(
       `Start time: ${this._startTime.toLocaleString("en-US", { timeZone: "America/New_York", timeStyle: "short" })}`
     );
-    this._playAudio("Invasion_notice.mp3");
+    this._playAudio("Invasion_notice.mp3", "invasion");
     timer.subscribe(this._botName, this._guildId, this);
 
     return;
@@ -32,17 +33,17 @@ class InvasionHandler extends Handler {
 
   /**
    * Updates the invasion timer and plays the corresponding audio if necessary.
-   * 
+   *
    * @returns {void} - No return value.
    */
   update() {
     try {
-      const chrono = 1500 - (this.getCurrentTime() - this._startTime) / 1000;
+      const chrono = 1500 - (this._getCurrentTime() - this._startTime) / 1000;
       let nextTiming = this._getNextTiming(chrono);
 
       if (chrono === 1501) {
         this._logger.log("Invasion Starting (chrono: %s).", chrono);
-        this._playAudio("Invasion_start.mp3");
+        this._playAudio("Invasion_start.mp3", "invasion");
       } else if (chrono <= 0) {
         this._logger.log("Stopping timer (chrono: %s).", chrono);
         this.stopAudio();
@@ -58,7 +59,7 @@ class InvasionHandler extends Handler {
           )
         ) {
           this._logger.log(`Playing "${nextTiming.name}"`);
-          this._playAudio(nextTiming.name);
+          this._playAudio(nextTiming.name, "invasion");
         }
       }
     } catch (error) {
@@ -89,15 +90,18 @@ class InvasionHandler extends Handler {
         url: REPO_URL,
       })
       .addFields(
-        { name: "Voice Chanel", value: `<#${this._voiceChannel.id}>` },
-        { name: "Start Time", value: `<t:${this._startTime}>`, inline: true },
-        { name: "Lang", value: this._lang, inline: true },
-        { name: "Close Spawn", value: closeTime },
-        { name: "Siege", value: siegeTime, inline: true },
-        { name: "Phase", value: phaseTime, inline: true }
+        { name: "   Close   ", value: `   \`${closeTime}\``, inline: true },
+        { name: "   Siege   ", value: `   \`${siegeTime}\``, inline: true },
+        { name: "   Phase   ", value: `   \`${phaseTime}\``, inline: true },
+        { name: "   Lang    ", value: `   \`${this._lang}\``, inline: true },
+        {
+          name: "Voice Chanel",
+          value: `<#${this._voiceChannel.id}>`,
+          inline: true,
+        }
       )
       .setFooter({ text: "Invasion Timer" })
-      .setTimestamp();
+      .setTimestamp(this._startTime);
 
     return invasionEmbed;
   }
@@ -105,8 +109,8 @@ class InvasionHandler extends Handler {
   /**
    * Retrieves the configuration for the user from the database.
    */
-  _getConfig() {
-    const config = db.getConfig(this._userId);
+  async _getConfig() {
+    const config = await db.getUserConfig(this._userId);
 
     if (config) {
       this._lang = config.Lang;

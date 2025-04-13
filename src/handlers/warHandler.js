@@ -2,19 +2,24 @@ import Handler from "./handler.js";
 import { db } from "../index.js";
 import timer from "../util/timer.js";
 import { EmbedBuilder } from "discord.js";
-import respawns, { REPO_URL, BOT_ICON } from "../config.js";
-import { Bar_Config, DEFAULT_LANG } from "../config";
+import {
+  REPO_URL,
+  BOT_ICON,
+  DEFAULT_LANG,
+  respawns,
+  Bar_Config,
+} from "../config.js";
 
 class WarHandler extends Handler {
-  constructor({ botData, userId, voiceChannelName }) {
-    super({ botData, userId, voiceChannelName });
+  constructor(botData, userId, voiceChannelName) {
+    super(botData, userId, voiceChannelName);
     this._lastRespawn = null;
     this._wave = 1;
   }
 
   /**
    * Starts the war timer and plays the initial audio.
-   * 
+   *
    * @returns {void} - No return value.
    */
   start() {
@@ -26,7 +31,7 @@ class WarHandler extends Handler {
     this._logger.log(
       `Start time: ${this._startTime.toLocaleString("en-US", { timeZone: "America/New_York", timeStyle: "short" })}`
     );
-    this._playAudio("War_notice.mp3");
+    this._playAudio("War_notice.mp3", "war");
     timer.subscribe(this._botName, this._guildId, this);
 
     return;
@@ -34,19 +39,19 @@ class WarHandler extends Handler {
 
   /**
    * Updates the war handler timer and plays the corresponding audio if necessary.
-   * 
+   *
    * @returns {void} - No return value.
    */
   update() {
     try {
-      const chrono = 1800 - (this.getCurrentTime() - this._startTime) / 1000;
+      const chrono = 1800 - (this._getCurrentTime() - this._startTime) / 1000;
       const currentRespawn = this._getNextRespawn(chrono);
 
       this._updateEmbed(this.createEmbed(chrono, currentRespawn));
 
       if (chrono === 1801) {
         this._logger.log("War starting (chrono: %s).", chrono);
-        this._playAudio("War_start.mp3");
+        this._playAudio("War_start.mp3", "war");
       } else if (chrono <= 0) {
         this._logger.log("Stopping timer (chrono: %s).", chrono);
         this.stopAudio();
@@ -57,27 +62,27 @@ class WarHandler extends Handler {
         switch (chrono - currentRespawn.value) {
           case 11:
             this._logger.log("10 seconds remaining (chrono: %s).", chrono);
-            this._playAudio("10_seconds.mp3");
+            this._playAudio("10_seconds.mp3", "war");
             break;
 
           case 21:
             this._logger.log("20 seconds remaining (chrono: %s).", chrono);
-            this._playAudio("20_seconds.mp3");
+            this._playAudio("20_seconds.mp3", "war");
             break;
 
           case 31:
             this._logger.log("30 seconds remaining (chrono: %s).", chrono);
-            this._playAudio("30_seconds.mp3");
+            this._playAudio("30_seconds.mp3", "war");
             break;
 
           case 41:
             this._logger.log("40 seconds remaining (chrono: %s).", chrono);
-            this._playAudio("40_seconds.mp3");
+            this._playAudio("40_seconds.mp3", "war");
             break;
 
           case 51:
             this._logger.log("50 seconds remaining (chrono: %s).", chrono);
-            this._playAudio("50_seconds.mp3");
+            this._playAudio("50_seconds.mp3", "war");
             break;
         }
       }
@@ -134,8 +139,16 @@ class WarHandler extends Handler {
         { name: "Time Remaing", value: `\`${totalRemaining}\``, inline: true },
         { name: "Wave", value: `\`${this._wave}\``, inline: true },
         { name: "Lang", value: `\`${this._lang}\``, inline: true },
-        { name: "Start Time", value: `<t:${this._startTime}>`, inline: true },
-        { name: "Voice Channel", value: `<#${this._voiceChannel.id}>`, inline: true }
+        {
+          name: "Start Time",
+          value: `<t:${this._startTime.getTime()}>`,
+          inline: true,
+        },
+        {
+          name: "Voice Channel",
+          value: `<#${this._voiceChannel.id}>`,
+          inline: true,
+        }
       )
       .setFooter({ text: "War Timer" })
       .setTimestamp();
@@ -183,7 +196,7 @@ class WarHandler extends Handler {
 
   /**
    * Changes the current setting(s) for the war handler.
-   * 
+   *
    * @param {Array} setting - Thew new setting(s) to change.
    */
   _changeSetting(setting) {

@@ -13,19 +13,17 @@ import {
   VoiceConnectionStatus,
   getVoiceConnection,
 } from "@discordjs/voice";
-import { WarHandler } from "./warHandler.js";
-import { InvasionHandler } from "./invasionHandler.js";
+import WarHandler from "../handlers/warHandler.js";
+import InvasionHandler from "../handlers/invasionHandler.js";
 import {
   stopButton,
   langButton,
   settingsButton,
   waveButton,
-} from "../util/buttons.js"; 
+} from "../util/buttons.js";
 
 class Bot {
-  constructor({ name, token, color }) {
-    this.uId = uuidv4();
-
+  constructor({ name, color, token }) {
     this.client = new Discord.Client({
       intents: [
         GatewayIntentBits.Guilds,
@@ -38,6 +36,7 @@ class Bot {
     this._name = name;
     this._token = token;
     this._color = color;
+    this._uId = uuidv4();
     this._logger = logger(`${path.resolve("logs", "bots")}/${name}.log`);
     this._eventLog = logger(`${path.resolve("logs", "bots")}/Events.log`);
 
@@ -57,7 +56,7 @@ class Bot {
     });
 
     this.client.on("voiceStateUpdate", (oldState, newState) => {
-      if (oldState.member && oldState.member.user.id === this.client.user.id) {
+      if (oldState.member && oldState.member.user.id === this.client.user?.id) {
         const oldId = oldState.channelId;
         const newId = newState.channelId;
 
@@ -80,11 +79,13 @@ class Bot {
     const guild = this.client.guilds.cache.get(guildId);
 
     if (!guild) {
-      this._eventLog.warn(`"${this._name}" not in server for guild: ${guildId}`);
+      this._eventLog.warn(
+        `"${this._name}" not in server for guild: ${guildId}`
+      );
       return false;
     }
 
-    const connection = getVoiceConnection(guildId, this.uId);
+    const connection = getVoiceConnection(guildId, this._uId);
 
     if (
       connection &&
@@ -134,21 +135,20 @@ class Bot {
 
   /**
    * Creates the voice connection and handler for the event.
-   * 
+   *
    * @param {object} interaction - The interaction object from Discord.
    * @returns {Promise<void>} - Void
    */
-  async eventCall(interaction) {
+  async eventCall(interaction, voiceChannel) {
     const callerType = interaction.options.getString("type");
     const textChannelId = interaction.channelId;
-    const voiceChannel = interaction.member.voice.channel;
     const voiceChannelId = voiceChannel?.id;
     const voiceChannelName = voiceChannel?.name;
     const guildId = interaction.guildId;
     const guild = await this.client.guilds.fetch(guildId);
     const guildName = interaction.member.guild.name;
     const userId = interaction.user.id;
-    const botData = { name: this._name, color: this._color };
+    const botData = { name: this._name, uId: this._uId, color: this._color };
     let handler = null;
     let embed = null;
 
@@ -166,38 +166,42 @@ class Bot {
       channelId: voiceChannelId,
       guildId: guildId,
       adapterCreator: guild.voiceAdapterCreator,
-      group: this.uId,
+      group: this._uId,
     });
 
     connection.once(VoiceConnectionStatus.Ready, async () => {
       switch (callerType) {
         case "war":
-          handler = new WarHandler(botData, guildId, userId, voiceChannel);
+          handler = new WarHandler(botData, userId, voiceChannel);
           embed = handler.createEmbed();
           break;
         case "invasion":
-          handler = new InvasionHandler(botData, guildId, userId, voiceChannel);
+          handler = new InvasionHandler(botData, userId, voiceChannel);
           embed = handler.createEmbed();
           break;
-      } 
+      }
 
-      const messageData = await this._sendMessageData(textChannelId, callerType, embed);
+      const messageData = await this._sendMessage(
+        textChannelId,
+        callerType,
+        embed
+      );
       handler.messageData = messageData;
       handler.subscribeConnection(connection);
       handler.start();
       return;
     });
-  };
+  }
 
   /**
    * Creates and sends buttons with an embed in a specified text channel based on the event type.
-   * 
+   *
    * @param {snowflake} textChannelId - The ID of the text channel to send buttons in.
    * @param {string} type - The type of event (e.g., "war" or "invasion").
    * @param {object} embed - The embed object to send with the buttons.
    * @returns {object|null} - The channel and message objects if successful, null otherwise.
    */
-  async _sendMessageData(textChannelId, type, embed) {
+  async _sendMessage(textChannelId, type, embed) {
     try {
       const channel = await this.client.channels.fetch(textChannelId);
       if (!(channel instanceof TextChannel)) return null;
@@ -210,9 +214,9 @@ class Bot {
       const buttons = [stopButton, langButton];
 
       if (type === "war") {
-        buttons.push(waveButton); 
+        buttons.push(waveButton);
       } else if (type === "invasion") {
-        buttons.push(settingsButton); 
+        buttons.push(settingsButton);
       }
 
       const message = await channel.send({
@@ -225,7 +229,7 @@ class Bot {
       this._logger.error(`Error while creating buttons:`, error);
       return null;
     }
-  };
+  }
 }
 
 export default Bot;

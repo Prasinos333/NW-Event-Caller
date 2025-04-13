@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 import dotenv from "dotenv";
 import path from "path";
-import logger from "./logger.js";
+import logger from "../util/logger.js";
 import mysql from "mysql2/promise";
 
 dotenv.config({ path: path.resolve(".env"), override: true });
@@ -122,7 +122,10 @@ class Database {
       config.Setting = config.Setting ? config.Setting.split(",") : []; // Convert CSV to array
       return config;
     } catch (error) {
-      this._eventLog.error(`Error retrieving config for user: ${userID}`, error);
+      this._eventLog.error(
+        `Error retrieving config for user: ${userID}`,
+        error
+      );
       throw error;
     }
   }
@@ -231,7 +234,10 @@ class Database {
         `Updated roles for guild: ${guildID} | Roles: ${rolesCsv}`
       );
     } catch (error) {
-      this._eventLog.error(`Error updating config for guild: ${guildID}`, error);
+      this._eventLog.error(
+        `Error updating config for guild: ${guildID}`,
+        error
+      );
       throw error;
     }
   }

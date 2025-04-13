@@ -5,8 +5,8 @@ import { execute as addcallerExecute } from "../commands/addCaller.js";
 import { execute as allowRolesExecute } from "../commands/allowRoles.js";
 
 class MainBot extends Bot {
-  constructor({ name, token }) {
-    super({ name, token });
+  constructor({ name, color, token }) {
+    super({ name, color, token });
 
     this.client = new Discord.Client({
       intents: [
@@ -50,7 +50,7 @@ class MainBot extends Bot {
         await allowRolesExecute(interaction);
       }
     });
-  };
+  }
 }
 
 export default MainBot;

@@ -1,5 +1,9 @@
+import logger from "../util/logger.js";
+import path from "path";
+
 class Timer {
   constructor() {
+    this._eventLog = logger(`${path.resolve("logs", "bots")}/Events.log`);
     this._subscribers = new Map(); // Use a Map to store handlers with a unique key
     this._interval = null;
     this._lastUpdateTime = null;
@@ -40,6 +44,7 @@ class Timer {
    * Starts the timer and updates all subscribers every second - 100 ms polling.
    */
   _start() {
+    this._eventLog.log("Timer started.");
     if (this._interval === null) {
       this._lastUpdateTime = this._getCurrentTime();
       this._interval = setInterval(() => {

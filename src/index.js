@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 import dotenv from "dotenv";
 import path from "path";
-import Database from "./util/database.js";
+import Database from "./database/database.js";
 import logger from "./util/logger.js";
 import MainBot from "./bots/mainBot.js";
 import Bot from "./bots/basicBot.js";
@@ -18,7 +18,13 @@ export const db = new Database(mySqlUrl);
 const EventLog = logger(`${path.resolve("logs", "bots")}/Events.log`);
 
 const validateConfig = (config, configName) => {
-  if (!config || typeof config !== "object" || !config.name || !config.token) {
+  if (
+    !config ||
+    typeof config !== "object" ||
+    !config.name ||
+    !config.token ||
+    !config.color
+  ) {
     throw new Error(`Invalid or missing configuration for ${configName}`);
   }
 };

@@ -142,7 +142,7 @@ async function execute(interaction) {
         flags: MessageFlags.Ephemeral,
       });
     } else {
-      availableBot.eventCall(interaction);
+      availableBot.eventCall(interaction, voiceChannel);
       EventLog.log(
         `"${availableBot._name}" calling '${callerType}' | Guild: "${guildName}" | Voice channel: "${voiceChannel.name}" in "${VC_CategoryName}" | Text channel: "${textChannel.name}" in "${TC_CategoryName}"`
       );

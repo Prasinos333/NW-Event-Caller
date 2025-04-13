@@ -8,17 +8,20 @@ import { invasionOptions, invasionVoices, warVoices } from "../config.js";
 export const stopButton = new ButtonBuilder()
   .setCustomId("stop")
   .setStyle(ButtonStyle.Danger)
-  .setEmoji("⏹️");
+  .setEmoji("⏹️")
+  .setLabel("End");
 
 export const langButton = new ButtonBuilder()
   .setCustomId("lang")
   .setStyle(ButtonStyle.Secondary)
-  .setEmoji("🌐");
+  .setEmoji("🌐")
+  .setLabel("Lang");
 
 export const settingsButton = new ButtonBuilder()
   .setCustomId("settings")
   .setStyle(ButtonStyle.Primary)
-  .setEmoji("⚙️");
+  .setEmoji("⚙️")
+  .setLabel("Settings");
 
 export const invasionSelect = new StringSelectMenuBuilder()
   .setCustomId("select")
@@ -39,8 +42,8 @@ export const warSelect = new StringSelectMenuBuilder()
 
 export const waveButton = new ButtonBuilder()
   .setCustomId("wave_switch")
-  .setLabel("Switch Wave")
+  .setStyle(ButtonStyle.Secondary)
   .setEmoji("🔄")
-  .setStyle(ButtonStyle.Secondary);
+  .setLabel("Switch Wave");
 
 export const blankField = { name: "\u200B", value: "\u200B", inline: true }; // Empty field for embed

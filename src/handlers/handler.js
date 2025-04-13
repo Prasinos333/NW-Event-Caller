@@ -13,7 +13,8 @@ import {
   ActionRowBuilder,
   TextChannel,
 } from "discord.js";
-import { DEFAULT_LANG, invasionSettings } from "../config.js";
+import { DEFAULT_LANG } from "../config.js";
+import { invasionSettings } from "../util/buttons.js";
 import timer from "../util/timer.js";
 import { db } from "../index.js";
 import fs from "fs";
@@ -22,10 +23,11 @@ class Handler {
   constructor(botData, userId, voiceChannel) {
     this._botName = botData.name;
     this._botColor = botData.color;
+    this._uId = botData.uId;
     this._logger = logger(
       `${path.resolve("logs", "bots")}/${this._botName}.log`
     );
-    this._guildId = voiceChannel.guild.id;
+    this._guildId = voiceChannel.guildId;
     this._userId = userId;
     this._lang = DEFAULT_LANG;
     this._messageData = null;
@@ -105,8 +107,8 @@ class Handler {
       );
     }
 
-    this._destroyConnection(this._guildId);
-    this._deleteMessage(this._messageData);
+    this._destroyConnection();
+    this._deleteMessage();
 
     if (this._modifiedConfig) {
       this._saveConfig();
@@ -271,6 +273,18 @@ class Handler {
   }
 
   /**
+   * Gets the current time with milliseconds set to 0.
+   *
+   * @returns {Date} - The current time.
+   */
+  _getCurrentTime() {
+    const time = new Date();
+    time.setMilliseconds(0);
+
+    return time;
+  }
+
+  /**
    * Converts total seconds into a string in "m:ss" format.
    *
    * @param {number} seconds - Total seconds.
@@ -287,13 +301,13 @@ class Handler {
    *
    * @param {string} audioName - The name of the audio file to play.
    */
-  _playAudio(audioName) {
+  _playAudio(audioName, type) {
     try {
       const filePath = path.resolve(
         "src",
         "resources",
         this._lang,
-        "invasion",
+        type,
         audioName
       );
       if (fs.existsSync(filePath)) {
@@ -310,10 +324,9 @@ class Handler {
     }
   }
 
-
   /**
    * Updates the embed for the handler.
-   * 
+   *
    * @param {object} embed - The embed object to update.
    */
   _updateEmbed(embed) {
@@ -341,8 +354,8 @@ class Handler {
    *
    * @param {snowflake} guildId - The ID of the guild to get the timer for.
    */
-  _destroyConnection(guildId) {
-    const connection = getVoiceConnection(guildId, this.uId);
+  _destroyConnection() {
+    const connection = getVoiceConnection(this._guildId, this._uId);
 
     if (connection) {
       connection.destroy();
@@ -353,12 +366,10 @@ class Handler {
 
   /**
    * Deletes a message based on the provided message data.
-   *
-   * @param {object} messageData - The data of the message to delete.
    */
-  async _deleteMessage(messageData) {
-    if (messageData) {
-      const { channelId, messageId } = messageData;
+  async _deleteMessage() {
+    if (this._messageData) {
+      const { channelId, messageId } = this._messageData;
 
       if (channelId && messageId) {
         const channel = await this.client.channels.fetch(channelId);
@@ -392,7 +403,7 @@ class Handler {
     const setting = this._setting ?? ["phase", "skull", "close"];
 
     if (this._modifiedConfig) {
-      db.updateConfig(this._userId, this._lang, setting);
+      db.updateUserConfig(this._userId, this._lang, setting);
     }
   }
 }
