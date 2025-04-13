@@ -63,7 +63,7 @@ class InvasionHandler extends Handler {
           this._playAudio(nextTiming.name, "invasion");
         }
       } else {
-        if(this.updateRequired) {
+        if(this._updateRequired) {
           this._updateEmbed(this.createEmbed(chrono));
           this._updateRequired = false;
         }
@@ -151,7 +151,7 @@ class InvasionHandler extends Handler {
    *
    * @param {number} chrono - Seconds remaining in the event.
    * @param {string} name - The name of the timing to retrieve.
-   * @returns {string} - The time string formatted as "m:ss".
+   * @returns {object} - The object containing the name and time of the next timing.
    */
   _getTimingByName(chrono, name) {
     const nextTiming = invasionTimings.find(
