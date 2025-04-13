@@ -86,6 +86,7 @@ class Timer {
       clearInterval(this._interval);
       this._interval = null;
       this._lastUpdateTime = null;
+      this._eventLog.log("Timer stopped.");
     }
 
     return;

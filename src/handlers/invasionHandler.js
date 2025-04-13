@@ -157,7 +157,7 @@ class InvasionHandler extends Handler {
     if (nextTiming) {
       return this._formatSeconds(Math.round(nextTiming.value / 10) * 10);
     } else {
-      return null;
+      return "None";
     }
   }
 

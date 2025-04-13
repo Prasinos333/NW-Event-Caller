@@ -56,7 +56,7 @@ class WarHandler extends Handler {
         this._playAudio("War_start.mp3", "war");
       } else if (chrono <= 0) {
         this._logger.log("Stopping timer (chrono: %s).", chrono);
-        this.stopAudio();
+        this._stop();
         return;
       }
 
@@ -118,7 +118,17 @@ class WarHandler extends Handler {
    * @returns {object} - The embed object.
    */
   createEmbed(chrono = 1800, currentRespawn = this._getNextRespawn(1800)) {
-    const seconds = chrono - currentRespawn.value;
+    const seconds = chrono - currentRespawn?.value;
+    let title, description;
+
+    if(seconds < 0) {
+      title = "None Respawns Remaining";
+      description = "N/A";
+    } else {
+      title = seconds === 0 ? "RESPAWNS NOW" : `Respawn in: ${seconds}`;
+      description = this._getProgressbar(this._getInterval(chrono).currentInterval, seconds);
+    }
+    
     const respawnTime = this._formatSeconds(currentRespawn.value);
     const totalRemaining = this._formatSeconds(chrono);
     const { currentInterval, nextInterval } = this._getInterval(chrono);
@@ -130,8 +140,8 @@ class WarHandler extends Handler {
         iconURL: BOT_ICON,
         url: REPO_URL,
       })
-      .setTitle(`Respawn in: ${seconds}`)
-      .setDescription(this._getProgressbar(currentInterval, seconds))
+      .setTitle(title)  
+      .setDescription(description)
       .addFields(
         { name: "Next Respawn", value: `\`${respawnTime}\`` },
         {
@@ -276,7 +286,7 @@ class WarHandler extends Handler {
    */
   _getProgressbar(currentInterval, seconds) {
     if (currentInterval === "N/A" || seconds === "N/A") {
-      return "|N/A|";
+      return "Prep Phase";
     }
 
     const { barWidth, barIconFull, barIconEmpty } = BAR_CONFIG;
