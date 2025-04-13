@@ -32,7 +32,8 @@ class Handler {
     this._messageData = null;
     this._modifiedConfig = false;
     this._voiceChannel = voiceChannel;
-    this._startTime = this._getStartTime();
+    this._startTime = this._getStartTime(); 
+    this._updateRequired = false;
 
     this._player = createAudioPlayer({
       behaviors: {
@@ -367,6 +368,7 @@ class Handler {
   _changeLang(lang) {
     this._lang = lang;
     this._modifiedConfig = true;
+    this._updateRequired = true;
   }
 
   /**
