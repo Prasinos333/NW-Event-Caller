@@ -20,7 +20,7 @@ class InvasionHandler extends Handler {
       db.reconnect();
     }
 
-    this.setupCollector(this._messageData.message);
+    this.setupButtonCollector(this._messageData.message, "invasion");
     await this._getConfig();
     this._logger.log(
       `Start time: ${this._startTime.toLocaleString("en-US", { timeZone: "America/New_York", timeStyle: "short" })}`
@@ -153,6 +153,11 @@ class InvasionHandler extends Handler {
     } else {
       return null;
     }
+  }
+
+  _changeSetting(setting) {
+    this._setting = setting;
+    this._modifiedConfig = true;
   }
 }
 

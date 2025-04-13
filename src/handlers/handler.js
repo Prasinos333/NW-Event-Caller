@@ -11,10 +11,9 @@ import {
   MessageFlags,
   ComponentType,
   ActionRowBuilder,
-  TextChannel,
 } from "discord.js";
 import { DEFAULT_LANG } from "../config.js";
-import { invasionSettings } from "../util/buttons.js";
+import { invasionSettings, invasionSelect, warSelect } from "../util/buttons.js";
 import timer from "../util/timer.js";
 import { db } from "../index.js";
 import fs from "fs";
@@ -100,7 +99,7 @@ class Handler {
    * - Save config if modified.
    * - Unsubscribe timer from handler.
    */
-  stop(user = null) {
+  async stop(user = null) {
     if (user && user.id !== this._userId) {
       this._logger.warn(
         `Stop command launched for guild: "${this._guildId}" by user: "${user.username}"`
@@ -108,7 +107,7 @@ class Handler {
     }
 
     this._destroyConnection();
-    this._deleteMessage();
+    await this._deleteMessage();
 
     if (this._modifiedConfig) {
       this._saveConfig();
@@ -125,7 +124,7 @@ class Handler {
    *
    * @param {object} message - The message object to setup the collector for.
    */
-  async setupCollector(message) {
+  async setupButtonCollector(message, type) {
     const collector = message.createMessageComponentCollector();
 
     collector.on("collect", async (interaction) => {
@@ -144,97 +143,118 @@ class Handler {
         });
         return;
       }
+      
+      switch (interaction.customId) {
+        case "stop":
+          this.stop(interaction.user);
+          await interaction
+            .deleteReply()
+            .catch((err) =>
+              this._logger.error(`Error deleting reply:`, err)
+            );
+          break;
 
-      const { componentType } = interaction;
+        case "lang": {
+          const langMenu = type === "invasion" ? invasionSelect : warSelect;
 
-      switch (componentType) {
-        case ComponentType.Button:
-          switch (interaction.customId) {
-            case "stop":
-              this.stop(interaction.user);
-              await interaction
-                .deleteReply()
-                .catch((err) =>
-                  this._logger.error(`Error deleting reply:`, err)
-                );
-              await message
-                .delete()
-                .then(() => this._logger.info("Button deleted successfully."))
-                .catch((err) =>
-                  this._logger.error(
-                    `Error deleting message: ${message.id} \n`,
-                    err
-                  )
-                );
-              break;
-            case "lang":
-              if (this._langMenu) {
-                await interaction.editReply({
-                  content: "Select a language:",
-                  components: [
-                    new ActionRowBuilder().addComponents(this._langMenu),
-                  ],
-                  flags: MessageFlags.Ephemeral,
-                });
-              }
-              break;
-            case "settings":
-              if (this._setting) {
-                await interaction.editReply({
-                  content: "Select invasion settings:",
-                  components: [
-                    new ActionRowBuilder().addComponents(invasionSettings),
-                  ],
-                  flags: MessageFlags.Ephemeral,
-                });
-              }
-              break;
-            case "wave_switch":
-              if (this._wave) {
-                this._changeWave();
-              }
+          if (this._activeLangCollector) {
+            this._activeLangCollector.stop(); 
+          }
 
-              await interaction.editReply({
-                content: `Changed to wave \`${this._wave}\``,
-                flags: MessageFlags.Ephemeral,
+          await interaction.editReply({
+            components: [new ActionRowBuilder().addComponents(langMenu)],
+            flags: MessageFlags.Ephemeral,
+          });
+
+          const filter = (i) => i.user.id === interaction.user.id; 
+          const collector = interaction.channel.createMessageComponentCollector({
+            filter,
+            componentType: ComponentType.StringSelect,
+            time: 60000, 
+          });
+
+          this._activeLangCollector = collector;
+
+          collector.on("collect", async (menuInteraction) => {
+            const selectedLang = menuInteraction.values[0];
+            this._changeLang(selectedLang); 
+
+            await menuInteraction.update({
+              content: `Language changed to: \`${selectedLang}\``,
+              components: [], 
+            });
+
+            this._logger.log(
+              `Language changed to "${selectedLang}" by user: ${menuInteraction.user.id}`
+            );
+
+            collector.stop();
+          });
+
+          collector.on("end", (collected, reason) => {
+            if (reason === "time") {
+              this._logger.warn("Language selection menu timed out.");
+            }
+            this._activeLangCollector = null;
+          });
+
+          break;
+        }
+          
+        case "settings":
+          if (this._setting) {
+            await interaction.editReply({
+              components: [
+                new ActionRowBuilder().addComponents(invasionSettings),
+              ],
+              flags: MessageFlags.Ephemeral,
+            });
+
+            const filter = (i) => i.user.id === interaction.user.id; 
+            const collector = interaction.channel.createMessageComponentCollector({
+              filter,
+              componentType: ComponentType.StringSelect,
+              time: 60000, 
+            });
+
+            this._activeSettingsCollector = collector;
+
+            collector.on("collect", async (menuInteraction) => {
+              const selectedSettings = menuInteraction.values; 
+              this._changeSetting(selectedSettings); 
+
+              await menuInteraction.update({
+                content: `Settings updated to: \`${selectedSettings.join(", ")}\``,
+                components: [], 
               });
-              break;
+
+              this._logger.log(
+                `Settings updated to "${selectedSettings.join(", ")}" by user: ${menuInteraction.user.id}`
+              );
+
+              collector.stop();
+            });
+
+            collector.on("end", (collected, reason) => {
+              if (reason === "time") {
+                this._logger.warn("Settings selection menu timed out.");
+              }
+              this._activeSettingsCollector = null;
+            });
           }
           break;
-        case ComponentType.StringSelect: {
-          switch (interaction.customId) {
-            case "options": {
-              if (this._setting) {
-                const newSetting = interaction.values;
-                this._changeSetting(newSetting);
-              }
 
-              await interaction.editReply({
-                content: `Changed settings to: \`${interaction.values.join(", ")}\``, // TODO - Modify
-                flags: MessageFlags.Ephemeral,
-              });
-
-              this._logger.log(
-                `Changed invasion setting for user: "${interaction.user.id}" to: '${interaction.values.join(", ")}'`
-              );
-              break;
-            }
-            case "select": {
-              const newLang = interaction.values[0];
-              this._changeLang(newLang);
-
-              await interaction.editReply({
-                content: `Changed voice to \`${newLang}\``,
-                flags: MessageFlags.Ephemeral,
-              });
-
-              this._logger.log(
-                `Changed voice audio for user: "${interaction.user.id}" to: '${newLang}'`
-              );
-              break;
-            }
+        case "wave_switch":
+          if (this._wave) {
+            this._changeWave();
           }
-        }
+
+          await interaction.editReply({
+            content: `Changed to wave \`${this._wave}\``,
+            flags: MessageFlags.Ephemeral,
+          });
+
+          break;
       }
     });
   }
@@ -369,31 +389,14 @@ class Handler {
    */
   async _deleteMessage() {
     if (this._messageData) {
-      const { channelId, messageId } = this._messageData;
-
-      if (channelId && messageId) {
-        const channel = await this.client.channels.fetch(channelId);
-
-        if (channel instanceof TextChannel) {
-          const message = await channel.messages
-            .fetch(messageId)
-            .catch((err) => {
-              if (err.httpStatus === 404) {
-                this._logger.warn("Message already deleted.");
-              } else {
-                this._logger.error(`Error fetching message: ${messageId}`, err);
-              }
-            });
-
-          if (message) {
-            await message
-              .delete()
-              .then(() => this._logger.info("Message deleted successfully."))
-              .catch((error) => this.handleErrors(error));
-          }
-        }
-      }
+      const message = this._messageData.message;
+      await message
+        .delete()
+        .then(() => this._logger.info("Message deleted successfully."))
+        .catch((error) => this._logger.error(`Error deleting message:`, error));
     }
+
+    return;
   }
 
   /**

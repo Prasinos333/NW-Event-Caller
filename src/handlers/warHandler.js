@@ -22,12 +22,13 @@ class WarHandler extends Handler {
    *
    * @returns {void} - No return value.
    */
-  start() {
+  async start() {
     if (!db.isConnected()) {
       db.reconnect();
     }
 
-    this._getConfig();
+    this.setupButtonCollector(this._messageData.message, "war");
+    await this._getConfig();
     this._logger.log(
       `Start time: ${this._startTime.toLocaleString("en-US", { timeZone: "America/New_York", timeStyle: "short" })}`
     );
@@ -60,28 +61,33 @@ class WarHandler extends Handler {
 
       if (chrono <= 1800 && currentRespawn) {
         switch (chrono - currentRespawn.value) {
+          case 6:
+            this._logger.log("Playing 5 second countdown (chrono: %s).", chrono);
+            this._playAudio("5_second_countdown.mp3", "war");
+            break;
+
           case 11:
-            this._logger.log("10 seconds remaining (chrono: %s).", chrono);
+            this._logger.log("Playing 10 seconds (chrono: %s).", chrono);
             this._playAudio("10_seconds.mp3", "war");
             break;
 
           case 21:
-            this._logger.log("20 seconds remaining (chrono: %s).", chrono);
+            this._logger.log("Playing 20 seconds (chrono: %s).", chrono);
             this._playAudio("20_seconds.mp3", "war");
             break;
 
           case 31:
-            this._logger.log("30 seconds remaining (chrono: %s).", chrono);
+            this._logger.log("Playing 30 seconds (chrono: %s).", chrono);
             this._playAudio("30_seconds.mp3", "war");
             break;
 
           case 41:
-            this._logger.log("40 seconds remaining (chrono: %s).", chrono);
+            this._logger.log("Playing 40 seconds (chrono: %s).", chrono);
             this._playAudio("40_seconds.mp3", "war");
             break;
 
           case 51:
-            this._logger.log("50 seconds remaining (chrono: %s).", chrono);
+            this._logger.log("Playing 50 seconds (chrono: %s).", chrono);
             this._playAudio("50_seconds.mp3", "war");
             break;
         }
@@ -114,6 +120,7 @@ class WarHandler extends Handler {
     const { currentInterval, nextInterval } = this._getInterval(chrono);
     const currentIntervalFormatted = this._formatSeconds(currentInterval);
     const nextIntervalFormatted = this._formatSeconds(nextInterval);
+    
 
     const warEmbed = new EmbedBuilder()
       .setColor(this._botColor)
@@ -140,18 +147,13 @@ class WarHandler extends Handler {
         { name: "Wave", value: `\`${this._wave}\``, inline: true },
         { name: "Lang", value: `\`${this._lang}\``, inline: true },
         {
-          name: "Start Time",
-          value: `<t:${this._startTime.getTime()}>`,
-          inline: true,
-        },
-        {
           name: "Voice Channel",
           value: `<#${this._voiceChannel.id}>`,
           inline: true,
         }
       )
       .setFooter({ text: "War Timer" })
-      .setTimestamp();
+      .setTimestamp(this._startTime);
 
     return warEmbed;
   }
@@ -160,9 +162,9 @@ class WarHandler extends Handler {
    * Retrieves the configuration for the user from the database.
    * Since the war and invasion config tables are shared, the lang is set to the default if the current lang doesn't have the necessary audio files.
    */
-  _getConfig() {
+  async _getConfig() {
     try {
-      const config = db.getConfig(this._userId);
+      const config = await db.getConfig(this._userId);
 
       if (config) {
         if (config.lang !== "en_4") {
@@ -254,11 +256,11 @@ class WarHandler extends Handler {
         : null;
 
     const currentInterval = previousRespawn
-      ? currentRespawn.value - previousRespawn.value
+      ? previousRespawn.value - currentRespawn.value
       : "N/A";
 
     const nextInterval = nextRespawn
-      ? nextRespawn.value - currentRespawn.value
+      ? currentRespawn.value - nextRespawn.value
       : "N/A";
 
     return { currentInterval, nextInterval };
