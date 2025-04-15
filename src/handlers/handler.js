@@ -244,9 +244,9 @@ class Handler {
       } catch (error) {
         if (error.code === 10062) {
           // DiscordAPIError: Unknown Interaction
-          console.warn("Interaction no longer valid. Skipping update.");
+          this._logger.warn("Interaction no longer valid. Skipping update.");
         } else {
-          console.error("Error handling menu interaction:", error);
+          this._logger.error("Error handling menu interaction:", error);
         }
       }
 
@@ -255,15 +255,15 @@ class Handler {
 
     collector.on("end", (collected, reason) => {
       if (reason === "time") {
-        console.warn(`${logMessage} menu timed out.`);
+        this._logger.warn(`${logMessage} menu timed out.`);
       }
     });
   } catch (error) {
     if (error.code === 10062) {
       // DiscordAPIError: Unknown Interaction
-      console.warn("Interaction no longer valid. Skipping reply.");
+      this._logger.warn("Interaction no longer valid. Skipping reply.");
     } else {
-      console.error("Error handling menu interaction:", error);
+      this._logger.error("Error handling menu interaction:", error);
     }
   }
 }
