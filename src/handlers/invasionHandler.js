@@ -36,7 +36,7 @@ class InvasionHandler extends Handler {
    *
    * @returns {void} - No return value.
    */
-  update() {
+  update() { // TODO - Update embed even for timings not in settings.
     try {
       const chrono = 1500 - (this._getCurrentTime() - this._startTime) / 1000;
       let nextTiming = this._getNextTiming(chrono);
@@ -52,7 +52,7 @@ class InvasionHandler extends Handler {
 
       if (nextTiming && chrono - nextTiming.value === 1) {
         this._checkMessage();
-        this._updateEmbed(this.createEmbed(chrono));
+        this._updateEmbed(this.createEmbed(chrono - 1));
 
         if (
           this._setting.some((setting) =>
