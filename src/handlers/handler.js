@@ -18,6 +18,66 @@ import timer from "../util/timer.js";
 import { db } from "../index.js";
 import fs from "fs";
 
+/**
+ * Handles menu interactions for a given menu and callback.
+ *
+ * @param {object} interaction - The interaction object.
+ * @param {object} menu - The menu to display (e.g., langMenu or settingsMenu).
+ * @param {function} callback - The callback function to handle the selected values.
+ * @param {string} logMessage - The log message to display after processing.
+ */
+async function handleMenuInteraction(interaction, menu, callback, logMessage) {
+  try {
+    // Send the ephemeral reply with the menu
+    await interaction.editReply({
+      components: [new ActionRowBuilder().addComponents(menu)],
+      flags: MessageFlags.Ephemeral,
+    });
+
+    // Create a collector for the menu
+    const filter = (i) => i.user.id === interaction.user.id; // Only collect interactions from the same user
+    const collector = interaction.channel.createMessageComponentCollector({
+      filter,
+      componentType: ComponentType.StringSelect,
+      time: 60000, // Collector will stop after 60 seconds
+    });
+
+    collector.on("collect", async (menuInteraction) => {
+      try {
+        const selectedValues = menuInteraction.values; // Get the selected values
+        callback(selectedValues); // Call the provided callback function
+
+        await menuInteraction.update({
+          content: `${logMessage}: \`${selectedValues.join(", ")}\``,
+          components: [], // Remove the menu after selection
+        });
+      } catch (error) {
+        if (error.code === 10062) {
+          // DiscordAPIError: Unknown Interaction
+          console.warn("Interaction no longer valid. Skipping update.");
+        } else {
+          console.error("Error handling menu interaction:", error);
+        }
+      }
+
+      collector.stop();
+    });
+
+    collector.on("end", (collected, reason) => {
+      if (reason === "time") {
+        console.warn(`${logMessage} menu timed out.`);
+      }
+    });
+  } catch (error) {
+    if (error.code === 10062) {
+      // DiscordAPIError: Unknown Interaction
+      console.warn("Interaction no longer valid. Skipping reply.");
+    } else {
+      console.error("Error handling menu interaction:", error);
+    }
+  }
+}
+
 class Handler {
   constructor(botData, userId, voiceChannel) {
     this._botName = botData.name;
@@ -146,13 +206,6 @@ class Handler {
       }
 
       switch (interaction.customId) {
-        case "stop":
-          this.stop(interaction.user);
-          await interaction
-            .deleteReply()
-            .catch((err) => this._logger.error(`Error deleting reply:`, err));
-          break;
-
         case "lang": {
           const langMenu = type === "invasion" ? invasionSelect : warSelect;
 
@@ -160,90 +213,44 @@ class Handler {
             this._activeLangCollector.stop();
           }
 
-          await interaction.editReply({
-            components: [new ActionRowBuilder().addComponents(langMenu)],
-            flags: MessageFlags.Ephemeral,
-          });
-
-          const filter = (i) => i.user.id === interaction.user.id;
-          const collector = interaction.channel.createMessageComponentCollector(
-            {
-              filter,
-              componentType: ComponentType.StringSelect,
-              time: 60000,
-            }
+          this._activeLangCollector = await handleMenuInteraction(
+            interaction,
+            langMenu,
+            (selectedLang) => {
+              this._changeLang(selectedLang[0]); // Update the language
+              this._modifiedConfig = true;
+            },
+            "Language changed to"
           );
-
-          this._activeLangCollector = collector;
-
-          collector.on("collect", async (menuInteraction) => {
-            const selectedLang = menuInteraction.values[0];
-            this._changeLang(selectedLang);
-
-            await menuInteraction.update({
-              content: `Language changed to: \`${selectedLang}\``,
-              components: [],
-            });
-
-            this._logger.log(
-              `Language changed to "${selectedLang}" by user: ${menuInteraction.user.id}`
-            );
-
-            collector.stop();
-          });
-
-          collector.on("end", (collected, reason) => {
-            if (reason === "time") {
-              this._logger.warn("Language selection menu timed out.");
-            }
-            this._activeLangCollector = null;
-          });
 
           break;
         }
 
-        case "settings":
+        case "settings": {
           if (this._setting) {
-            await interaction.editReply({
-              components: [
-                new ActionRowBuilder().addComponents(invasionSettings),
-              ],
-              flags: MessageFlags.Ephemeral,
-            });
+            if (this._activeSettingsCollector) {
+              this._activeSettingsCollector.stop();
+            }
 
-            const filter = (i) => i.user.id === interaction.user.id;
-            const collector =
-              interaction.channel.createMessageComponentCollector({
-                filter,
-                componentType: ComponentType.StringSelect,
-                time: 60000,
-              });
-
-            this._activeSettingsCollector = collector;
-
-            collector.on("collect", async (menuInteraction) => {
-              const selectedSettings = menuInteraction.values;
-              this._changeSetting(selectedSettings);
-
-              await menuInteraction.update({
-                content: `Settings updated to: \`${selectedSettings.join(", ")}\``,
-                components: [],
-              });
-
-              this._logger.log(
-                `Settings updated to "${selectedSettings.join(", ")}" by user: ${menuInteraction.user.id}`
-              );
-
-              collector.stop();
-            });
-
-            collector.on("end", (collected, reason) => {
-              if (reason === "time") {
-                this._logger.warn("Settings selection menu timed out.");
-              }
-              this._activeSettingsCollector = null;
-            });
+            this._activeSettingsCollector = await handleMenuInteraction(
+              interaction,
+              invasionSettings,
+              (selectedSettings) => {
+                this._changeSetting(selectedSettings); // Update the settings
+                this._modifiedConfig = true;
+              },
+              "Settings updated to"
+            );
           }
+
+          break;
+        }
+
+        case "stop":
+          this.stop(interaction.user);
+          await interaction
+            .deleteReply()
+            .catch((err) => this._logger.error(`Error deleting reply:`, err));
           break;
 
         case "wave_switch":
