@@ -18,66 +18,6 @@ import timer from "../util/timer.js";
 import { db } from "../index.js";
 import fs from "fs";
 
-/**
- * Handles menu interactions for a given menu and callback.
- *
- * @param {object} interaction - The interaction object.
- * @param {object} menu - The menu to display (e.g., langMenu or settingsMenu).
- * @param {function} callback - The callback function to handle the selected values.
- * @param {string} logMessage - The log message to display after processing.
- */
-async function handleMenuInteraction(interaction, menu, callback, logMessage) {
-  try {
-    // Send the ephemeral reply with the menu
-    await interaction.editReply({
-      components: [new ActionRowBuilder().addComponents(menu)],
-      flags: MessageFlags.Ephemeral,
-    });
-
-    // Create a collector for the menu
-    const filter = (i) => i.user.id === interaction.user.id; // Only collect interactions from the same user
-    const collector = interaction.channel.createMessageComponentCollector({
-      filter,
-      componentType: ComponentType.StringSelect,
-      time: 60000, // Collector will stop after 60 seconds
-    });
-
-    collector.on("collect", async (menuInteraction) => {
-      try {
-        const selectedValues = menuInteraction.values; // Get the selected values
-        callback(selectedValues); // Call the provided callback function
-
-        await menuInteraction.update({
-          content: `${logMessage}: \`${selectedValues.join(", ")}\``,
-          components: [], // Remove the menu after selection
-        });
-      } catch (error) {
-        if (error.code === 10062) {
-          // DiscordAPIError: Unknown Interaction
-          console.warn("Interaction no longer valid. Skipping update.");
-        } else {
-          console.error("Error handling menu interaction:", error);
-        }
-      }
-
-      collector.stop();
-    });
-
-    collector.on("end", (collected, reason) => {
-      if (reason === "time") {
-        console.warn(`${logMessage} menu timed out.`);
-      }
-    });
-  } catch (error) {
-    if (error.code === 10062) {
-      // DiscordAPIError: Unknown Interaction
-      console.warn("Interaction no longer valid. Skipping reply.");
-    } else {
-      console.error("Error handling menu interaction:", error);
-    }
-  }
-}
-
 class Handler {
   constructor(botData, userId, voiceChannel) {
     this._botName = botData.name;
@@ -213,7 +153,7 @@ class Handler {
             this._activeLangCollector.stop();
           }
 
-          this._activeLangCollector = await handleMenuInteraction(
+          this._activeLangCollector = await this._handleMenuInteraction(
             interaction,
             langMenu,
             (selectedLang) => {
@@ -232,7 +172,7 @@ class Handler {
               this._activeSettingsCollector.stop();
             }
 
-            this._activeSettingsCollector = await handleMenuInteraction(
+            this._activeSettingsCollector = await this._handleMenuInteraction(
               interaction,
               invasionSettings,
               (selectedSettings) => {
@@ -267,6 +207,66 @@ class Handler {
       }
     });
   }
+
+  /**
+   * Handles menu interactions for a given menu and callback.
+   *
+   * @param {object} interaction - The interaction object.
+   * @param {object} menu - The menu to display (e.g., langMenu or settingsMenu).
+   * @param {function} callback - The callback function to handle the selected values.
+   * @param {string} logMessage - The log message to display after processing.
+   */
+  async _handleMenuInteraction(interaction, menu, callback, logMessage) {
+  try {
+    // Send the ephemeral reply with the menu
+    await interaction.editReply({
+      components: [new ActionRowBuilder().addComponents(menu)],
+      flags: MessageFlags.Ephemeral,
+    });
+
+    // Create a collector for the menu
+    const filter = (i) => i.user.id === interaction.user.id; // Only collect interactions from the same user
+    const collector = interaction.channel.createMessageComponentCollector({
+      filter,
+      componentType: ComponentType.StringSelect,
+      time: 60000, // Collector will stop after 60 seconds
+    });
+
+    collector.on("collect", async (menuInteraction) => {
+      try {
+        const selectedValues = menuInteraction.values; // Get the selected values
+        callback(selectedValues); // Call the provided callback function
+
+        await menuInteraction.update({
+          content: `${logMessage}: \`${selectedValues.join(", ")}\``,
+          components: [], // Remove the menu after selection
+        });
+      } catch (error) {
+        if (error.code === 10062) {
+          // DiscordAPIError: Unknown Interaction
+          console.warn("Interaction no longer valid. Skipping update.");
+        } else {
+          console.error("Error handling menu interaction:", error);
+        }
+      }
+
+      collector.stop();
+    });
+
+    collector.on("end", (collected, reason) => {
+      if (reason === "time") {
+        console.warn(`${logMessage} menu timed out.`);
+      }
+    });
+  } catch (error) {
+    if (error.code === 10062) {
+      // DiscordAPIError: Unknown Interaction
+      console.warn("Interaction no longer valid. Skipping reply.");
+    } else {
+      console.error("Error handling menu interaction:", error);
+    }
+  }
+}
 
   /**
    * Retrieves the start time for the timer.
