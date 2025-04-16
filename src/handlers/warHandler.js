@@ -175,7 +175,7 @@ class WarHandler extends Handler {
    */
   async _getConfig() {
     try {
-      const config = await db.getConfig(this._userId);
+      const config = await db.getUserConfig(this._userId);
 
       if (config) {
         if (config.lang !== "en_4") {
