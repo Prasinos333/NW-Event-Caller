@@ -109,9 +109,9 @@ class WarHandler extends Handler {
    *
    * Description: Progress Bar
    * Fields:
-   * ---Next Respawn--- ---Current Interval--- ---Next Interval---
-   * ---Time Remaining--- ---Wave--- ---Lang---
-   * ---Start Time <t:epoch>--- ---Voice Channel---
+   * ---Next Respawn--- 
+   * ---Current Interval--- ---Next Interval--- ---Time Remaining---
+   * ---Wave--- ---Lang--- ---Voice Channel---
    *
    * @param {number} chrono - Seconds remainig in the event.
    * @param {object} currentRespawn - The current respawn object.
@@ -178,8 +178,8 @@ class WarHandler extends Handler {
       const config = await db.getUserConfig(this._userId);
 
       if (config) {
-        if (config.lang !== "en_4") {
-          this._lang = config.lang;
+        if (config.Lang !== "en_4") {
+          this._lang = config.Lang;
         } else {
           this._lang = DEFAULT_LANG;
         }

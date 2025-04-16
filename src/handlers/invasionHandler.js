@@ -42,10 +42,10 @@ class InvasionHandler extends Handler {
       let nextTiming = this._getNextTiming(chrono);
 
       if (chrono === 1501) {
-        this._logger.log("Invasion Starting (chrono: %s).", chrono);
+        this._logger.log("Invasion Starting (chrono: %s)", chrono);
         this._playAudio("Invasion_start.mp3", "invasion");
       } else if (chrono <= 0) {
-        this._logger.log("Stopping timer (chrono: %s).", chrono);
+        this._logger.log("Stopping timer (chrono: %s)", chrono);
         this.stop();
         return;
       }
@@ -59,7 +59,7 @@ class InvasionHandler extends Handler {
             nextTiming.name.toLowerCase().includes(setting)
           )
         ) {
-          this._logger.log(`Playing "${nextTiming.name}" (chrono: %s)."`, chrono);
+          this._logger.log(`Playing: "${nextTiming.name}" (chrono: %s)`, chrono);
           this._playAudio(nextTiming.name, "invasion");
         }
       } else {
@@ -77,8 +77,8 @@ class InvasionHandler extends Handler {
 
   /**
    * Fields:
-   * ---Voice Channel--- ---Start Time <t:epoch>--- ---Lang---
    * ---Close Spawn--- ---Siege--- ---Phase---
+   * ---Lang--- ---Settings--- ---Voice Channel--- 
    *
    * @param {number} chrono - Seconds remainig in the event.
    * @returns {object} - The embed object.
@@ -88,7 +88,8 @@ class InvasionHandler extends Handler {
     const { name: siegeName, time: siegeTime } = this._getTimingByName(chrono, "Siege");
     const { name: phaseName, time: phaseTime } = this._getTimingByName(chrono, "Phase");
 
-    this._logger.info(`Creating Embed for ${this._formatSeconds(chrono)} \n| ${closeName} : ${closeTime} |
+    this._logger.info(`Creating embed for: ${this._formatSeconds(chrono)} 
+    \n| ${closeName} : ${closeTime} |
     \n| ${siegeName} : ${siegeTime} |
     \n| ${phaseName} : ${phaseTime} |`);
 
@@ -103,9 +104,9 @@ class InvasionHandler extends Handler {
         { name: closeName, value: `   \`${closeTime}\``, inline: true },
         { name: siegeName, value: `   \`${siegeTime}\``, inline: true },
         { name: phaseName, value: `   \`${phaseTime}\``, inline: true },
-        { name: "   Lang    ", value: `   \`${this._lang}\``, inline: true },
+        { name: "Lang", value: `   \`${this._lang}\``, inline: true },
         {
-          name: " Settings ",
+          name: "Settings",
           value: `\`${this._setting.join("` \n `")}\``,
           inline: true,
         },
@@ -162,7 +163,7 @@ class InvasionHandler extends Handler {
       (timing) =>
         timing.name.includes(name) &&
         !timing.name.includes("warn") &&
-        chrono > timing.value
+        chrono > Math.round(nextTiming.value / 10) * 10
     );
 
     const timingData = {}; // Initialize the timingData object
