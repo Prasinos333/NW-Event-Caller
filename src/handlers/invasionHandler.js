@@ -52,7 +52,6 @@ class InvasionHandler extends Handler {
 
       if (nextTiming && chrono - nextTiming.value === 1) {
         this._checkMessage();
-        this._logger.log(`Updating Embed, chrono ${chrono - 1}`);
         this._updateEmbed(this.createEmbed(chrono - 1));
 
         if (
@@ -88,6 +87,10 @@ class InvasionHandler extends Handler {
     const { name: closeName, time: closeTime } = this._getTimingByName(chrono, "Close");
     const { name: siegeName, time: siegeTime } = this._getTimingByName(chrono, "Siege");
     const { name: phaseName, time: phaseTime } = this._getTimingByName(chrono, "Phase");
+
+    this._logger.info(`Creating Embed for ${this._formatSeconds(chrono)} \n| ${closeName} : ${closeTime} |
+    \n| ${siegeName} : ${siegeTime} |
+    \n| ${phaseName} : ${phaseTime} |`);
 
     const invasionEmbed = new EmbedBuilder()
       .setColor(this._botColor)
@@ -165,7 +168,7 @@ class InvasionHandler extends Handler {
     const timingData = {}; // Initialize the timingData object
     if (nextTiming) {
       timingData.name = nextTiming.name.replace(".mp3", "").replace(/_/g, " "); // Remove ".mp3" and replace "_" with spaces
-      timingData.time = this._formatSeconds(nextTiming.value); // Format the time
+      timingData.time = this._formatSeconds(Math.round(nextTiming.value / 10) * 10); // Format the time, rounding to remove audio offset
     } else {
       timingData.name = "None";
       timingData.time = "N/A";
