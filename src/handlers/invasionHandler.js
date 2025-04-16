@@ -89,9 +89,7 @@ class InvasionHandler extends Handler {
     const { name: phaseName, time: phaseTime } = this._getTimingByName(chrono, "Phase");
 
     this._logger.info(`Creating embed for: ${this._formatSeconds(chrono)} 
-    \n| ${closeName} : ${closeTime} |
-    \n| ${siegeName} : ${siegeTime} |
-    \n| ${phaseName} : ${phaseTime} |`);
+    \n| ${closeName} : ${closeTime} | \n| ${siegeName} : ${siegeTime} | \n| ${phaseName} : ${phaseTime} |`);
 
     const invasionEmbed = new EmbedBuilder()
       .setColor(this._botColor)
