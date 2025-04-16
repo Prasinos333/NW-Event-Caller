@@ -163,7 +163,7 @@ class InvasionHandler extends Handler {
       (timing) =>
         timing.name.includes(name) &&
         !timing.name.includes("warn") &&
-        chrono > Math.round(nextTiming.value / 10) * 10
+        chrono > Math.round(timing.value / 10) * 10
     );
 
     const timingData = {}; // Initialize the timingData object
