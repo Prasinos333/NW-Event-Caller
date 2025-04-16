@@ -52,6 +52,7 @@ class InvasionHandler extends Handler {
 
       if (nextTiming && chrono - nextTiming.value === 1) {
         this._checkMessage();
+        this._logger.log(`Updating Embed, chrono ${chrono - 1}`);
         this._updateEmbed(this.createEmbed(chrono - 1));
 
         if (
@@ -59,7 +60,7 @@ class InvasionHandler extends Handler {
             nextTiming.name.toLowerCase().includes(setting)
           )
         ) {
-          this._logger.log(`Playing "${nextTiming.name}"`);
+          this._logger.log(`Playing "${nextTiming.name}" (chrono: %s)."`, chrono);
           this._playAudio(nextTiming.name, "invasion");
         }
       } else {
@@ -158,13 +159,13 @@ class InvasionHandler extends Handler {
       (timing) =>
         timing.name.includes(name) &&
         !timing.name.includes("warn") &&
-        Math.round(timing.value / 10) * 10 < chrono
+        chrono > timing.value
     );
 
     const timingData = {}; // Initialize the timingData object
     if (nextTiming) {
       timingData.name = nextTiming.name.replace(".mp3", "").replace(/_/g, " "); // Remove ".mp3" and replace "_" with spaces
-      timingData.time = this._formatSeconds(Math.round(nextTiming.value / 10) * 10); // Format the time
+      timingData.time = this._formatSeconds(nextTiming.value); // Format the time
     } else {
       timingData.name = "None";
       timingData.time = "N/A";
