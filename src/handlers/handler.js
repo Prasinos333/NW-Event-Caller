@@ -126,86 +126,107 @@ class Handler {
    * @param {object} message - The message object to setup the collector for.
    */
   async setupButtonCollector(message, type) {
-    const collector = message.createMessageComponentCollector();
+    try {
+      const collector = message.createMessageComponentCollector();
 
-    collector.on("collect", async (interaction) => {
-      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+      collector.on("collect", async (interaction) => {
+        try {
+          await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
-      const allowedRoles = db.getGuildConfig(this._guildId);
-      const userRoles = interaction.member.roles.cache.map((role) => role.id);
-      const isAuthorized =
-        interaction.user.id === this._userId ||
-        (allowedRoles && userRoles.some((role) => allowedRoles.includes(role)));
+          const allowedRoles = await db.getGuildConfig(this._guildId);
+          const userRoles = interaction.member.roles.cache.map((role) => role.id);
+          const isAuthorized =
+            interaction.user.id === this._userId ||
+            (allowedRoles && userRoles.some((role) => allowedRoles.includes(role)));
 
-      if (!isAuthorized) {
-        await interaction.editReply({
-          content: "You are not authorized to interact with this button.",
-          flags: MessageFlags.Ephemeral,
-        });
-        return;
-      }
-
-      switch (interaction.customId) {
-        case "lang": {
-          const langMenu = type === "invasion" ? invasionSelect : warSelect;
-
-          if (this._activeLangCollector) {
-            this._activeLangCollector.stop();
+          if (!isAuthorized) {
+            await interaction.editReply({
+              content: "You are not authorized to interact with this button.",
+              flags: MessageFlags.Ephemeral,
+            });
+            return;
           }
 
-          this._activeLangCollector = await this._handleMenuInteraction(
-            interaction,
-            langMenu,
-            (selectedLang) => {
-              this._changeLang(selectedLang[0]); // Update the language
-              this._modifiedConfig = true;
-            },
-            "Language changed to"
-          );
+          switch (interaction.customId) {
+            case "lang": {
+              const langMenu = type === "invasion" ? invasionSelect : warSelect;
 
-          break;
-        }
+              if (this._activeLangCollector) {
+                this._activeLangCollector.stop();
+              }
 
-        case "settings": {
-          if (this._setting) {
-            if (this._activeSettingsCollector) {
-              this._activeSettingsCollector.stop();
+              this._activeLangCollector = await this._handleMenuInteraction(
+                interaction,
+                langMenu,
+                (selectedLang) => {
+                  this._changeLang(selectedLang[0]); // Update the language
+                  this._modifiedConfig = true;
+                },
+                "Language changed to"
+              );
+
+              break;
             }
 
-            this._activeSettingsCollector = await this._handleMenuInteraction(
-              interaction,
-              invasionSettings,
-              (selectedSettings) => {
-                this._changeSetting(selectedSettings); // Update the settings
-                this._modifiedConfig = true;
-              },
-              "Settings updated to"
-            );
-          }
+            case "settings": {
+              if (this._setting) {
+                if (this._activeSettingsCollector) {
+                  this._activeSettingsCollector.stop();
+                }
 
-          break;
+                this._activeSettingsCollector = await this._handleMenuInteraction(
+                  interaction,
+                  invasionSettings,
+                  (selectedSettings) => {
+                    this._changeSetting(selectedSettings); // Update the settings
+                    this._modifiedConfig = true;
+                  },
+                  "Settings updated to"
+                );
+              }
+
+              break;
+            }
+
+            case "stop":
+              this.stop(interaction.user);
+              await interaction
+                .deleteReply()
+                .catch((err) => this._logger.error(`Error deleting reply:`, err));
+              break;
+
+            case "wave_switch":
+              if (this._wave) {
+                this._changeWave();
+              }
+
+              await interaction.editReply({
+                content: `Changed to wave \`${this._wave}\``,
+                flags: MessageFlags.Ephemeral,
+              });
+
+              break;
+          }
+        } catch (error) {
+          if (error.code === 10062) {
+            // DiscordAPIError: Unknown Interaction
+            this._logger.warn("Interaction no longer valid. Skipping.");
+          } else {
+            this._logger.error("Error handling interaction:", error);
+          }
         }
+      });
 
-        case "stop":
-          this.stop(interaction.user);
-          await interaction
-            .deleteReply()
-            .catch((err) => this._logger.error(`Error deleting reply:`, err));
-          break;
-
-        case "wave_switch":
-          if (this._wave) {
-            this._changeWave();
-          }
-
-          await interaction.editReply({
-            content: `Changed to wave \`${this._wave}\``,
-            flags: MessageFlags.Ephemeral,
-          });
-
-          break;
-      }
-    });
+      collector.on("end", (collected, reason) => {
+        if (reason === "time") {
+          this._logger.info("Button collector timed out.");
+        } else {
+          this._logger.info(`Button collector ended. Reason: ${reason}`);
+        }
+      });
+    } catch (error) {
+      this._logger.error("Error setting up button collector:", error);
+    }
   }
 
   /**

@@ -42,9 +42,10 @@ class InvasionHandler extends Handler {
       const chrono = 1500 - (this._getCurrentTime() - this._startTime) / 1000;
       let nextTiming = this._getNextTiming(chrono);
 
-      if(this._nextUpdateTime >= chrono) {
+      if (this._nextUpdateTime >= chrono || this._updateRequired) {
         this._checkMessage();
-        this._updateEmbed(this.createEmbed(chrono - 1));
+        this._updateEmbed(this.createEmbed(chrono));
+        this._updateRequired = false;
       }
 
       if (chrono === 1501) {
@@ -65,11 +66,6 @@ class InvasionHandler extends Handler {
           this._logger.log(`Playing: "${nextTiming.name}" (chrono: %s)`, chrono);
           this._playAudio(nextTiming.name, "invasion");
         }
-      } else {
-        if(this._updateRequired) {
-          this._updateEmbed(this.createEmbed(chrono));
-          this._updateRequired = false;
-        }
       }
     } catch (error) {
       this._logger.error(`Error calling invasion:`, error);
@@ -87,7 +83,7 @@ class InvasionHandler extends Handler {
    * @param {number} chrono - Seconds remainig in the event.
    * @returns {object} - The embed object.
    */
-  createEmbed(chrono = 1500) {
+  createEmbed(chrono = 1500) { 
     const { name: closeName, time: closeTime } = this._getTimingByName(chrono, "Close");
     const { name: siegeName, time: siegeTime } = this._getTimingByName(chrono, "Siege");
     const { name: phaseName, time: phaseTime } = this._getTimingByName(chrono, "Phase");
@@ -132,7 +128,7 @@ class InvasionHandler extends Handler {
   /**
    * Retrieves the configuration for the user from the database.
    */
-  async _getConfig() {
+  async _getConfig() { 
     const config = await db.getUserConfig(this._userId);
 
     if (config) {

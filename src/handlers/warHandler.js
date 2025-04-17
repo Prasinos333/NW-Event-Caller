@@ -174,18 +174,14 @@ class WarHandler extends Handler {
    * Since the war and invasion config tables are shared, the lang is set to the default if the current lang doesn't have the necessary audio files.
    */
   async _getConfig() {
-    try {
-      const config = await db.getUserConfig(this._userId);
+    const config = await db.getUserConfig(this._userId);
 
-      if (config) {
-        if (config.Lang !== "en_4") {
-          this._lang = config.Lang;
-        } else {
-          this._lang = DEFAULT_LANG;
-        }
+    if (config) {
+      if (config.Lang !== "en_4") {
+        this._lang = config.Lang;
+      } else {
+        this._lang = DEFAULT_LANG;
       }
-    } catch (error) {
-      this._logger.error("Error retrieving configuration:", error);
     }
 
     return;
