@@ -106,8 +106,8 @@ class InvasionHandler extends Handler {
       })
       .addFields(
         { name: closeName, value: `   \`${this._formatSeconds(closeTime)}\``, inline: true },
-        { name: siegeName, value: `   \`${this._formatSeconds(closeTime)}\``, inline: true },
-        { name: phaseName, value: `   \`${this._formatSeconds(closeTime)}\``, inline: true },
+        { name: siegeName, value: `   \`${this._formatSeconds(siegeTime)}\``, inline: true },
+        { name: phaseName, value: `   \`${this._formatSeconds(phaseTime)}\``, inline: true },
         { name: "Lang", value: `   \`${this._lang}\``, inline: true },
         {
           name: "Settings",
