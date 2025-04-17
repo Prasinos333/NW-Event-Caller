@@ -80,8 +80,9 @@ class InvasionHandler extends Handler {
 
   /**
    * Fields:
-   * ---Close Spawn--- ---Siege--- ---Phase---
-   * ---Lang--- ---Settings--- ---Voice Channel--- 
+   * ---Close Spawn--- ---Skull--- ---Siege---
+   * ---Phase--- ---Lang--- ---Settings---
+   * ---Voice Channel--- 
    *
    * @param {number} chrono - Seconds remainig in the event.
    * @returns {object} - The embed object.
@@ -90,6 +91,7 @@ class InvasionHandler extends Handler {
     const { name: closeName, time: closeTime } = this._getTimingByName(chrono, "Close");
     const { name: siegeName, time: siegeTime } = this._getTimingByName(chrono, "Siege");
     const { name: phaseName, time: phaseTime } = this._getTimingByName(chrono, "Phase");
+    const { name: skullName, time: skullTime } = this._getTimingByName(chrono, "Skull");
 
     this._nextUpdateTime = Math.max(
       closeTime === "N/A" ? 0 : closeTime,
@@ -105,9 +107,10 @@ class InvasionHandler extends Handler {
         url: REPO_URL,
       })
       .addFields(
-        { name: closeName, value: `   \`${this._formatSeconds(closeTime)}\``, inline: true },
-        { name: siegeName, value: `   \`${this._formatSeconds(siegeTime)}\``, inline: true },
-        { name: phaseName, value: `   \`${this._formatSeconds(phaseTime)}\``, inline: true },
+        { name: closeName, value: `   \`${Number.isInteger(closeTime) ? this._formatSeconds(closeTime) : closeTime}\``, inline: true },
+        { name: skullName, value: `   \`${Number.isInteger(skullTime) ? this._formatSeconds(skullTime) : skullTime}\``, inline: true },
+        { name: siegeName, value: `   \`${Number.isInteger(siegeTime) ? this._formatSeconds(siegeTime) : siegeTime}\``, inline: true },
+        { name: phaseName, value: `   \`${Number.isInteger(phaseTime) ? this._formatSeconds(phaseTime) : phaseTime}\``, inline: true },
         { name: "Lang", value: `   \`${this._lang}\``, inline: true },
         {
           name: "Settings",
@@ -118,7 +121,7 @@ class InvasionHandler extends Handler {
           name: "Voice Chanel",
           value: `<#${this._voiceChannel.id}>`,
           inline: true,
-        }
+        },
       )
       .setFooter({ text: "Invasion Timer" })
       .setTimestamp(this._startTime);
