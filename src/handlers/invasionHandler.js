@@ -42,7 +42,7 @@ class InvasionHandler extends Handler {
       const chrono = 1500 - (this._getCurrentTime() - this._startTime) / 1000;
       let nextTiming = this._getNextTiming(chrono);
 
-      if(this._nextUpdateTime > chrono) {
+      if(this._nextUpdateTime >= chrono) {
         this._checkMessage();
         this._updateEmbed(this.createEmbed(chrono - 1));
       }
