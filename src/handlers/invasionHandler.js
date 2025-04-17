@@ -8,6 +8,7 @@ class InvasionHandler extends Handler {
   constructor(botData, userId, voiceChannel) {
     super(botData, userId, voiceChannel);
     this._setting = ["phase", "skull", "close"];
+    this._nextUpdateTime = 1500;
   }
 
   /**
@@ -36,10 +37,15 @@ class InvasionHandler extends Handler {
    *
    * @returns {void} - No return value.
    */
-  update() { // TODO - Update embed even for timings not in settings.
+  update() {
     try {
       const chrono = 1500 - (this._getCurrentTime() - this._startTime) / 1000;
       let nextTiming = this._getNextTiming(chrono);
+
+      if(this._nextUpdateTime > chrono) {
+        this._checkMessage();
+        this._updateEmbed(this.createEmbed(chrono - 1));
+      }
 
       if (chrono === 1501) {
         this._logger.log("Invasion Starting (chrono: %s)", chrono);
@@ -51,9 +57,6 @@ class InvasionHandler extends Handler {
       }
 
       if (nextTiming && chrono - nextTiming.value === 1) {
-        this._checkMessage();
-        this._updateEmbed(this.createEmbed(chrono - 1));
-
         if (
           this._setting.some((setting) =>
             nextTiming.name.toLowerCase().includes(setting)
@@ -88,8 +91,11 @@ class InvasionHandler extends Handler {
     const { name: siegeName, time: siegeTime } = this._getTimingByName(chrono, "Siege");
     const { name: phaseName, time: phaseTime } = this._getTimingByName(chrono, "Phase");
 
-    this._logger.info(`Creating embed for: ${this._formatSeconds(chrono)} 
-    \n| ${closeName} : ${closeTime} | \n| ${siegeName} : ${siegeTime} | \n| ${phaseName} : ${phaseTime} |`);
+    this._nextUpdateTime = Math.max(
+      closeTime === "N/A" ? 0 : closeTime,
+      siegeTime === "N/A" ? 0 : siegeTime,
+      phaseTime === "N/A" ? 0 : phaseTime
+    );
 
     const invasionEmbed = new EmbedBuilder()
       .setColor(this._botColor)
@@ -99,9 +105,9 @@ class InvasionHandler extends Handler {
         url: REPO_URL,
       })
       .addFields(
-        { name: closeName, value: `   \`${closeTime}\``, inline: true },
-        { name: siegeName, value: `   \`${siegeTime}\``, inline: true },
-        { name: phaseName, value: `   \`${phaseTime}\``, inline: true },
+        { name: closeName, value: `   \`${this._formatSeconds(closeTime)}\``, inline: true },
+        { name: siegeName, value: `   \`${this._formatSeconds(closeTime)}\``, inline: true },
+        { name: phaseName, value: `   \`${this._formatSeconds(closeTime)}\``, inline: true },
         { name: "Lang", value: `   \`${this._lang}\``, inline: true },
         {
           name: "Settings",
@@ -167,7 +173,7 @@ class InvasionHandler extends Handler {
     const timingData = {}; // Initialize the timingData object
     if (nextTiming) {
       timingData.name = nextTiming.name.replace(".mp3", "").replace(/_/g, " "); // Remove ".mp3" and replace "_" with spaces
-      timingData.time = this._formatSeconds(Math.round(nextTiming.value / 10) * 10); // Format the time, rounding to remove audio offset
+      timingData.time = Math.round(nextTiming.value / 10) * 10; // Format the time, rounding to remove audio offset
     } else {
       timingData.name = "None";
       timingData.time = "N/A";

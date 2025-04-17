@@ -204,7 +204,7 @@ class Database {
         `Error retrieving config for guild: ${guildID}`,
         error
       );
-      throw error;
+      return [];
     }
   }
 
