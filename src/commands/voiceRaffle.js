@@ -75,9 +75,7 @@ async function execute(interaction) {
     }
 
     const memberArray = [...nonBotMembers];
-    // eslint-disable-next-line no-undef
-    const RIGGED_ID = process.env.RIGGED_ID;
-    let title = `${number} Random Member(s)`;
+    const title = `${number} Random Member(s)`;
 
     // Shuffle the array using the Fisher-Yates algorithm
     for (
@@ -90,10 +88,6 @@ async function execute(interaction) {
         memberArray[randomIndex],
         memberArray[i],
       ];
-
-      if (memberArray[i].id == RIGGED_ID) {
-        title = `${number} Rigged Result(s)`;
-      }
     }
 
     const randomMembers = memberArray.slice(-number);

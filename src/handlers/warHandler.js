@@ -64,7 +64,7 @@ class WarHandler extends Handler {
         switch (chrono - currentRespawn.value) {
           case 6:
             this._logger.log(
-              "Playing 5 second countdown (chrono: %s).",
+              "Playing 5 sec count(chrono: %s).",
               chrono
             );
             this._playAudio("5_second_countdown.mp3", "war");
