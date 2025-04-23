@@ -35,52 +35,47 @@ async function execute(interaction) {
   const EventLog = logger(`${path.resolve("logs", "bots")}/Events.log`);
 
   try {
-    // await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
     const voiceChannel = interaction.member?.voice?.channel;
     const textChannel = interaction.channel;
     const guildName = interaction.member.guild.name;
 
     if (textChannel instanceof VoiceChannel) {
-      return interaction.reply({
+      return interaction.editReply({
         content: "Error: Cannot start in voice channel chat.",
-        flags: MessageFlags.Ephemeral,
       });
     }
 
     if (!voiceChannel) {
-      return interaction.reply({
+      return interaction.editReply({
         content: "Error: You are not currently in a voice channel.",
-        flags: MessageFlags.Ephemeral,
       });
     }
 
     if (!voiceChannel.viewable) {
-      return interaction.reply({
+      return interaction.editReply({
         content: "Error: Lacking `View Channel` permission.",
-        flags: MessageFlags.Ephemeral,
       });
     }
 
     if (!voiceChannel.joinable) {
-      return interaction.reply({
+      return interaction.editReply({
         content: "Error: Lacking `Connect Channel` permission.",
-        flags: MessageFlags.Ephemeral,
       });
     }
 
     if (voiceChannel.full) {
-      return interaction.reply({
+      return interaction.editReply({
         content: "Error: Channel is full.",
-        flags: MessageFlags.Ephemeral,
       });
     }
 
     const callerType = interaction.options.getString("type");
 
     if (!callerType) {
-      return interaction.reply({
+      return interaction.editReply({
         content: "Error: Unable to retrieve bot caller type.",
-        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -94,10 +89,9 @@ async function execute(interaction) {
     }
 
     if (hasBot) {
-      return interaction.reply({
+      return interaction.editReply({
         content:
-          "Error: Voice channel currently has active bot. Press stop to change type",
-        flags: MessageFlags.Ephemeral,
+          "Error: Voice channel currently has active bot. Press stop to change type.",
       });
     }
 
@@ -116,9 +110,8 @@ async function execute(interaction) {
       EventLog.warn(
         `Not enough bots! Guild: "${guildName}" | Voice channel: "${voiceChannel.name}" in "${VC_CategoryName}"`
       );
-      return interaction.reply({
+      return interaction.editReply({
         content: "Error: No available bots.",
-        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -129,34 +122,39 @@ async function execute(interaction) {
       EventLog.warn(
         `"${availableBot._name}" doesn't have the proper perms for text channel: "${textChannel.name}" in "${TC_CategoryName}" for guild: "${guildName}"`
       );
-      return interaction.reply({
+      return interaction.editReply({
         content: `Error: \`${availableBot.client.user.username}\` doesn't have proper permissions for this text channel.`,
-        flags: MessageFlags.Ephemeral,
       });
     } else if (!hasVoicePerms) {
       EventLog.warn(
         `"${availableBot._name}" doesn't have the proper perms for voice channel: "${voiceChannel.name}" in "${VC_CategoryName}" for guild: "${guildName}"`
       );
-      return interaction.reply({
+      return interaction.editReply({
         content: `Error: \`${availableBot.client.user.username}\` doesn't have proper permissions for the voice channel.`,
-        flags: MessageFlags.Ephemeral,
       });
     } else {
       availableBot.eventCall(interaction, voiceChannel);
       EventLog.log(
         `"${availableBot._name}" calling '${callerType}' | Guild: "${guildName}" | Voice channel: "${voiceChannel.name}" in "${VC_CategoryName}" | Text channel: "${textChannel.name}" in "${TC_CategoryName}"`
       );
-      return interaction.reply({
+      return interaction.editReply({
         content: `<@${availableBot.client.user.id}> calling \`${callerType}\` in \`${voiceChannel.name}\` for \`${VC_CategoryName}\``,
-        flags: MessageFlags.Ephemeral,
       });
     }
   } catch (error) {
-    EventLog.error("Error executing addcaller command:", error);
-    interaction.reply({
-      content: "An error occurred while executing the command.",
-      flags: MessageFlags.Ephemeral,
-    });
+    if (error.code === 10062) {
+      EventLog.warn("Interaction no longer valid. Skipping.");
+    } else {
+      EventLog.error("Error executing addcaller command:", error);
+    }
+
+    try {
+      await interaction.editReply({
+        content: "An error occurred while executing the command.",
+      });
+    } catch (editError) {
+      EventLog.error("Error editing the reply:", editError);
+    }
   }
 }
 
