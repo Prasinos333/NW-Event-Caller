@@ -114,7 +114,7 @@ class InvasionHandler extends Handler {
           inline: true,
         },
         {
-          name: "Voice Chanel",
+          name: "Voice Channel",
           value: `<#${this._voiceChannel.id}>`,
           inline: true,
         },
