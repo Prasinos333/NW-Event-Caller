@@ -90,8 +90,8 @@ class Bot {
     if (
       connection &&
       connection.state &&
-      (connection.state.status !== VoiceConnectionStatus.Destroyed ||
-        connection.state.status !== VoiceConnectionStatus.Disconnected) &&
+      connection.state.status !== VoiceConnectionStatus.Destroyed &&
+      connection.state.status !== VoiceConnectionStatus.Disconnected &&
       connection.joinConfig.guildId === guildId
     ) {
       return false;
