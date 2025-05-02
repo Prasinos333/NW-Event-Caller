@@ -137,7 +137,8 @@ async function execute(interaction) {
       EventLog.log(
         `"${availableBot._name}" calling '${callerType}' | Guild: "${guildName}" | Voice channel: "${voiceChannel.name}" in "${VC_CategoryName}" | Text channel: "${textChannel.name}" in "${TC_CategoryName}"`
       );
-      return interaction.editReply({
+      await interaction.deleteReply();
+      return interaction.followUp({
         content: `<@${availableBot.client.user.id}> calling \`${callerType}\` in \`${voiceChannel.name}\` for \`${VC_CategoryName}\``,
       });
     }
