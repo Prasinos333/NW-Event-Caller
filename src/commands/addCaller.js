@@ -81,7 +81,7 @@ async function execute(interaction) {
 
     let hasBot = false;
     for (const bot of createdBots) {
-      const connection = getVoiceConnection(voiceChannel.guild.id, bot.ID);
+      const connection = getVoiceConnection(voiceChannel.guild.id, bot.uId);
       if (connection?.joinConfig.channelId === voiceChannel.id) {
         hasBot = true;
         break;

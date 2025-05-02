@@ -36,7 +36,7 @@ class Bot {
     this._name = name;
     this._token = token;
     this._color = color;
-    this._uId = uuidv4();
+    this.uId = uuidv4();
     this._logger = logger(`${path.resolve("logs", "bots")}/${name}.log`);
     this._eventLog = logger(`${path.resolve("logs", "bots")}/Events.log`);
 
@@ -85,7 +85,7 @@ class Bot {
       return false;
     }
 
-    const connection = getVoiceConnection(guildId, this._uId);
+    const connection = getVoiceConnection(guildId, this.uId);
 
     if (
       connection &&
@@ -148,7 +148,7 @@ class Bot {
     const guild = await this.client.guilds.fetch(guildId);
     const guildName = interaction.member.guild.name;
     const userId = interaction.user.id;
-    const botData = { name: this._name, uId: this._uId, color: this._color };
+    const botData = { name: this._name, uId: this.uId, color: this._color };
     let handler = null;
     let embed = null;
 
@@ -166,7 +166,7 @@ class Bot {
       channelId: voiceChannelId,
       guildId: guildId,
       adapterCreator: guild.voiceAdapterCreator,
-      group: this._uId,
+      group: this.uId,
     });
 
     connection.once(VoiceConnectionStatus.Ready, async () => {
