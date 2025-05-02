@@ -67,7 +67,7 @@ async function execute(interaction) {
           console.error("Error saving roles to the database:", error);
           await selectInteraction.update({
             content:
-              "An error occurred while saving the roles. Please try again later.",
+              "*An error occurred while saving the roles.* Please try again later.",
             components: [],
           });
         }
@@ -78,7 +78,7 @@ async function execute(interaction) {
       if (reason === "time") {
         try {
           await interaction.editReply({
-            content: "The role selection menu has expired.",
+            content: "*The role selection menu has expired.*",
             components: [],
           });
         } catch (error) {
@@ -90,7 +90,7 @@ async function execute(interaction) {
     console.error("Error executing the allowRoles command:", error);
     try {
       await interaction.reply({
-        content: "An unexpected error occurred while executing the command. Please try again later.",
+        content: "*An unexpected error occurred while executing the command.* Please try again later.",
         flags: MessageFlags.Ephemeral,
       });
     } catch (replyError) {

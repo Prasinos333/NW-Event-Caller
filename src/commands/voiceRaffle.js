@@ -40,7 +40,7 @@ async function execute(interaction) {
 
     if (!voiceChannel) {
       return interaction.reply({
-        content: "Error: You are not currently in a voice channel.",
+        content: "**Error:** *You are not currently in a voice channel.*",
         flags: MessageFlags.Ephemeral,
       });
     }
@@ -50,7 +50,7 @@ async function execute(interaction) {
 
     if (number <= 0) {
       return interaction.reply({
-        content: "Error: Number must be positive",
+        content: "**Error:** *Number must be positive.*",
         flags: MessageFlags.Ephemeral,
       });
     }
@@ -66,8 +66,8 @@ async function execute(interaction) {
 
     if (number >= nonBotMembers.length) {
       const errorMessage = excludeSelf
-        ? "Error: Cannot be equal to or greater than amount in channel excluding yourself and bots."
-        : "Error: Cannot be equal to or greater than amount in channel excluding bots.";
+        ? "**Error:** *Cannot be equal to or greater than amount in channel excluding yourself and bots.*"
+        : "**Error:** *Cannot be equal to or greater than amount in channel excluding bots.*";
       return interaction.reply({
         content: errorMessage,
         flags: MessageFlags.Ephemeral,
@@ -110,7 +110,7 @@ async function execute(interaction) {
   } catch (error) {
     EventLog.error("Error executing voiceraffle command:", error);
     interaction.reply({
-      content: "An error occurred while executing the command.",
+      content: "*An error occurred while executing the command.* Please try again later.",
       flags: MessageFlags.Ephemeral,
     });
   }

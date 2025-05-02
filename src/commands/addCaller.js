@@ -91,7 +91,7 @@ async function execute(interaction) {
     if (hasBot) {
       return interaction.editReply({
         content:
-          "Error: Voice channel currently has active bot. Press stop to change type.",
+          "**Error:** *Voice channel currently has an active bot. Please `End` it before adding a new one.*",
       });
     }
 
@@ -111,7 +111,7 @@ async function execute(interaction) {
         `Not enough bots! Guild: "${guildName}" | Voice channel: "${voiceChannel.name}" in "${VC_CategoryName}"`
       );
       return interaction.editReply({
-        content: "Error: No available bots.",
+        content: "**Error:** *No available bots. Add more:* https://github.com/Prasinos333/NW-Event-Caller",
       });
     }
 
@@ -123,14 +123,14 @@ async function execute(interaction) {
         `"${availableBot._name}" doesn't have the proper perms for text channel: "${textChannel.name}" in "${TC_CategoryName}" for guild: "${guildName}"`
       );
       return interaction.editReply({
-        content: `Error: \`${availableBot.client.user.username}\` doesn't have proper permissions for this text channel.`,
+        content: `**Error:** *\`${availableBot.client.user.username}\` doesn't have proper permissions for this text channel.*`,
       });
     } else if (!hasVoicePerms) {
       EventLog.warn(
         `"${availableBot._name}" doesn't have the proper perms for voice channel: "${voiceChannel.name}" in "${VC_CategoryName}" for guild: "${guildName}"`
       );
       return interaction.editReply({
-        content: `Error: \`${availableBot.client.user.username}\` doesn't have proper permissions for the voice channel.`,
+        content: `**Error:** *\`${availableBot.client.user.username}\` doesn't have proper permissions for the voice channel.*`,
       });
     } else {
       availableBot.eventCall(interaction, voiceChannel);
@@ -150,7 +150,7 @@ async function execute(interaction) {
 
     try {
       await interaction.editReply({
-        content: "An error occurred while executing the command.",
+        content: "*An error occurred while executing the command.* Please try again later.",
       });
     } catch (editError) {
       EventLog.error("Error editing the reply:", editError);
