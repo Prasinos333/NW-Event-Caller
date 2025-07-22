@@ -169,6 +169,10 @@ class Bot {
       group: this.uId,
     });
 
+    connection.on("error", (error) => {
+      this._logger.error(`Voice connection error:`, error);
+    });
+
     connection.once(VoiceConnectionStatus.Ready, async () => {
       switch (callerType) {
         case "war":
