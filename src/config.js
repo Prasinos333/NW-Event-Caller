@@ -59,7 +59,7 @@ export const invasionTimings = [
   { name: "Phase_start.mp3", value: 1372 },     // 22:50 Wave 1 Phase Start
   { name: "Phase_warn_10.mp3", value: 1341 },   // 22:20 Wave 1 Phase 10 Sec Warn
   // { name: "Phase_end.mp3" , value: 1331 },   // 22:10 Wave 2
-  { name: "Siege_Mid.mp3", value: 1310 },       // 21:50 Siege Mid
+  { name: "Siege_mid.mp3", value: 1310 },       // 21:50 Siege Mid
   { name: "Siege_left.mp3", value: 1270 },      // 21:10 Siege Left
   { name: "Close_all.mp3", value: 1254 },       // 20:50 Close All
   { name: "Close_sides.mp3", value: 1234 },     // 20:30 Close Sides
