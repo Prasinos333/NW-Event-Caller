@@ -15,7 +15,7 @@ const mySqlUrl = process.env.SQL_URL;
 
 export const createdBots = [];
 export const db = new Database(mySqlUrl);
-const EventLog = logger(`${path.resolve("logs", "bots")}/Events.log`);
+const EventLog = logger("Events");
 
 const validateConfig = (config, configName) => {
   if (

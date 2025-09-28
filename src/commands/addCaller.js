@@ -5,7 +5,6 @@ import {
   InteractionContextType,
 } from "discord.js";
 import logger from "../util/logger.js";
-import path from "path";
 import { getVoiceConnection } from "@discordjs/voice";
 import Bot from "../bots/basicBot.js";
 import { createdBots } from "../index.js";
@@ -32,7 +31,7 @@ const data = new SlashCommandBuilder()
  * @returns - None. Replies with a message.
  */
 async function execute(interaction) {
-  const EventLog = logger(`${path.resolve("logs", "bots")}/Events.log`);
+  const eventLog = logger("Events");
 
   try {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
@@ -107,7 +106,7 @@ async function execute(interaction) {
     const TC_CategoryName = textChannel.parent?.name ?? "No Category";
 
     if (!availableBot) {
-      EventLog.warn(
+      eventLog.warn(
         `Not enough bots! Guild: "${guildName}" | Voice channel: "${voiceChannel.name}" in "${VC_CategoryName}"`
       );
       return interaction.editReply({
@@ -119,14 +118,14 @@ async function execute(interaction) {
     const hasVoicePerms = await availableBot.hasPerms(voiceChannel);
 
     if (!hasTextPerms) {
-      EventLog.warn(
+      eventLog.warn(
         `"${availableBot._name}" doesn't have the proper perms for text channel: "${textChannel.name}" in "${TC_CategoryName}" for guild: "${guildName}"`
       );
       return interaction.editReply({
         content: `**Error:** *\`${availableBot.client.user.username}\` doesn't have proper permissions for this text channel.*`,
       });
     } else if (!hasVoicePerms) {
-      EventLog.warn(
+      eventLog.warn(
         `"${availableBot._name}" doesn't have the proper perms for voice channel: "${voiceChannel.name}" in "${VC_CategoryName}" for guild: "${guildName}"`
       );
       return interaction.editReply({
@@ -134,7 +133,7 @@ async function execute(interaction) {
       });
     } else {
       availableBot.eventCall(interaction, voiceChannel);
-      EventLog.log(
+      eventLog.info(
         `"${availableBot._name}" calling '${callerType}' | Guild: "${guildName}" | Voice channel: "${voiceChannel.name}" in "${VC_CategoryName}" | Text channel: "${textChannel.name}" in "${TC_CategoryName}"`
       );
       return interaction.editReply({
@@ -143,9 +142,9 @@ async function execute(interaction) {
     }
   } catch (error) {
     if (error.code === 10062) {
-      EventLog.warn("Interaction no longer valid. Skipping.");
+      eventLog.warn("Interaction no longer valid. Skipping.");
     } else {
-      EventLog.error("Error executing addcaller command:", error);
+      eventLog.error("Error executing addcaller command:", error);
     }
 
     try {
@@ -153,7 +152,7 @@ async function execute(interaction) {
         content: "*An error occurred while executing the command.* Please try again later.",
       });
     } catch (editError) {
-      EventLog.error("Error editing the reply:", editError);
+      eventLog.error("Error editing the reply:", editError);
     }
   }
 }

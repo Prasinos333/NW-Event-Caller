@@ -5,7 +5,6 @@ import {
   InteractionContextType,
 } from "discord.js";
 import logger from "../util/logger.js";
-import path from "path";
 
 const data = new SlashCommandBuilder()
   .setName("voiceraffle")
@@ -31,7 +30,7 @@ const data = new SlashCommandBuilder()
  * @returns - None. Replies to the interaction with the selected members or an error message.
  */
 async function execute(interaction) {
-  const EventLog = logger(`${path.resolve("logs", "bots")}/Events.log`);
+  const eventLog = logger("Events");
 
   try {
     // await interaction.deferReply({ flags: MessageFlags.Ephemeral });
@@ -104,11 +103,11 @@ async function execute(interaction) {
 
     interaction.reply({ embeds: [embed] });
     const guild_name = interaction.member.guild.name;
-    EventLog.log(
+    eventLog.info(
       `Raffle completed. Guild: "${guild_name}" | Text channel: "${textChannel.name}" in "${TC_CategoryName}" | Voice channel: "${voiceChannel.name}" in "${VC_CategoryName}"`
     );
   } catch (error) {
-    EventLog.error("Error executing voiceraffle command:", error);
+    eventLog.error("Error executing voiceraffle command:", error);
     interaction.reply({
       content: "*An error occurred while executing the command.* Please try again later.",
       flags: MessageFlags.Ephemeral,

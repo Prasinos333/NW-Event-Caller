@@ -1,40 +1,32 @@
-import { Console } from "console";
-import fs from "fs";
+import pino from "pino";
+import { multistream } from "pino-multi-stream";
+import path from "path";
 
-export default (path) => {
-  const logger = new Console({
-    stdout: fs.createWriteStream(path, { flags: "a" }),
-  });
+export default (name) => {
+  const logPath = path.resolve("logs", "bots");
 
-  const overwrite = [
-    [
-      logger.log,
-      (message) =>
-        `[${new Date().toLocaleString("en-US", { timeZone: "America/New_York", timeZoneName: "short" })}] [LOG] ${message}`,
-    ],
-    [
-      logger.info,
-      (message) =>
-        `[${new Date().toLocaleString("en-US", { timeZone: "America/New_York", timeZoneName: "short" })}] [INFO] ${message}`,
-    ],
-    [
-      logger.warn,
-      (message) =>
-        `[${new Date().toLocaleString("en-US", { timeZone: "America/New_York", timeZoneName: "short" })}] [WARN] ${message}`,
-    ],
-    [
-      logger.error,
-      (message) =>
-        `[${new Date().toLocaleString("en-US", { timeZone: "America/New_York", timeZoneName: "short" })}] [ERROR] ${message}`,
-    ],
+  const generalLogPath = `${logPath}/${name}.log`; // General log file for the bot
+  const errorLogPath = `${logPath}/${name}-errors.log`; // Warnings and errors for the bot
+
+  const streams = [
+    { stream: pino.destination(generalLogPath) },
+    {
+      level: "warn",
+      stream: pino.destination(errorLogPath),
+    },
   ];
-
-  overwrite.forEach(([_function, _format]) => {
-    logger[_function.name] = function () {
-      arguments[0] = _format(arguments[0]);
-      _function.apply(this, arguments);
-    };
-  });
+  
+  const logger = pino(
+    {
+      level: "info", // Default log level
+      timestamp: () =>
+        `,"time":"${new Date().toLocaleString("en-US", {
+          timeZone: "America/New_York",
+          timeZoneName: "short",
+        })}"`,
+    },
+    multistream(streams)
+  );
 
   return logger;
 };

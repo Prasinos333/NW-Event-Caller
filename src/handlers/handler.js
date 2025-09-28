@@ -23,9 +23,7 @@ class Handler {
     this._botName = botData.name;
     this._botColor = botData.color;
     this._uId = botData.uId;
-    this._logger = logger(
-      `${path.resolve("logs", "bots")}/${this._botName}.log`
-    );
+    this._logger = logger(this._botName);
     this._guildId = voiceChannel.guildId;
     this._userId = userId;
     this._lang = DEFAULT_LANG;

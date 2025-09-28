@@ -6,7 +6,6 @@ import Discord, {
   PermissionsBitField,
 } from "discord.js";
 import logger from "../util/logger.js";
-import path from "path";
 import timer from "../util/timer.js";
 import {
   joinVoiceChannel,
@@ -37,8 +36,8 @@ class Bot {
     this._token = token;
     this._color = color;
     this.uId = uuidv4();
-    this._logger = logger(`${path.resolve("logs", "bots")}/${name}.log`);
-    this._eventLog = logger(`${path.resolve("logs", "bots")}/Events.log`);
+    this._logger = logger(name);
+    this._eventLog = logger("Events");
 
     this._initialize();
   }
@@ -211,7 +210,7 @@ class Bot {
       if (!(channel instanceof TextChannel)) return null;
 
       const categoryName = channel.parent?.name ?? "No Category";
-      this._logger.log(
+      this._logger.info(
         `Creating buttons for channel: "${channel.name}" in "${categoryName}"`
       );
 

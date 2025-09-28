@@ -15,7 +15,7 @@ class Database {
     }
     Database.instance = this;
     this._pool = null;
-    this._eventLog = logger(`${path.resolve("logs", "bots")}/Events.log`);
+    this._eventLog = logger("Events");
     this._initPool();
   }
 
@@ -57,7 +57,7 @@ class Database {
   _initPool() {
     const config = this._getPoolConfig();
     this._pool = mysql.createPool(config);
-    this._eventLog.log("Created Database connection pool.");
+    this._eventLog.info("Created Database connection pool.");
 
     this._pool.on("error", async (err) => {
       this._eventLog.error("Database pool error:", err);
@@ -159,7 +159,7 @@ class Database {
     }
 
     const settingCsv = setting.join(",");
-    this._eventLog.log(
+    this._eventLog.info(
       `Updating config for user: '${userID}' | Lang: '${lang}' | Setting: '${setting}'`
     );
 
@@ -230,7 +230,7 @@ class Database {
         "INSERT INTO GuildConfig (GuildID, Roles) VALUES (?, ?) ON DUPLICATE KEY UPDATE Roles = VALUES(Roles)",
         [guildID, rolesCsv]
       );
-      this._eventLog.log(
+      this._eventLog.info(
         `Updated roles for guild: ${guildID} | Roles: ${rolesCsv}`
       );
     } catch (error) {

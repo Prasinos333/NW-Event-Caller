@@ -29,7 +29,7 @@ class WarHandler extends Handler {
 
     this.setupButtonCollector(this._messageData.message, "war");
     await this._getConfig();
-    this._logger.log(
+    this._logger.info(
       `Start time: ${this._startTime.toLocaleString("en-US", { timeZone: "America/New_York", timeStyle: "short" })}`
     );
     this._playAudio("War_notice.mp3", "war");
@@ -52,10 +52,10 @@ class WarHandler extends Handler {
       this._updateEmbed(this.createEmbed(chrono, currentRespawn));
 
       if (chrono === 1801) {
-        this._logger.log("War starting (chrono: %s).", chrono);
+        this._logger.info("War starting (chrono: %s).", chrono);
         this._playAudio("War_start.mp3", "war");
       } else if (chrono <= 0) {
-        this._logger.log("Stopping timer (chrono: %s).", chrono);
+        this._logger.info("Stopping timer (chrono: %s).", chrono);
         this.stop();
         return;
       }
@@ -63,7 +63,7 @@ class WarHandler extends Handler {
       if (chrono <= 1800 && currentRespawn) {
         switch (chrono - currentRespawn.value) {
           case 6:
-            this._logger.log(
+            this._logger.info(
               "Playing 5 sec count(chrono: %s).",
               chrono
             );
@@ -71,27 +71,27 @@ class WarHandler extends Handler {
             break;
 
           case 11:
-            this._logger.log("Playing 10 seconds (chrono: %s).", chrono);
+            this._logger.info("Playing 10 seconds (chrono: %s).", chrono);
             this._playAudio("10_seconds.mp3", "war");
             break;
 
           case 21:
-            this._logger.log("Playing 20 seconds (chrono: %s).", chrono);
+            this._logger.info("Playing 20 seconds (chrono: %s).", chrono);
             this._playAudio("20_seconds.mp3", "war");
             break;
 
           case 31:
-            this._logger.log("Playing 30 seconds (chrono: %s).", chrono);
+            this._logger.info("Playing 30 seconds (chrono: %s).", chrono);
             this._playAudio("30_seconds.mp3", "war");
             break;
 
           case 41:
-            this._logger.log("Playing 40 seconds (chrono: %s).", chrono);
+            this._logger.info("Playing 40 seconds (chrono: %s).", chrono);
             this._playAudio("40_seconds.mp3", "war");
             break;
 
           case 51:
-            this._logger.log("Playing 50 seconds (chrono: %s).", chrono);
+            this._logger.info("Playing 50 seconds (chrono: %s).", chrono);
             this._playAudio("50_seconds.mp3", "war");
             break;
         }
