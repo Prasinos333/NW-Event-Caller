@@ -18,11 +18,7 @@ export default (name) => {
   const logger = pino(
     {
       level: "info", // Default log level
-      timestamp: () =>
-        `,"time":"${new Date().toLocaleString("en-US", {
-          timeZone: "America/New_York",
-          timeZoneName: "short",
-        })}"`,
+      base: undefined, // Remove default fields like pid and hostname
     },
     pino.multistream(streams)
   );
