@@ -68,7 +68,7 @@ Alternatively, typing `/` will bring up the command menu. From there, you can se
 
 [Node](https://nodejs.org/)
 
-[Yarn](https://yarnpkg.com/)
+[npm](https://www.npmjs.com)
 
 ## License
 
