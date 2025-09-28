@@ -14,21 +14,21 @@
   "dependencies": {
     "@discordjs/voice": "^0.16.1",
     "@mapbox/node-pre-gyp": "^1.0.11",
-    "discord.js": "^14.18.0",
+    "discord.js": "^14.22.1",
     "dotenv": "16.0.*",
     "glob": "^10.4.5",
-    "libsodium-wrappers": "^0.7.13",
-    "mysql2": "^3.9.2",
+    "libsodium-wrappers": "^0.7.15",
+    "mysql2": "^3.15.1",
     "pino": "^9.11.0",
     "uuid": "9.0.*"
   },
   "keywords": [],
-  "nodeVersion": "21.6.2",
+  "nodeVersion": "22.19.0",
   "file": "bot.js",
   "devDependencies": {
     "@eslint/js": "^9.24.0",
-    "eslint": "^9.24.0",
-    "globals": "^16.0.0",
+    "eslint": "^9.36.0",
+    "globals": "^16.4.0",
     "prettier": "3.5.3"
   }
 }
