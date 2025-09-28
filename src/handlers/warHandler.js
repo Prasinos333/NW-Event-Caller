@@ -62,7 +62,7 @@ class WarHandler extends Handler {
           case 6:
             this._logger.info({
               action: "Play Audio",
-              name: "5 Sec Count",
+              name: "5CountDown",
               chrono: chrono
             });
             this._playAudio("5_second_countdown.mp3", "war");
