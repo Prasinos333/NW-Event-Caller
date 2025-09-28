@@ -26,7 +26,7 @@ class MainBot extends Bot {
   _initialise() {
     this.client.login(this._token).catch(console.error);
 
-    this.client.once("ready", () => {
+    this.client.once("clientReady", () => {
       this.client.user.setActivity({
         name: "Slash Commands",
         type: ActivityType.Listening,

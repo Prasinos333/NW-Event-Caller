@@ -50,7 +50,7 @@ class Bot {
   _initialize() {
     this.client.login(this._token).catch(console.error);
 
-    this.client.once("ready", () => {
+    this.client.once("clientReady", () => {
       this._logger.info("Client is ready.");
     });
 

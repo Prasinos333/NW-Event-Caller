@@ -208,7 +208,7 @@ class Handler {
         } catch (error) {
           if (error.code === 10062) {
             // DiscordAPIError: Unknown Interaction
-            this._logger.warn("Interaction no longer valid. Skipping.");
+            this._logger.error("Interaction no longer valid. Skipping.");
           } else {
             this._logger.error("Error handling interaction:", error);
           }
@@ -280,7 +280,7 @@ class Handler {
     } catch (error) {
       if (error.code === 10062) {
         // DiscordAPIError: Unknown Interaction
-        this._logger.warn("Interaction no longer valid. Skipping reply.");
+        this._logger.error("Interaction no longer valid. Skipping reply.");
       } else {
         this._logger.error("Error handling menu interaction:", error);
       }
@@ -450,7 +450,7 @@ class Handler {
         .catch((err) => {
           if (err.code === 10008) {
             // DiscordAPIError: Unknown Message (message was deleted)
-            this._logger.warn("Message no longer exists. Skipping deletion.");
+            this._logger.error("Message no longer exists. Skipping deletion.");
             this._messageData = null; // Clear the message data
           } else {
             this._logger.error(`Error fetching message:`, err);

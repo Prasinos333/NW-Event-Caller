@@ -142,7 +142,7 @@ async function execute(interaction) {
     }
   } catch (error) {
     if (error.code === 10062) {
-      eventLog.warn("Interaction no longer valid. Skipping.");
+      eventLog.error("Interaction no longer valid. Skipping.");
     } else {
       eventLog.error("Error executing addcaller command:", error);
     }

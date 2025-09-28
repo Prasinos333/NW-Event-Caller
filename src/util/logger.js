@@ -1,5 +1,4 @@
 import pino from "pino";
-import { multistream } from "pino-multi-stream";
 import path from "path";
 
 export default (name) => {
@@ -25,7 +24,7 @@ export default (name) => {
           timeZoneName: "short",
         })}"`,
     },
-    multistream(streams)
+    pino.multistream(streams)
   );
 
   return logger;

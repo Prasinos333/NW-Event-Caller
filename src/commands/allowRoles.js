@@ -71,7 +71,7 @@ async function execute(interaction) {
           });
         } catch (error) {
           if (error.code === 10062) {
-            eventLog.warn("Interaction has expired. Skipping.");
+            eventLog.error("Interaction has expired. Skipping.");
           } else {
             eventLog.error("Error saving roles to the database:", error);
 
