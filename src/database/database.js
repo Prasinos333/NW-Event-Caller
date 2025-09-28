@@ -159,9 +159,14 @@ class Database {
     }
 
     const settingCsv = setting.join(",");
-    this._eventLog.info(
-      `Updating config for user: '${userID}' | Lang: '${lang}' | Setting: '${setting}'`
-    );
+
+    this._eventLog.info({
+      action: "DB Insert",
+      message: "Updating UserConfig",
+      user: userID,
+      lang: lang,
+      setting: setting
+    });
 
     try {
       const [results] = await this._pool.query(
@@ -230,9 +235,12 @@ class Database {
         "INSERT INTO GuildConfig (GuildID, Roles) VALUES (?, ?) ON DUPLICATE KEY UPDATE Roles = VALUES(Roles)",
         [guildID, rolesCsv]
       );
-      this._eventLog.info(
-        `Updated roles for guild: ${guildID} | Roles: ${rolesCsv}`
-      );
+      this._eventLog.info({
+        action: "DB Insert",
+        message: "Updated GuildConfig",
+        guild: guildID,
+        roles: rolesCsv
+      });
     } catch (error) {
       this._eventLog.error(
         `Error updating config for guild: ${guildID}`,

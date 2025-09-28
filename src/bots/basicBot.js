@@ -121,9 +121,12 @@ class Bot {
         return hasViewAndSendPermissions;
       } else {
         const categoryName = channel.parent.name ?? "No Category";
-        this._eventLog.error(
-          `Unable to retrieve permissions. Guild: "${guild.name}" | Channel: ${channel.id} in "${categoryName}"`
-        );
+        this._eventLog.error({
+          message: `Unable to retrieve permissions`,
+          guild: guild.name,
+          channelName: channel.name,
+          category: categoryName
+        });
         return false;
       }
     } catch (error) {
@@ -157,9 +160,12 @@ class Bot {
     }
 
     const VC_CategoryName = voiceChannel.parent.name ?? "No Category";
-    this._logger.info(
-      `Attempting to join voice channel: "${voiceChannelName}" in "${VC_CategoryName}" for guild: "${guildName}"`
-    );
+    this._logger.info({
+      action: "Join Voice Channel",
+      voiceChannel: voiceChannelName,
+      category: VC_CategoryName,
+      guild: guildName
+    });
 
     const connection = joinVoiceChannel({
       channelId: voiceChannelId,
@@ -210,9 +216,12 @@ class Bot {
       if (!(channel instanceof TextChannel)) return null;
 
       const categoryName = channel.parent?.name ?? "No Category";
-      this._logger.info(
-        `Creating buttons for channel: "${channel.name}" in "${categoryName}"`
-      );
+      this._logger.info({
+        action: "Send Message",
+        message: "Creating buttons",
+        channel: channel.name,
+        category: categoryName,
+      });
 
       const buttons = [stopButton, langButton];
 

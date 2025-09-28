@@ -29,9 +29,6 @@ class WarHandler extends Handler {
 
     this.setupButtonCollector(this._messageData.message, "war");
     await this._getConfig();
-    this._logger.info(
-      `Start time: ${this._startTime.toLocaleString("en-US", { timeZone: "America/New_York", timeStyle: "short" })}`
-    );
     this._playAudio("War_notice.mp3", "war");
     timer.subscribe(this._botName, this._guildId, this);
 
@@ -52,10 +49,10 @@ class WarHandler extends Handler {
       this._updateEmbed(this.createEmbed(chrono, currentRespawn));
 
       if (chrono === 1801) {
-        this._logger.info("War starting (chrono: %s).", chrono);
+        this._logger.info("War Start (chrono: %s).", chrono);
         this._playAudio("War_start.mp3", "war");
       } else if (chrono <= 0) {
-        this._logger.info("Stopping timer (chrono: %s).", chrono);
+        this._logger.info("War End (chrono: %s).", chrono);
         this.stop();
         return;
       }
@@ -63,35 +60,56 @@ class WarHandler extends Handler {
       if (chrono <= 1800 && currentRespawn) {
         switch (chrono - currentRespawn.value) {
           case 6:
-            this._logger.info(
-              "Playing 5 sec count(chrono: %s).",
-              chrono
-            );
+            this._logger.info({
+              action: "Play Audio",
+              name: "5 Sec Count",
+              chrono: chrono
+            });
             this._playAudio("5_second_countdown.mp3", "war");
             break;
 
           case 11:
-            this._logger.info("Playing 10 seconds (chrono: %s).", chrono);
+            this._logger.info({
+              action: "Play Audio",
+              name: "10 Seconds",
+              chrono: chrono
+            });
             this._playAudio("10_seconds.mp3", "war");
             break;
 
           case 21:
-            this._logger.info("Playing 20 seconds (chrono: %s).", chrono);
+            this._logger.info({
+              action: "Play Audio",
+              name: "20 Seconds",
+              chrono: chrono
+            });
             this._playAudio("20_seconds.mp3", "war");
             break;
 
           case 31:
-            this._logger.info("Playing 30 seconds (chrono: %s).", chrono);
+            this._logger.info({
+              action: "Play Audio",
+              name: "30 Seconds",
+              chrono: chrono
+            });
             this._playAudio("30_seconds.mp3", "war");
             break;
 
           case 41:
-            this._logger.info("Playing 40 seconds (chrono: %s).", chrono);
+            this._logger.info({
+              action: "Play Audio",
+              name: "40 Seconds",
+              chrono: chrono
+            });
             this._playAudio("40_seconds.mp3", "war");
             break;
 
           case 51:
-            this._logger.info("Playing 50 seconds (chrono: %s).", chrono);
+            this._logger.info({
+              action: "Play Audio",
+              name: "50 Seconds",
+              chrono: chrono
+            });
             this._playAudio("50_seconds.mp3", "war");
             break;
         }

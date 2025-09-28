@@ -23,9 +23,6 @@ class InvasionHandler extends Handler {
 
     this.setupButtonCollector(this._messageData.message, "invasion");
     await this._getConfig();
-    this._logger.info(
-      `Start time: ${this._startTime.toLocaleString("en-US", { timeZone: "America/New_York", timeStyle: "short" })}`
-    );
     this._playAudio("Invasion_notice.mp3", "invasion");
     timer.subscribe(this._botName, this._guildId, this);
 
@@ -49,10 +46,10 @@ class InvasionHandler extends Handler {
       }
 
       if (chrono === 1501) {
-        this._logger.info("Invasion Starting (chrono: %s)", chrono);
+        this._logger.info("Invasion Start (chrono: %s)", chrono);
         this._playAudio("Invasion_start.mp3", "invasion");
       } else if (chrono <= 0) {
-        this._logger.info("Stopping timer (chrono: %s)", chrono);
+        this._logger.info("Invasion End (chrono: %s)", chrono);
         this.stop();
         return;
       }
@@ -63,7 +60,12 @@ class InvasionHandler extends Handler {
             nextTiming.name.toLowerCase().includes(setting)
           )
         ) {
-          this._logger.info(`Playing: "${nextTiming.name}" (chrono: %s)`, chrono);
+          this._logger.info({
+            action: "Play Audio",
+            name: nextTiming.name,
+            chrono: chrono
+          });
+            // `Playing: "${nextTiming.name}" (chrono: %s)`, chrono);
           this._playAudio(nextTiming.name, "invasion");
         }
       }

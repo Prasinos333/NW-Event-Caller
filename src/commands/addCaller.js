@@ -106,9 +106,13 @@ async function execute(interaction) {
     const TC_CategoryName = textChannel.parent?.name ?? "No Category";
 
     if (!availableBot) {
-      eventLog.warn(
-        `Not enough bots! Guild: "${guildName}" | Voice channel: "${voiceChannel.name}" in "${VC_CategoryName}"`
-      );
+      eventLog.warn({
+        message: "Not enough bots",
+        guild: guildName,
+        voiceChannel: voiceChannel.name,
+        category: VC_CategoryName
+      });
+
       return interaction.editReply({
         content: "**Error:** *No available bots. Add more:* https://github.com/Prasinos333/NW-Event-Caller",
       });
@@ -118,9 +122,13 @@ async function execute(interaction) {
     const hasVoicePerms = await availableBot.hasPerms(voiceChannel);
 
     if (!hasTextPerms) {
-      eventLog.warn(
-        `"${availableBot._name}" doesn't have the proper perms for text channel: "${textChannel.name}" in "${TC_CategoryName}" for guild: "${guildName}"`
-      );
+      eventLog.warn({
+        message: "Improrer permissions",
+        bot: availableBot._name,
+        guild: guildName,
+        textChannel: textChannel.name,
+        category: TC_CategoryName
+      });
       return interaction.editReply({
         content: `**Error:** *\`${availableBot.client.user.username}\` doesn't have proper permissions for this text channel.*`,
       });
@@ -133,9 +141,17 @@ async function execute(interaction) {
       });
     } else {
       availableBot.eventCall(interaction, voiceChannel);
-      eventLog.info(
-        `"${availableBot._name}" calling '${callerType}' | Guild: "${guildName}" | Voice channel: "${voiceChannel.name}" in "${VC_CategoryName}" | Text channel: "${textChannel.name}" in "${TC_CategoryName}"`
-      );
+      eventLog.info({
+        action: "Command Excuted",
+        message: "/addcaller",
+        bot: availableBot._name,
+        type: callerType,
+        guild: guildName,
+        voiceChannel: voiceChannel.name,
+        voiceCategory: VC_CategoryName,
+        textChannel: textChannel.name,
+        textCategory: TC_CategoryName,
+      });
       return interaction.editReply({
         content: `<@${availableBot.client.user.id}> calling \`${callerType}\` in \`${voiceChannel.name}\` for \`${VC_CategoryName}\``,
       });

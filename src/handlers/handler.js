@@ -100,9 +100,11 @@ class Handler {
    */
   async stop(user = null) {
     if (user && user.id !== this._userId) {
-      this._logger.warn(
-        `Stop command launched for guild: "${this._guildId}" by user: "${user.username}"`
-      );
+      this._logger.warn({
+        message: "Stop command launched by different user.",
+        guildId: this._guildId,
+        user: user.username,
+      });
     }
 
     this._destroyConnection();
@@ -364,7 +366,10 @@ class Handler {
           this._player.play(createAudioResource(fs.createReadStream(filePath)));
         }
       } else {
-        this._logger.warn(`Audio file not found: ${filePath}`);
+        this._logger.warn({
+          message: `Audio file does not exist`,
+          filePath: filePath
+        });
       }
     } catch (error) {
       this._logger.error(`Error playing audio: ${audioName}`, error);

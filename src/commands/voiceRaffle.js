@@ -103,9 +103,15 @@ async function execute(interaction) {
 
     interaction.reply({ embeds: [embed] });
     const guild_name = interaction.member.guild.name;
-    eventLog.info(
-      `Raffle completed. Guild: "${guild_name}" | Text channel: "${textChannel.name}" in "${TC_CategoryName}" | Voice channel: "${voiceChannel.name}" in "${VC_CategoryName}"`
-    );
+    eventLog.info({
+      action: "Command Executed",
+      message: "/voiceraffle",
+      guild: guild_name,
+      textChannel: textChannel.name,
+      textCategory: TC_CategoryName,
+      voiceChannel: voiceChannel.name,
+      voiceCategory: VC_CategoryName
+    });
   } catch (error) {
     eventLog.error("Error executing voiceraffle command:", error);
     interaction.reply({
