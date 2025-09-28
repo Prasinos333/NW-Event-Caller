@@ -8,6 +8,7 @@ import {
   MessageFlags,
 } from "discord.js";
 import { db } from "../index.js";
+import logger from "../util/logger.js";
 
 const data = new SlashCommandBuilder()
   .setName("allowroles")
@@ -23,6 +24,8 @@ const data = new SlashCommandBuilder()
  * @returns - None. Replies to the interaction with the selected roles or an error message.
  */
 async function execute(interaction) {
+  const eventLog = logger("Events");
+
   try {
     const guild = interaction.guild;
 
@@ -54,22 +57,30 @@ async function execute(interaction) {
 
     collector.on("collect", async (selectInteraction) => {
       if (selectInteraction.customId === "select-roles") {
-        const selectedRoles = selectInteraction.values;
-
         try {
-          await db.updateGuildConfig(guild.id, selectedRoles);
+          await selectInteraction.deferUpdate();
 
-          await selectInteraction.update({
-            content: `The following roles have been allowed: ${selectedRoles.map((roleId) => `<@&${roleId}>`).join(", ")}`,
+          const selectedRoles = selectInteraction.values;
+          db.updateGuildConfig(guild.id, selectedRoles);
+
+          await interaction.editReply({
+            content: `The following roles have been allowed: ${selectedRoles
+              .map((roleId) => `<@&${roleId}>`)
+              .join(", ")}`,
             components: [],
           });
         } catch (error) {
-          console.error("Error saving roles to the database:", error);
-          await selectInteraction.update({
-            content:
-              "*An error occurred while saving the roles.* Please try again later.",
-            components: [],
-          });
+          if (error.code === 10062) {
+            eventLog.warn("Interaction has expired. Skipping.");
+          } else {
+            eventLog.error("Error saving roles to the database:", error);
+
+            await interaction.editReply({
+              content:
+                "*An error occurred while saving the roles.* Please try again later.",
+              components: [],
+            });
+          }
         }
       }
     });
@@ -82,19 +93,20 @@ async function execute(interaction) {
             components: [],
           });
         } catch (error) {
-          console.error("Error editing the expired reply:", error);
+          eventLog.error("Error editing the expired reply:", error);
         }
       }
     });
   } catch (error) {
-    console.error("Error executing the allowRoles command:", error);
+    eventLog.error("Error executing the allowRoles command:", error);
     try {
       await interaction.reply({
-        content: "*An unexpected error occurred while executing the command.* Please try again later.",
+        content:
+          "*An unexpected error occurred while executing the command.* Please try again later.",
         flags: MessageFlags.Ephemeral,
       });
     } catch (replyError) {
-      console.error("Error sending error reply:", replyError);
+      eventLog.error("Error sending error reply:", replyError);
     }
   }
 }
