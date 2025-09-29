@@ -142,7 +142,7 @@ async function execute(interaction) {
     } else {
       availableBot.eventCall(interaction, voiceChannel);
       eventLog.info({
-        action: "Command Excuted",
+        action: "Command Executed",
         message: "/addcaller",
         bot: availableBot._name,
         type: callerType,
