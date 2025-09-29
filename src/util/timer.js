@@ -91,6 +91,7 @@ class Timer {
     if (this._interval !== null) {
       clearInterval(this._interval);
       this._interval = null;
+      this._subscribers.clear();
       this._lastUpdateTime = null;
       this._eventLog.info("Timer stopped.");
     }
