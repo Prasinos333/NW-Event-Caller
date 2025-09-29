@@ -162,7 +162,7 @@ class Handler {
                   this._changeLang(selectedLang[0]); // Update the language
                   this._modifiedConfig = true;
                 },
-                "Language changed to"
+                "Language"
               );
 
               break;
@@ -181,7 +181,7 @@ class Handler {
                     this._changeSetting(selectedSettings); // Update the settings
                     this._modifiedConfig = true;
                   },
-                  "Settings updated to"
+                  "Settings"
                 );
               }
 
@@ -235,9 +235,9 @@ class Handler {
    * @param {object} interaction - The interaction object.
    * @param {object} menu - The menu to display (e.g., langMenu or settingsMenu).
    * @param {function} callback - The callback function to handle the selected values.
-   * @param {string} logMessage - The log message to display after processing.
+   * @param {string} menuType - The log message to display after processing.
    */
-  async _handleMenuInteraction(interaction, menu, callback, logMessage) {
+  async _handleMenuInteraction(interaction, menu, callback, menuType) {
     try {
       // Send the ephemeral reply with the menu
       await interaction.editReply({
@@ -259,7 +259,7 @@ class Handler {
           callback(selectedValues); // Call the provided callback function
 
           await menuInteraction.update({
-            content: `${logMessage}: \`${selectedValues.join(", ")}\``,
+            content: `${menuType} updated to: \`${selectedValues.join(", ")}\``,
             components: [], // Remove the menu after selection
           });
         } catch (error) {
@@ -276,7 +276,10 @@ class Handler {
 
       collector.on("end", (collected, reason) => {
         if (reason === "time") {
-          this._logger.warn(`${logMessage} menu timed out.`);
+          this._logger.warn({
+            message: "Menu timed out.",
+            menuType: menuType,
+          });
         }
       });
     } catch (error) {

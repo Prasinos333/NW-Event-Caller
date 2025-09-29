@@ -67,7 +67,14 @@ class Timer {
   unsubscribe(botName, guildId) {
     const key = this._generateKey(botName, guildId);
     if (this._subscribers.has(key)) {
-      this._subscribers.delete(key);
+      var deleted = this._subscribers.delete(key);
+      if(!deleted) {
+        this._eventLog.error({
+          message: "Failed to delete subscriber.",
+          botName: botName,
+          guildId: guildId
+        });
+      }
 
       if (this._subscribers.size === 0) {
         this._stop();

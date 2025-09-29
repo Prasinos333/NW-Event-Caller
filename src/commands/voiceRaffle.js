@@ -106,6 +106,8 @@ async function execute(interaction) {
     eventLog.info({
       action: "Command Executed",
       message: "/voiceraffle",
+      number: number,
+      excludeSelf: excludeSelf,
       guild: guild_name,
       textChannel: textChannel.name,
       textCategory: TC_CategoryName,
