@@ -176,6 +176,9 @@ class Bot {
 
     connection.on("error", (error) => {
       this._logger.error(`Voice connection error:`, error);
+      connection.destroy();
+      if (handler) handler.stop();
+      return;
     });
 
     connection.once(VoiceConnectionStatus.Ready, async () => {
