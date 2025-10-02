@@ -46,10 +46,16 @@ class InvasionHandler extends Handler {
       }
 
       if (chrono === 1501) {
-        this._logger.info("Invasion Start (chrono: %s)", chrono);
+        this._logger.info({
+          action: "Invasion Start",
+          chrono: chrono
+        });
         this._playAudio("Invasion_start.mp3", "invasion");
       } else if (chrono <= 0) {
-        this._logger.info("Invasion End (chrono: %s)", chrono);
+        this._logger.info({
+          action: "Invasion End",
+          chrono: chrono
+        });
         this.stop();
         return;
       }
@@ -70,7 +76,10 @@ class InvasionHandler extends Handler {
         }
       }
     } catch (error) {
-      this._logger.error(`Error calling invasion:`, error);
+      this._logger.error({
+        msg: "Error updating invasion.",
+        err: error
+      });
     }
 
     return;

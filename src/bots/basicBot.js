@@ -78,9 +78,11 @@ class Bot {
     const guild = this.client.guilds.cache.get(guildId);
 
     if (!guild) {
-      this._eventLog.warn(
-        `"${this._name}" not in server for guild: ${guildId}`
-      );
+      this._eventLog.warn({
+        msg: "Bot not in guild.",
+        name: this._name,
+        guild: guildId
+      });
       return false;
     }
 
@@ -108,9 +110,18 @@ class Bot {
   async hasPerms(channel) {
     try {
       const guild = channel.guild;
-      await guild.members.fetch();
-      const botMember = guild.members.cache.get(this.client.user.id);
-      const botPermissions = botMember.permissionsIn(channel);
+      if (!guild) return false;
+
+      const botMember = await guild.members.fetchMe();
+      if(!botMember) {
+          this._eventLog.error({
+            msg: "Bot member not found in guild.",
+            guild: guild.name
+          });
+          return;
+      }
+
+      const botPermissions = channel.permissionsFor(botMember);
 
       if (botPermissions) {
         const hasViewAndSendPermissions = botPermissions.has([
@@ -122,7 +133,7 @@ class Bot {
       } else {
         const categoryName = channel.parent.name ?? "No Category";
         this._eventLog.error({
-          message: `Unable to retrieve permissions`,
+          msg: "Unable to retrieve permissions",
           guild: guild.name,
           channelName: channel.name,
           category: categoryName
@@ -130,7 +141,10 @@ class Bot {
         return false;
       }
     } catch (error) {
-      this._eventLog.error(`Error checking permissions:`, error);
+      this._eventLog.error({
+        msg: "Error checking permissions",
+        err: error
+      });
       return false;
     }
   }
@@ -155,7 +169,10 @@ class Bot {
     let embed = null;
 
     if (!guild) {
-      this._eventLog.error(`Failed to fetch guild:`, guildId);
+      this._eventLog.error({
+        msg: "Failed to fetch guild.",
+        guildId: guildId
+      });
       return;
     }
 
@@ -175,7 +192,10 @@ class Bot {
     });
 
     connection.on("error", (error) => {
-      this._logger.error(`Voice connection error:`, error);
+      this._logger.error({
+        msg: "Voice connection error.",
+        err: error
+      });
       connection.destroy();
       if (handler) handler.stop();
       return;
@@ -221,7 +241,7 @@ class Bot {
       const categoryName = channel.parent?.name ?? "No Category";
       this._logger.info({
         action: "Send Message",
-        message: "Creating buttons",
+        msg: "Creating buttons",
         channel: channel.name,
         category: categoryName,
       });
@@ -241,7 +261,12 @@ class Bot {
 
       return { channel: channel, message: message };
     } catch (error) {
-      this._logger.error(`Error while creating buttons:`, error);
+      this._logger.error({
+        msg: "Error while creating buttons",
+        error: error,
+        textChannel: textChannelId,
+        type: type
+      });
       return null;
     }
   }

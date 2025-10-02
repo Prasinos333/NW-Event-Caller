@@ -105,7 +105,7 @@ async function execute(interaction) {
     const guild_name = interaction.member.guild.name;
     eventLog.info({
       action: "Command Executed",
-      message: "/voiceraffle",
+      msg: "/voiceraffle",
       number: number,
       excludeSelf: excludeSelf,
       guild: guild_name,
@@ -115,7 +115,10 @@ async function execute(interaction) {
       voiceCategory: VC_CategoryName
     });
   } catch (error) {
-    eventLog.error("Error executing voiceraffle command:", error);
+    eventLog.error({
+      msg: "Error executing voiceRaffle command",
+      err: error
+    });
     interaction.reply({
       content: "*An error occurred while executing the command.* Please try again later.",
       flags: MessageFlags.Ephemeral,

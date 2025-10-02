@@ -35,7 +35,10 @@ const createMasterBot = () => {
     const masterBot = new MainBot(mainBotConfig);
     createdBots.push(masterBot);
   } catch (error) {
-    EventLog.error("Error creating MasterBot:", error);
+    EventLog.error({
+      msg: "Master Bot Creation Error.",
+      err: error,
+    });
   }
 };
 
@@ -51,7 +54,11 @@ const createBotsSequentially = async () => {
         }, i * duration);
       });
     } catch (error) {
-      EventLog.error(`Error creating bot at index ${i}:`, error);
+      EventLog.error({
+        err: error,
+        msg: "Basic Bot Creation Error.",
+        index: i,
+      });
     }
   }
 };
@@ -61,7 +68,10 @@ const initializeBots = async () => {
     createMasterBot();
     await createBotsSequentially();
   } catch (error) {
-    EventLog.error("Error initializing bots:", error);
+    EventLog.error({
+      msg: "Bot Initialization Error.",
+      err: error,
+    });
   }
 };
 

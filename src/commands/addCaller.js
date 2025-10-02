@@ -107,7 +107,7 @@ async function execute(interaction) {
 
     if (!availableBot) {
       eventLog.warn({
-        message: "Not enough bots",
+        msg: "Not enough bots",
         guild: guildName,
         voiceChannel: voiceChannel.name,
         category: VC_CategoryName
@@ -123,19 +123,26 @@ async function execute(interaction) {
 
     if (!hasTextPerms) {
       eventLog.warn({
-        message: "Improrer permissions",
+        msg: "Improrer Text permissions",
         bot: availableBot._name,
         guild: guildName,
         textChannel: textChannel.name,
         category: TC_CategoryName
       });
+
       return interaction.editReply({
         content: `**Error:** *\`${availableBot.client.user.username}\` doesn't have proper permissions for this text channel.*`,
       });
     } else if (!hasVoicePerms) {
-      eventLog.warn(
-        `"${availableBot._name}" doesn't have the proper perms for voice channel: "${voiceChannel.name}" in "${VC_CategoryName}" for guild: "${guildName}"`
-      );
+
+      eventLog.warn({
+        msg: "Improrer Voice permissions",
+        bot: availableBot._name,
+        guild: guildName,
+        textChannel: voiceChannel.name,
+        category: VC_CategoryName
+      });
+
       return interaction.editReply({
         content: `**Error:** *\`${availableBot.client.user.username}\` doesn't have proper permissions for the voice channel.*`,
       });
@@ -143,7 +150,7 @@ async function execute(interaction) {
       availableBot.eventCall(interaction, voiceChannel);
       eventLog.info({
         action: "Command Executed",
-        message: "/addcaller",
+        msg: "/addcaller",
         bot: availableBot._name,
         type: callerType,
         guild: guildName,
@@ -160,7 +167,10 @@ async function execute(interaction) {
     if (error.code === 10062) {
       eventLog.error("Interaction no longer valid. Skipping.");
     } else {
-      eventLog.error("Error executing addcaller command:", error);
+      eventLog.error({
+        msg: "Error executing addCaller command",
+        err: error
+      });
     }
 
     try {
@@ -168,7 +178,10 @@ async function execute(interaction) {
         content: "*An error occurred while executing the command.* Please try again later.",
       });
     } catch (editError) {
-      eventLog.error("Error editing the reply:", editError);
+      eventLog.error({
+        msg: "Error editing reply to addcaller interaction",
+        err: editError
+      });
     }
   }
 }

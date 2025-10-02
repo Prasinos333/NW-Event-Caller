@@ -49,10 +49,16 @@ class WarHandler extends Handler {
       this._updateEmbed(this.createEmbed(chrono, currentRespawn));
 
       if (chrono === 1801) {
-        this._logger.info("War Start (chrono: %s).", chrono);
+        this._logger.info({
+          action: "War Start",
+          chrono: chrono
+        });
         this._playAudio("War_start.mp3", "war");
       } else if (chrono <= 0) {
-        this._logger.info("War End (chrono: %s).", chrono);
+        this._logger.info({
+          action: "War End",
+          chrono: chrono
+        });
         this.stop();
         return;
       }
@@ -115,7 +121,10 @@ class WarHandler extends Handler {
         }
       }
     } catch (error) {
-      this._logger.error(`Error calling respawns:`, error);
+      this._logger.error({
+        msg: "Error updating war.",
+        err: error
+      });
     }
 
     return;

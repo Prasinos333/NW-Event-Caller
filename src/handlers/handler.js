@@ -101,7 +101,7 @@ class Handler {
   async stop(user = null) {
     if (user && user.id !== this._userId) {
       this._logger.warn({
-        message: "Stop command launched by different user.",
+        msg: "Stop command launched by different user.",
         guildId: this._guildId,
         user: user.username,
       });
@@ -192,7 +192,7 @@ class Handler {
               this.stop(interaction.user);
               await interaction
                 .deleteReply()
-                .catch((err) => this._logger.error(`Error deleting reply:`, err));
+                .catch((error) => this._logger.error(error, "Error deleting reply."));
               break;
 
             case "wave_switch":
@@ -212,7 +212,10 @@ class Handler {
             // DiscordAPIError: Unknown Interaction
             this._logger.error("Interaction no longer valid. Skipping.");
           } else {
-            this._logger.error("Error handling interaction:", error);
+            this._logger.error({
+              msg: "Error handling interaction.",
+              err: error
+            });
           }
         }
       });
@@ -221,11 +224,17 @@ class Handler {
         if (reason === "time") {
           this._logger.info("Button collector timed out.");
         } else {
-          this._logger.info(`Button collector ended. Reason: ${reason}`);
+          this._logger.info({
+            msg: "Button collector ended.",
+            reason: reason
+          });
         }
       });
     } catch (error) {
-      this._logger.error("Error setting up button collector:", error);
+      this._logger.error({
+        msg: "Error setting up button collector.",
+        err: error
+      });
     }
   }
 
@@ -267,7 +276,10 @@ class Handler {
             // DiscordAPIError: Unknown Interaction
             this._logger.warn("Interaction no longer valid. Skipping update.");
           } else {
-            this._logger.error("Error handling menu interaction:", error);
+            this._logger.error({
+              msg: "Error processing menu interaction.",
+              err: error
+            });
           }
         }
 
@@ -277,7 +289,7 @@ class Handler {
       collector.on("end", (collected, reason) => {
         if (reason === "time") {
           this._logger.warn({
-            message: "Menu timed out.",
+            msg: "Menu timed out.",
             menuType: menuType,
           });
         }
@@ -287,7 +299,10 @@ class Handler {
         // DiscordAPIError: Unknown Interaction
         this._logger.error("Interaction no longer valid. Skipping reply.");
       } else {
-        this._logger.error("Error handling menu interaction:", error);
+        this._logger.error({
+          msg: "Error handling menu interaction.",
+          err: error
+        });
       }
     }
   }
@@ -370,12 +385,16 @@ class Handler {
         }
       } else {
         this._logger.warn({
-          message: `Audio file does not exist`,
+          msg: `Audio file does not exist`,
           filePath: filePath
         });
       }
     } catch (error) {
-      this._logger.error(`Error playing audio: ${audioName}`, error);
+      this._logger.error({
+        msg: "Error playing audio file",
+        audioName: audioName,
+        error: error
+      });
     }
   }
 
@@ -386,8 +405,11 @@ class Handler {
    */
   _updateEmbed(embed) {
     if (this._messageData && this._messageData.message) {
-      this._messageData.message.edit({ embeds: [embed] }).catch((err) => {
-        this._logger.error(`Error updating embed:`, err);
+      this._messageData.message.edit({ embeds: [embed] }).catch((error) => {
+        this._logger.error({
+          msg: "Error updating embed.",
+          err: error
+        });
       });
     }
 
@@ -425,13 +447,16 @@ class Handler {
    */
   _checkMessage() {
     if (this._messageData && this._messageData.message) {
-      this._messageData.message.fetch().catch((err) => {
-        if (err.code === 10008) {
+      this._messageData.message.fetch().catch((error) => {
+        if (error.code === 10008) {
           this._logger.warn("Message no longer exists. Stopping...");
           this._messageData = null;
           this.stop();
         } else {
-          this._logger.error(`Error fetching message:`, err);
+          this._logger.error({
+            msg: "Error fectching message.",
+            err: error
+          });
         }
       });
     }
@@ -452,16 +477,22 @@ class Handler {
             .delete()
             .then(() => this._logger.info("Message deleted successfully."))
             .catch((error) =>
-              this._logger.error(`Error deleting message:`, error)
+              this._logger.error({
+                msg: "Error deleting message.",
+                err: error
+              })
             );
         })
-        .catch((err) => {
-          if (err.code === 10008) {
+        .catch((error) => {
+          if (error.code === 10008) {
             // DiscordAPIError: Unknown Message (message was deleted)
             this._logger.error("Message no longer exists. Skipping deletion.");
             this._messageData = null; // Clear the message data
           } else {
-            this._logger.error(`Error fetching message:`, err);
+            this._logger.error({
+              msg: "Error fectching message.",
+              err: error
+            });
           }
         });
     }

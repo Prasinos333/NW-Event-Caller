@@ -73,7 +73,10 @@ async function execute(interaction) {
           if (error.code === 10062) {
             eventLog.error("Interaction has expired. Skipping.");
           } else {
-            eventLog.error("Error saving roles to the database:", error);
+            eventLog.error({
+              msg: "Error processing role selection",
+              err: error
+            });
 
             await interaction.editReply({
               content:
@@ -93,12 +96,18 @@ async function execute(interaction) {
             components: [],
           });
         } catch (error) {
-          eventLog.error("Error editing the expired reply:", error);
+          eventLog.error({
+            msg: "Error editing reply to interaction.",
+            err: error
+          });
         }
       }
     });
   } catch (error) {
-    eventLog.error("Error executing the allowRoles command:", error);
+    eventLog.error({
+      msg: "Error executing allowRoles command",
+      err: error
+    });
     try {
       await interaction.reply({
         content:
@@ -106,7 +115,10 @@ async function execute(interaction) {
         flags: MessageFlags.Ephemeral,
       });
     } catch (replyError) {
-      eventLog.error("Error sending error reply:", replyError);
+      eventLog.error({
+        msg: "Error replying to interaction",
+        err: replyError
+      });
     }
   }
 }

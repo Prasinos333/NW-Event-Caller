@@ -59,8 +59,11 @@ class Database {
     this._pool = mysql.createPool(config);
     this._eventLog.info("Created Database connection pool.");
 
-    this._pool.on("error", async (err) => {
-      this._eventLog.error("Database pool error:", err);
+    this._pool.on("error", async (error) => {
+      this._eventLog.error({
+        msg: "Database pool error.",
+        err: error
+      });
       await this.reconnect();
     });
   }
@@ -71,8 +74,11 @@ class Database {
   async reconnect() {
     try {
       await this._pool.end();
-    } catch (err) {
-      this._eventLog.error("Error ending pool:", err);
+    } catch (error) {
+      this._eventLog.error({
+        msg: "Error ending the database pool during reconnect.",
+        err: error
+      });
     } finally {
       this._initPool();
     }
@@ -88,7 +94,10 @@ class Database {
       await this._pool.query("SELECT 1");
       return true;
     } catch (error) {
-      this._eventLog.error("Database connection check failed:", error);
+      this._eventLog.error({
+        msg: "Database connection check failed.",
+        err: error
+      });
       return false;
     }
   }
@@ -122,10 +131,11 @@ class Database {
       config.Setting = config.Setting ? config.Setting.split(",") : []; // Convert CSV to array
       return config;
     } catch (error) {
-      this._eventLog.error(
-        `Error retrieving config for user: ${userID}`,
-        error
-      );
+      this._eventLog.error({
+        msg: "Error retrieving config for user.",
+        userID: userID,
+        err: error
+      });
       throw error;
     }
   }
@@ -162,7 +172,7 @@ class Database {
 
     this._eventLog.info({
       action: "DB Insert",
-      message: "Updating UserConfig",
+      msg: "Updating UserConfig",
       user: userID,
       lang: lang,
       setting: setting
@@ -175,7 +185,11 @@ class Database {
       );
       return results;
     } catch (error) {
-      this._eventLog.error(`Error updating config for user ${userID}:`, error);
+      this._eventLog.error({
+        msg: "Error updating config",
+        userID: userID,
+        error: error
+      });
       throw error;
     }
   }
@@ -205,10 +219,11 @@ class Database {
       const rolesArray = rolesCsv ? rolesCsv.split(",") : [];
       return rolesArray;
     } catch (error) {
-      this._eventLog.error(
-        `Error retrieving config for guild: ${guildID}`,
-        error
-      );
+      this._eventLog.error({
+        msg: "Error retrieving config for guild.",
+        guild: guildID,
+        err: error
+      });
       return [];
     }
   }
@@ -237,15 +252,16 @@ class Database {
       );
       this._eventLog.info({
         action: "DB Insert",
-        message: "Updated GuildConfig",
+        msg: "Updated GuildConfig",
         guild: guildID,
         roles: rolesCsv
       });
     } catch (error) {
-      this._eventLog.error(
-        `Error updating config for guild: ${guildID}`,
-        error
-      );
+      this._eventLog.error({
+        msg: "Error updating config for guild.",
+        guild: guildID,
+        err: error
+      });
       throw error;
     }
   }

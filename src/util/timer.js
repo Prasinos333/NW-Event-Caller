@@ -70,7 +70,7 @@ class Timer {
       var deleted = this._subscribers.delete(key);
       if(!deleted) {
         this._eventLog.error({
-          message: "Failed to delete subscriber.",
+          msg: "Failed to delete subscriber.",
           botName: botName,
           guildId: guildId
         });
