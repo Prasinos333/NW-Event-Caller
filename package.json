@@ -12,7 +12,7 @@
     "dev": "nodemon ./src/index.js"
   },
   "dependencies": {
-    "@discordjs/voice": "^0.16.1",
+    "@discordjs/voice": "^0.19.0",
     "@mapbox/node-pre-gyp": "^1.0.11",
     "discord.js": "^14.22.1",
     "dotenv": "16.0.*",

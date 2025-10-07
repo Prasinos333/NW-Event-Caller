@@ -152,7 +152,7 @@ class Handler {
               const langMenu = type === "invasion" ? invasionSelect : warSelect;
 
               if (this._activeLangCollector) {
-                this._activeLangCollector.stop();
+                this._activeLangCollector.stop(); // TODO - What in the viber is this?
               }
 
               this._activeLangCollector = await this._handleMenuInteraction(
@@ -171,7 +171,7 @@ class Handler {
             case "settings": {
               if (this._setting) {
                 if (this._activeSettingsCollector) {
-                  this._activeSettingsCollector.stop();
+                  this._activeSettingsCollector.stop(); // TODO - What in the viber is this?
                 }
 
                 this._activeSettingsCollector = await this._handleMenuInteraction(
