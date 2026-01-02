@@ -1,6 +1,6 @@
 {
   "name": "nw_event_caller",
-  "version": "2.8.0",
+  "version": "2.8.1",
   "description": "A free discord bot to call the respawn time of wars in the NEW WORLD game.",
   "main": "src/index.js",
   "type": "module",
