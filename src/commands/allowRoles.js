@@ -61,8 +61,11 @@ async function execute(interaction) {
           await selectInteraction.deferUpdate();
 
           const selectedRoles = selectInteraction.values;
-          db.updateGuildConfig(guild.id, selectedRoles);
-
+          
+          if (db) {
+            db.updateGuildConfig(guild.id, selectedRoles);
+          }
+          
           await interaction.editReply({
             content: `The following roles have been allowed: ${selectedRoles
               .map((roleId) => `<@&${roleId}>`)

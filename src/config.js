@@ -1,4 +1,5 @@
 export const DEFAULT_LANG = "en_1";
+export const DEFAULT_SETTING = ["phase", "skull", "close"];
 export const BOT_ICON = "https://cdn.discordapp.com/avatars/1171903368713744454/76e48c1327d01de44155d7ebef87363d.png";
 export const REPO_URL = "https://github.com/Prasinos333/NW-Event-Caller";
 

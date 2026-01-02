@@ -11,10 +11,11 @@ dotenv.config({ path: path.resolve(".env"), override: true });
 const duration = 1000;
 const botsConfig = JSON.parse(process.env.BOTS);
 const mainBotConfig = JSON.parse(process.env.MASTER_BOT);
-const mySqlUrl = process.env.SQL_URL;
+const DB_ENABLED = process.env.USE_DB === "True";
 
 export const createdBots = [];
-export const db = new Database(mySqlUrl);
+
+export const db = DB_ENABLED ? new Database() : null;
 const EventLog = logger("Events");
 
 const validateConfig = (config, configName) => {

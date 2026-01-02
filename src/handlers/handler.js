@@ -133,11 +133,15 @@ class Handler {
         try {
           await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
-          const allowedRoles = await db.getGuildConfig(this._guildId);
-          const userRoles = interaction.member.roles.cache.map((role) => role.id);
-          const isAuthorized =
+          const allowedRoles = db ? await db.getGuildConfig(this._guildId) : null;
+          let isAuthorized = false;
+          
+          if (allowedRoles) {
+            const userRoles = interaction.member.roles.cache.map((role) => role.id);
+            isAuthorized =
             interaction.user.id === this._userId ||
             (allowedRoles && userRoles.some((role) => allowedRoles.includes(role)));
+          }
 
           if (!isAuthorized) {
             await interaction.editReply({
@@ -501,12 +505,12 @@ class Handler {
   }
 
   /**
-   * Saves the current configuration to the database if it has been modified.
+   * Saves the current configuration to the database if it exists.
    */
   _saveConfig() {
     const setting = this._setting ?? ["phase", "skull", "close"];
 
-    if (this._modifiedConfig) {
+    if (db) {
       db.updateUserConfig(this._userId, this._lang, setting);
     }
   }

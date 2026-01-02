@@ -23,7 +23,7 @@ class WarHandler extends Handler {
    * @returns {void} - No return value.
    */
   async start() {
-    if (!db.isConnected()) {
+    if (db && !db.isConnected()) {
       db.reconnect();
     }
 
@@ -201,6 +201,7 @@ class WarHandler extends Handler {
    * Since the war and invasion config tables are shared, the lang is set to the default if the current lang doesn't have the necessary audio files.
    */
   async _getConfig() {
+    if(!db) return;
     const config = await db.getUserConfig(this._userId);
 
     if (config) {

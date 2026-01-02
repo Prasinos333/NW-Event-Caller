@@ -2,12 +2,12 @@ import Handler from "./handler.js";
 import { db } from "../index.js";
 import timer from "../util/timer.js";
 import { EmbedBuilder } from "discord.js";
-import { BOT_ICON, invasionTimings, REPO_URL } from "../config.js";
+import { BOT_ICON, invasionTimings, REPO_URL, DEFAULT_SETTING } from "../config.js";
 
 class InvasionHandler extends Handler {
   constructor(botData, userId, voiceChannel) {
     super(botData, userId, voiceChannel);
-    this._setting = ["phase", "skull", "close"];
+    this._setting = DEFAULT_SETTING;
     this._nextUpdateTime = 1500;
   }
 
@@ -17,7 +17,7 @@ class InvasionHandler extends Handler {
    * @returns {void} - No return value.
    */
   async start() {
-    if (!db.isConnected()) {
+    if (db && !db.isConnected()) {
       db.reconnect();
     }
 
@@ -140,6 +140,7 @@ class InvasionHandler extends Handler {
    * Retrieves the configuration for the user from the database.
    */
   async _getConfig() { 
+    if(!db) return;
     const config = await db.getUserConfig(this._userId);
 
     if (config) {
