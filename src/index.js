@@ -10,7 +10,7 @@ dotenv.config({ path: path.resolve(".env"), override: true });
 
 const duration = 1000;
 const botsConfig = JSON.parse(process.env.BOTS);
-const mainBotConfig = JSON.parse(process.env.MASTER_BOT);
+const mainBotConfig = JSON.parse(process.env.MAIN_BOT);
 const DB_ENABLED = process.env.USE_DB === "True";
 
 export const createdBots = [];
@@ -30,14 +30,14 @@ const validateConfig = (config, configName) => {
   }
 };
 
-const createMasterBot = () => {
+const createMainBot = () => {
   try {
-    validateConfig(mainBotConfig, "MASTER_BOT");
-    const masterBot = new MainBot(mainBotConfig);
-    createdBots.push(masterBot);
+    validateConfig(mainBotConfig, "MAIN_BOT");
+    const mainBot = new MainBot(mainBotConfig);
+    createdBots.push(mainBot);
   } catch (error) {
     EventLog.error({
-      msg: "Master Bot Creation Error.",
+      msg: "Main Bot Creation Error.",
       err: error,
     });
   }
@@ -66,7 +66,7 @@ const createBotsSequentially = async () => {
 
 const initializeBots = async () => {
   try {
-    createMasterBot();
+    createMainBot();
     await createBotsSequentially();
   } catch (error) {
     EventLog.error({
