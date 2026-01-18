@@ -176,7 +176,7 @@ class Bot {
       return;
     }
 
-    const VC_CategoryName = voiceChannel.parent.name ?? "No Category";
+    const VC_CategoryName = voiceChannel.parent?.name ?? "No Category";
     this._logger.info({
       action: "Join Voice Channel",
       voiceChannel: voiceChannelName,
